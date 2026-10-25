@@ -1,0 +1,78 @@
+</script>
+
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'},startup:{typeset:false}};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<script>
+(function(){
+  var raw=document.getElementById('src').textContent.replace(/^\n/,'');
+  var doc=document.getElementById('doc');
+  document.getElementById('srcpre').textContent=raw;
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var maths=[];
+  var t=raw.replace(/\$\$([\s\S]+?)\$\$/g,function(_,m){maths.push('\\['+esc(m)+'\\]');return 'MATHPH'+(maths.length-1)+'X';});
+  t=t.replace(/\$([^$\n]+?)\$/g,function(_,m){maths.push('\\('+esc(m)+'\\)');return 'MATHPH'+(maths.length-1)+'X';});
+
+  var html=marked.parse(t,{gfm:true});
+  html=html.replace(/MATHPH(\d+)X/g,function(_,i){return maths[+i];});
+  doc.innerHTML=html;
+
+  // anchors + jump bar from level-2 headings
+  var jump=document.getElementById('jump');
+  doc.querySelectorAll('h2').forEach(function(h,i){
+    var id='s'+i; h.id=id;
+    var a=document.createElement('a'); a.href='#'+id;
+    a.textContent=h.textContent.replace(/^PART\s+/,'Part ').replace(/:.*$/,'');
+    jump.appendChild(a);
+  });
+
+  // wrap tables
+  doc.querySelectorAll('table').forEach(function(tb){
+    var w=document.createElement('div'); w.className='tablewrap';
+    tb.parentNode.insertBefore(w,tb); w.appendChild(tb);
+  });
+
+  // numbered outline styling
+  var numRe=/^((?:\d+|[A-D])\.\d+(?:\.\d+)?)\s+/;
+  doc.querySelectorAll('li').forEach(function(li){
+    var host=li.firstElementChild&&li.firstElementChild.tagName==='P'?li.firstElementChild:li;
+    var n=host.firstChild;
+    if(n&&n.nodeType===3){
+      var m=n.nodeValue.match(numRe);
+      if(m){
+        var s=document.createElement('span'); s.className='num'; s.textContent=m[1];
+        n.nodeValue=n.nodeValue.slice(m[0].length);
+        host.insertBefore(s,n);
+        li.setAttribute('data-n','1');
+      }
+    }
+  });
+  doc.querySelectorAll('ul').forEach(function(ul){
+    var has=Array.prototype.some.call(ul.children,function(c){return c.getAttribute('data-n');});
+    if(has) ul.classList.add('toc');
+  });
+
+  // copy button
+  var btn=document.getElementById('copybtn');
+  btn.addEventListener('click',function(){
+    function fallback(){
+      var d=document.getElementById('srcbox'); d.open=true;
+      var r=document.createRange(); r.selectNodeContents(document.getElementById('srcpre'));
+      var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      btn.textContent='Select and copy below';
+    }
+    try{
+      navigator.clipboard.writeText(raw).then(function(){
+        btn.textContent='Copied';
+        setTimeout(function(){btn.textContent='Copy Markdown';},1800);
+      },fallback);
+    }catch(e){fallback();}
+  });
+
+  // typeset math
+  if(window.MathJax&&MathJax.startup){
+    MathJax.startup.promise.then(function(){return MathJax.typesetPromise([doc]);});
+  }
+})();
+</script>
