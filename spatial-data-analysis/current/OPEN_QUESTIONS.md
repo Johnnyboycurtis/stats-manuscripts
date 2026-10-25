@@ -27,12 +27,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 3: Empirical Variography
 
-1. **Order of presentation.** §3.1 to §3.3 estimate the variogram of the true $u + \varepsilon$ (possible only because the data are simulated), and §3.4 then removes that advantage by showing what the raw rents and the OLS residuals give. Keep this order, or start from residuals? **Recommendation:** keep it; it separates "how estimation works" from "what the trend does to it."
-2. **The approximate variance of a bin is off by a factor of 9.5.** §3.3.2 derives $\operatorname{Var}(\hat{\gamma}(h_k)) \approx 2\gamma^2/\lvert N(h_k)\rvert$, then shows by simulation that the true variance is about 9.5 times larger for one bin, because pairs sharing a listing are correlated. The text says the formula is badly wrong in absolute terms but useful for relative weights. Fine?
-3. **A runaway fit is shown on purpose.** Fitting an exponential variogram to raw rents (with the trend left in) sends Nelder-Mead to $\hat{\sigma}^2 \approx 2.7 \times 10^8$ and $\hat{\phi} \approx 2.1 \times 10^7$. It is used as a diagnostic ("suspect a trend"). A bounded optimizer would stop at a bound instead. Keep?
-4. **Directional example strength.** The riverfront field uses $\mathbf{G} = \operatorname{diag}(1, 9)$ (three-to-one reach), stronger than Chapter 2's $\operatorname{diag}(1, 4)$, because two-to-one was hard to see with 300 points. Fine?
-5. **The Matérn fit** to the residuals splits nugget and partial sill differently, (2.907, 1.965, 0.087) against (3.736, 1.342, 0.178) for the exponential. The chapter defers the choice of family to Chapter 5. Fine?
-6. **Trim candidates:** the Optional derivation of the Cressie-Hawkins constants (§3.2.3) could move to an appendix.
+1. **Trim candidates:** The Optional derivation of the Cressie-Hawkins constants (§3.2.3) could move to Appendix A if trimming is desired later. (Items 1-5 settled on 2026-10-25: keep presentation order, keep 9.5x bin variance lesson, keep runaway fit diagnostic, keep G = diag(1, 9), and keep Matern residual fit).
 
 ## Chapter 4: Kriging as BLUP
 

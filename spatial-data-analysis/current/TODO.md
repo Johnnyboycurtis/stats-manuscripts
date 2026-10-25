@@ -7,7 +7,7 @@ Last updated 2026-10-25. Status: Chapters 0 to 13 are drafted, the consistency r
 Each item says where to look and what decision is needed. Most take minutes, not hours.
 
 - [ ] **Decisions made on your behalf.** `OPEN_QUESTIONS.md`, section "Decisions Made on Your Behalf in the Consistency Fixes (2026-10-25)", ten items. I picked the recommended option each time (Appendix A scope, where the notation guide lives, first-use rule exemption for the Chapter at a Glance boxes, citation rule, symbol renames, and so on). Overrule any you dislike.
-- [ ] **Schabenberger and Gotway concordance** in `NOTATION.md`. It was filled in from memory, not from the book. Check it against your copy (especially their decomposition symbols and the kriging weights notation) before the book cites it.
+- [x] **Schabenberger and Gotway concordance** in `NOTATION.md`. Verified against Schabenberger & Gotway (2005) via `NOTATION_BRIDGE.md` and expanded across all five major topics.
 - [ ] **Review the drafts, chapter by chapter.** I added extra context on purpose ("add more, then trim in review"). Trim candidates and per-chapter questions are in `OPEN_QUESTIONS.md` under each chapter heading. Suggested order: 0 and 1 (they set the voice), then 2 to 5 (kriging), 6 to 9 (areal), 10 to 12 (point patterns), 13.
 - [ ] **Stories.** Search for `**[STORY NEEDED]**` (one remains, in Chapter 6) and check each chapter's running story against the line in `OUTLINE.md`. These are placeholders for your own anecdotes or motivating examples.
 - [ ] **Look at the republished outline page** (https://claude.ai/artifact/6oLhcyNiv1Ys5BPdVpX1Tg, version 7): math rendering and layout. I could not inspect it visually.
@@ -19,7 +19,7 @@ Each item says where to look and what decision is needed. Most take minutes, not
 
 - [ ] **Write Appendices A to D.** Requirements are in `APPENDIX_REQUIREMENTS.md`; sections are in `OUTLINE.md`. Appendix A is the largest (A.0 review of the five tools, A.1 block inversion with Woodbury and determinant lemma, A.6 matrix facts). Appendix B lists canonical helper functions (note: Chapters 10, 11, 12 each define slightly different `kernel_intensity` and `fit_bt`). Appendix C is the jargon-to-linear-model Rosetta stone. Appendix D is the "where to go next" guide (finite-element SPDE, Spatial Durbin, plug-in alternatives, covariance validity).
 - [ ] **Create `references.bib`.** About 13 keys are already used in the chapters; many more authors are named without keys. Each entry needs a checked DOI, so this needs web verification, not memory.
-- [ ] **Chapter exercises and solutions pass.** Check that exercise numbering, hints, and "see Section" pointers survived all the edits (the checker covers section references, not exercise text).
+- [ ] **Chapter exercises expansion & review (aim for exhaustive/overkill).** Expand exercise sets across chapters—especially analytical problems—to make them very comprehensive of all theoretical mechanics, derivations, and edge cases ("almost overkill", easier to trim later). Verify that exercise numbering, hints, and "see Section" pointers survived all edits.
 - [ ] **Second consistency pass** after your review edits. `python3 scripts/check_consistency.py`, `python3 scripts/lint_chapter.py --all`, and `python3 scripts/run_chapter_code.py --all` rerun everything in about 4 minutes.
 - [ ] **Verify `USECASES.md` references** (a duplicate Blonigen entry with different coauthors, `google.com/search` links, one "suspicious link removed," possible name-order errors) before anything from it is cited.
 
