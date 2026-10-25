@@ -346,15 +346,58 @@ A few symbols follow strong conventions in different parts of the literature. Ty
 
 ## Concordance With Schabenberger and Gotway (2005)
 
-Readers moving between this book and *Statistical Methods for Spatial Data Analysis* can translate with this table.
+Readers moving between this book and *Statistical Methods for Spatial Data Analysis* can translate notation with these tables.
 
-| Schabenberger and Gotway | This book | Note |
-| :--- | :--- | :--- |
-| $Z(\mathbf{s})$ | $Y(\mathbf{s})$ | $Y$ keeps the regression convention; $\mathbf{Z}$ is the simulation vector here |
-| $D \subset \mathbb{R}^d$ | $\mathcal{D} \subset \mathbb{R}^2$ | $\mathbf{D}$ is the degree matrix here |
-| $\mu(\mathbf{s}) + W(\mathbf{s}) + \eta(\mathbf{s}) + \varepsilon(\mathbf{s})$ | $\mu(\mathbf{s}) + u(\mathbf{s}) + \varepsilon(\mathbf{s})$ | $u$ is the smooth small-scale term; micro-scale variation is absorbed into the nugget $\varepsilon$ |
-| $C(\mathbf{h})$, $\gamma(\mathbf{h})$, $\mathbf{h}$, $\lVert\mathbf{h}\rVert$ | Same | |
-| $\boldsymbol{\Sigma}$ or $\mathbf{V}$ | $\boldsymbol{\Sigma}$ | $\mathbf{V}$ is reserved for IRLS weights |
-| $\boldsymbol{\lambda}$ (kriging weights) | $\boldsymbol{\lambda}$ | |
-| $\mathbf{X}$, $\boldsymbol{\beta}$, $\boldsymbol{\theta}$ | Same | |
-| $\mathbf{W}$, $w_{ij}$, $S_0$ | Same | |
+### 1. General Conventions and Core Data Structures
+
+| Concept | Schabenberger and Gotway (2005) | This book | Editorial note and rationale |
+| :--- | :--- | :--- | :--- |
+| **Spatial response process** | $Z(\mathbf{s})$ or $Z_i$ | $Y(\mathbf{s})$ or $\mathbf{Y}$ | We use $Y$ to maintain standard linear model and regression conventions ($\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$). Bold $\mathbf{Z}$ is reserved exclusively for standard normal simulation vectors. |
+| **Study domain** | $D \subset \mathbb{R}^d$ | $\mathcal{D} \subset \mathbb{R}^2$ | Uses script $\mathcal{D}$ to avoid conflict with the degree matrix ($\mathbf{D}$) used in areal lattice models. |
+| **Master model equation** | $\mu(\mathbf{s}) + W(\mathbf{s}) + \eta(\mathbf{s}) + \varepsilon(\mathbf{s})$ | $\mu(\mathbf{s}) + u(\mathbf{s}) + \varepsilon(\mathbf{s})$ | We streamline S&G's four-part decomposition into trend ($\mu$), spatial random effect ($u$), and nugget ($\varepsilon$, absorbing micro-scale variation and measurement error). |
+| **Observations vector** | $\mathbf{Z} = [Z(\mathbf{s}_1), \dots, Z(\mathbf{s}_n)]'$ | $\mathbf{Y} = [Y(\mathbf{s}_1), \dots, Y(\mathbf{s}_n)]'$ | Consistent with the shift from $Z$ to $Y$. |
+
+### 2. Geostatistics and Covariance Structures
+
+| Concept | Schabenberger and Gotway (2005) | This book | Editorial note and rationale |
+| :--- | :--- | :--- | :--- |
+| **Covariance matrix** | $\boldsymbol{\Sigma}$ or $\mathbf{V}$ | $\boldsymbol{\Sigma}$ | We reserve $\mathbf{V}$ strictly for GLM and IRLS working weights (Chapters 9 and 11) to avoid symbol collisions. |
+| **Spatial variance (partial sill)** | Varies (often sill or $\sigma^2$) | $\sigma^2$ | Always denotes the variance scale of the spatial random effect $u(\mathbf{s})$. |
+| **Nugget variance** | Varies ($\theta_0, \sigma^2_\varepsilon$, etc.) | $\tau^2$ | Standardizes the classical error variance notation so it does not conflict with the spatial variance $\sigma^2$. |
+| **Noise-to-signal ratio** | Not explicitly a single letter | $\delta = \tau^2/\sigma^2$ | Used in Part II for profiling likelihoods ($\boldsymbol{\Psi} = \mathbf{R} + \delta\mathbf{I}_n$). |
+| **Range parameter** | $\theta$ or $\alpha$ or $\phi$ | $\phi$ | Represents how quickly correlation decays with distance (a distance scale parameter). |
+| **Semivariogram** | $\gamma(\mathbf{h})$ or $2\gamma(\mathbf{h})$ (mixed) | $\gamma(\mathbf{h})$ | We strictly define $\gamma(\mathbf{h})$ as the semivariogram ($\tfrac{1}{2}\operatorname{Var}(Y(\mathbf{s}+\mathbf{h}) - Y(\mathbf{s}))$) and $2\gamma(\mathbf{h})$ as the variogram to avoid confusion. |
+| **Matérn smoothness** | $\nu$ | $\nu$ | Identical usage for the Matérn smoothness parameter. |
+| **Kriging weights** | $\boldsymbol{\lambda}$ | $\boldsymbol{\lambda}$ | Identical vector of prediction weights. |
+
+### 3. Areal and Lattice Data
+
+| Concept | Schabenberger and Gotway (2005) | This book | Editorial note and rationale |
+| :--- | :--- | :--- | :--- |
+| **Spatial weights matrix** | $\mathbf{W}, w_{ij}$ | $\mathbf{W}, w_{ij}$ | Identical. Lowercase $w_{ij}$ for entries, uppercase $\mathbf{W}$ for the matrix. |
+| **Sum of weights** | $S_0$ | $S_0$ | Identical (used in Moran's $I$ scaling). |
+| **Degree matrix** | $\mathbf{D}$ (sometimes implied) | $\mathbf{D}$ | Diagonal matrix of neighbor counts ($\operatorname{diag}(\mathbf{W}\mathbf{1})$). |
+| **Adjacency matrix** | $\mathbf{A}$ | $\mathbf{A}$ | Binary contiguity matrix ($A_{ij} = 1$ if neighbors). |
+| **SAR / CAR parameter** | $\rho$ | $\rho$ | Used across SAR, CAR, and Leroux models (with explicit notes that valid parameter ranges differ by model). |
+| **Precision matrix (GMRF)** | $\mathbf{Q}$ or $\mathbf{V}^{-1}$ | $\mathbf{Q}$ | Inverse covariance matrix of a Gaussian Markov random field. |
+| **BYM random effects** | Unstructured + structured | $\mathbf{u}^{\text{icar}} + \mathbf{v}$ | Explicitly separated into ICAR (structured) and Gaussian (unstructured) components, updated to BYM2 scaling in Chapter 9. |
+
+### 4. Point Patterns
+
+| Concept | Schabenberger and Gotway (2005) | This book | Editorial note and rationale |
+| :--- | :--- | :--- | :--- |
+| **Point coordinates** | $\mathbf{s}_i$ or events in $D$ | $\mathbf{S} \in \mathbb{R}^{n \times 2}$ | Coordinate matrix with rows $\mathbf{s}_i'$. |
+| **Intensity function** | $\lambda(s)$ | $\lambda(\mathbf{s})$ | Bold $\mathbf{s}$ emphasizes spatial coordinate vectors in regression-style intensity models (Part IV). |
+| **Ripley's $K$-function** | $K(h)$ | $K(r)$ | Uses $r$ for the search radius argument to cleanly separate distance lag $h$ (geostatistics) from search radii $r$. |
+| **Besag's transformation** | $L(h) = \sqrt{K(h)/\pi}$ | $L(r) = \sqrt{K(r)/\pi}$ | Uses radius $r$. |
+| **Edge correction weights** | Various ($w(\mathbf{s}_i, \mathbf{s}_j)$) | $\omega_{ij}$ | Standardized notation avoiding collision with spatial weights $w_{ij}$. |
+
+### 5. Linear Models and Matrix Tools
+
+| Concept | Schabenberger and Gotway (2005) | This book | Editorial note and rationale |
+| :--- | :--- | :--- | :--- |
+| **Design matrix** | $\mathbf{X}$ | $\mathbf{X}$ | Identical. |
+| **Regression coefficients** | $\boldsymbol{\beta}$ or $\boldsymbol{\alpha}$ | $\boldsymbol{\beta}$ | $\boldsymbol{\beta}$ for linear and GLM predictors; $\boldsymbol{\alpha}$ reserved for basis and kernel ridge coefficients. |
+| **Projection matrices** | Various | $\mathbf{P}_{\mathbf{X}}, \mathbf{P}_c$ | $\mathbf{P}_{\mathbf{X}}$ for OLS projection; $\mathbf{P}_c = \mathbf{I}_n - \frac{1}{n}\mathbf{1}\mathbf{1}'$ for the centering matrix. |
+| **Information matrix** | $\mathcal{I}(\boldsymbol{\theta})$ | $\mathcal{I}(\boldsymbol{\theta})$ | Fisher information for likelihood and REML inference. |
+
