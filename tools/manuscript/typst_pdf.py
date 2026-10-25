@@ -4,8 +4,31 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
+
+
+def _find_binary(name: str) -> Optional[str]:
+    """Locate executable binary across PATH, active Python bin dir, and base conda."""
+    # 1. Standard PATH
+    found = shutil.which(name)
+    if found:
+        return found
+
+    # 2. Alongside the active Python interpreter
+    py_dir = Path(sys.executable).parent
+    candidate = py_dir / name
+    if candidate.is_file() and os.access(candidate, os.X_OK):
+        return str(candidate)
+
+    # 3. If running inside a conda env, check base conda bin
+    if py_dir.parent.name == "envs":
+        base_bin = py_dir.parent.parent / "bin" / name
+        if base_bin.is_file() and os.access(base_bin, os.X_OK):
+            return str(base_bin)
+
+    return None
 
 
 def fix_typst_compatibility(
@@ -75,16 +98,16 @@ def compile_markdown_to_pdf(
     else:
         project_root = project_root.resolve()
 
-    pandoc_bin = shutil.which("pandoc")
+    pandoc_bin = _find_binary("pandoc")
     if not pandoc_bin:
         raise RuntimeError(
-            "pandoc executable not found in PATH. Please install pandoc."
+            "pandoc executable not found in PATH or conda environment. Please install pandoc."
         )
 
-    typst_bin = shutil.which("typst")
+    typst_bin = _find_binary("typst")
     if not typst_bin:
         raise RuntimeError(
-            "typst executable not found in PATH. Please install typst."
+            "typst executable not found in PATH or conda environment. Please install typst."
         )
 
     # Convert Markdown to Typst markup using Pandoc
