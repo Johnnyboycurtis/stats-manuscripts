@@ -79,7 +79,7 @@ As of 2026-10-25. Chapters 0 to 13 are drafted; the appendices are not. The auth
 | `OPEN_QUESTIONS.md` | Decisions and checks waiting for the author, by chapter. |
 | `APPENDIX_REQUIREMENTS.md` | What the chapters expect from Appendices A to D, for when they are drafted. |
 | `MARKDOWNSTYLE.md` | Written. Its build rules have not been tested yet because pandoc and LaTeX are not installed. |
-| PDF build | Toolchain chosen (pandoc with pdflatex) but not installed. `pandoc/preamble.tex` and a build script do not exist yet. |
+| PDF build | Working, from the repository root: `python -m tools.manuscript build spatial-data-analysis` (pandoc to Typst, then Typst compiles the PDF). The template, title page, and contents pages live in `tools/manuscript/`; the title, parts, and chapter descriptions in `book.toml`. |
 | Version control | This folder is not a git repository yet. |
 
 ---
@@ -90,6 +90,7 @@ As of 2026-10-25. Chapters 0 to 13 are drafted; the appendices are not. The auth
 Spatial-Data-Analysis-Manuscript/
 ├── README.md            This file
 ├── OUTLINE.md           Table of contents and running stories (source of truth)
+├── book.toml            Title page text, grouping of chapters into parts, one-line chapter descriptions for the contents pages
 ├── NOTATION.md          Reader-facing notation section (single source for symbols)
 ├── OPEN_QUESTIONS.md    Decisions and checks waiting for the author
 ├── TODO.md              Remaining work, author review items first
@@ -106,7 +107,7 @@ Spatial-Data-Analysis-Manuscript/
 └── files/               Empty. Purpose not yet assigned; ask the author before using it
 ```
 
-Folders and files that `MARKDOWNSTYLE.md` expects but that do not exist yet: `pandoc/` (LaTeX preamble), a PDF build script in `scripts/`, and `references.bib` (citations).
+Files that `MARKDOWNSTYLE.md` expects but that do not exist yet: `references.bib` (citations). Its pdflatex rules (for example the `dsfont` preamble for `\mathbb{1}`) predate the Typst build and have not been rechecked against it.
 
 ---
 
@@ -143,7 +144,7 @@ These were settled with the author. Do not reopen them without being asked.
 
 **Build**
 
-- pandoc with the pdflatex engine, chosen because xelatex and tectonic load `unicode-math` through pandoc's template, which can break `\boldsymbol`. See `MARKDOWNSTYLE.md`, Section 1.
+- pandoc converts the combined Markdown to Typst and Typst typesets it (`tools/manuscript/`, in the repository root). Typst's own math engine is used, so LaTeX preamble rules in `MARKDOWNSTYLE.md` Section 1 do not apply. `MANUSCRIPT.md` is generated; do not edit it. Part groupings and contents descriptions come from `book.toml`.
 
 ---
 
@@ -170,9 +171,8 @@ The first checks the mechanical style rules; the second runs every chapter's cod
 ## Known Issues and Open Work
 
 - **Appendices A to D are not written.** `OUTLINE.md` lists their sections and `APPENDIX_REQUIREMENTS.md` lists what the chapters expect from them. Appendix A is planned to open with a review of the five tools of Chapter 0 (A.0) and to end with matrix facts (A.6).
-- **Build not set up.** The author is installing pandoc and LaTeX. Next steps: create `pandoc/preamble.tex` and a build script, compile Chapter 0, and adjust `MARKDOWNSTYLE.md` if any rule fails. A GitHub Actions build is an alternative that needs no local install.
+- **Build.** Works through `tools/manuscript` (see Current Status). Update `MARKDOWNSTYLE.md` Section 1 to describe the Typst route and drop the pdflatex-only rules once they are checked.
 - **Citations.** `references.bib` does not exist. About 13 keys are used (`gneiting2013`, `zhang2004`, six in Chapter 9, five in Chapter 13) and many more authors are named without keys. Each entry needs a checked DOI. See `OPEN_QUESTIONS.md` and `MARKDOWNSTYLE.md`, Section 7. Until then, build without `--citeproc`.
 - **Chapter reviews pending.** The author will review the drafts; trim candidates are listed per chapter in `OPEN_QUESTIONS.md`.
 - **`USECASES.md` references are unverified** (a duplicate Blonigen entry with different coauthors, `google.com/search` links, one "suspicious link removed," possible name-order errors). Verify before citing anything from it.
 - **The shared case-control signal is weak** (Chapters 10 and 11); the choice to strengthen it or keep it as a power lesson is open.
-- **Not a git repository.** Consider `git init` before more edits, so changes can be reviewed and reverted.

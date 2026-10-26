@@ -1,153 +1,236 @@
-# Spatial Data Analysis: A Linear Models and Matrix Approach
-
-## Table of Contents
-
-- [Chapter 0: The Big Picture and the Math You Already Know](#chapter-0-the-big-picture-and-the-math-you-already-know)
-  - [0.1 What Is Spatial Statistics?](#01-what-is-spatial-statistics)
-  - [0.2 One Equation for the Whole Book](#02-one-equation-for-the-whole-book)
-  - [0.3 Three Ways Classical Statistics Misleads in Space](#03-three-ways-classical-statistics-misleads-in-space)
-  - [0.4 The Math Inventory: Five Tools You Already Know](#04-the-math-inventory-five-tools-you-already-know)
-  - [0.5 How This Book Works](#05-how-this-book-works)
-  - [0.6 Setting Up](#06-setting-up)
-  - [0.7 Warm-Up Exercises](#07-warm-up-exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 1: Spatial Dependence Through the Lens of Linear Models](#chapter-1-spatial-dependence-through-the-lens-of-linear-models)
-  - [1.1 Reviewing the Classical Linear Model](#11-reviewing-the-classical-linear-model)
-  - [1.2 What Is a Spatial Process?](#12-what-is-a-spatial-process)
-  - [1.3 Why We Cannot Ignore Space: OLS When $\operatorname{Var}(\mathbf{Y}) = \boldsymbol{\Sigma}$](#13-why-we-cannot-ignore-space-ols-when-vary)
-  - [1.4 Effective Sample Size](#14-effective-sample-size)
-  - [1.5 The Three Spatial Data Structures as Matrix Geometries](#15-the-three-spatial-data-structures-as-matrix-geometries)
-  - [1.6 Coordinates and Distance](#16-coordinates-and-distance)
-  - [1.7 Walkthrough and Lab 1](#17-walkthrough-and-lab-1)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 2: The Spatial Linear Model, Covariance, and Simulation](#chapter-2-the-spatial-linear-model-covariance-and-simulation)
-  - [2.1 One Model Equation](#21-one-model-equation)
-  - [2.2 Stationarity Expressed With Moments](#22-stationarity-expressed-with-moments)
-  - [2.3 Reading the Variogram: Decoding the Jargon on the Curve](#23-reading-the-variogram-decoding-the-jargon-on-the-curve)
-  - [2.4 What Makes a Covariance Matrix Valid?](#24-what-makes-a-covariance-matrix-valid)
-  - [2.5 Parametric Correlation Families](#25-parametric-correlation-families)
-  - [2.6 Geometric Anisotropy Through Coordinate Transformations](#26-geometric-anisotropy-through-coordinate-transformations)
-  - [2.7 Simulating Spatial Random Fields From First Principles](#27-simulating-spatial-random-fields-from-first-principles)
-  - [2.8 Walkthrough and Lab 2](#28-walkthrough-and-lab-2)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 3: Empirical Variography and Weighted Least Squares Fitting](#chapter-3-empirical-variography-and-weighted-least-squares-fitting)
-  - [3.1 Estimating the Empirical Semivariogram](#31-estimating-the-empirical-semivariogram)
-  - [3.2 Robust Estimation: The Cressie-Hawkins Estimator](#32-robust-estimation-the-cressie-hawkins-estimator)
-  - [3.3 Fitting Parametric Curves to Empirical Variograms](#33-fitting-parametric-curves-to-empirical-variograms)
-  - [3.4 The Trend-Contamination Pitfall](#34-the-trend-contamination-pitfall)
-  - [3.5 Walkthrough and Lab 3](#35-walkthrough-and-lab-3)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 4: Spatial Prediction: Kriging as Linear Model BLUP](#chapter-4-spatial-prediction-kriging-as-linear-model-blup)
-  - [4.1 Demystifying "Kriging": It Is Best Linear Unbiased Prediction](#41-demystifying-kriging-it-is-best-linear-unbiased-prediction)
-  - [4.2 Simple Kriging (Known Mean)](#42-simple-kriging-known-mean)
-  - [4.3 Ordinary Kriging (Unknown Constant Mean)](#43-ordinary-kriging-unknown-constant-mean)
-  - [4.4 Universal Kriging (Spatial Regression With Covariates)](#44-universal-kriging-spatial-regression-with-covariates)
-  - [4.5 Two Targets, and Interpolation Versus Smoothing](#45-two-targets-and-interpolation-versus-smoothing)
-  - [4.6 Change of Support: Block Kriging](#46-change-of-support-block-kriging)
-  - [4.7 Evaluating Predictions: Leave-One-Out Cross-Validation](#47-evaluating-predictions-leave-one-out-cross-validation)
-  - [4.8 Walkthrough and Lab 4](#48-walkthrough-and-lab-4)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 5: Likelihood Inference, Model Selection, and Diagnostics](#chapter-5-likelihood-inference-model-selection-and-diagnostics)
-  - [5.1 The Multivariate Normal Log-Likelihood](#51-the-multivariate-normal-log-likelihood)
-  - [5.2 Profile Maximum Likelihood](#52-profile-maximum-likelihood)
-  - [5.3 Restricted Maximum Likelihood (REML)](#53-restricted-maximum-likelihood-reml)
-  - [5.4 Numerical Optimization and Asymptotic Standard Errors](#54-numerical-optimization-and-asymptotic-standard-errors)
-  - [5.5 Model Selection and Tests for Spatial Structure](#55-model-selection-and-tests-for-spatial-structure)
-  - [5.6 Spatial Regression Diagnostics and Confounding](#56-spatial-regression-diagnostics-and-confounding)
-  - [5.7 Walkthrough and Lab 5](#57-walkthrough-and-lab-5)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 6: Areal Units, Spatial Weights, and Quadratic Form Tests](#chapter-6-areal-units-spatial-weights-and-quadratic-form-tests)
-  - [6.1 Areal Units Are a Choice: The Modifiable Areal Unit Problem](#61-areal-units-are-a-choice-the-modifiable-areal-unit-problem)
-  - [6.2 Building a Spatial Weights Matrix](#62-building-a-spatial-weights-matrix)
-  - [6.3 Representing Regions as Graphs](#63-representing-regions-as-graphs)
-  - [6.4 Moran's I as a Ratio of Quadratic Forms](#64-morans-i-as-a-ratio-of-quadratic-forms)
-  - [6.5 Exact Null Moments of I Under Normality](#65-exact-null-moments-of-i-under-normality)
-  - [6.6 Moran's I on Regression Residuals](#66-morans-i-on-regression-residuals)
-  - [6.7 Geary's C and Local Indicators](#67-gearys-c-and-local-indicators)
-  - [6.8 Distribution-Free Inference: Permutation Tests](#68-distribution-free-inference-permutation-tests)
-  - [6.9 Walkthrough and Lab 6](#69-walkthrough-and-lab-6)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 7: Simultaneous Autoregressive Models: Spatial Regression with Feedback](#chapter-7-simultaneous-autoregressive-models-spatial-regression-with-feedback)
-  - [7.1 The Simultaneous Idea](#71-the-simultaneous-idea)
-  - [7.2 The Spatial Error Model](#72-the-spatial-error-model)
-  - [7.3 The Spatial Lag Model](#73-the-spatial-lag-model)
-  - [7.4 The Parameter Space](#74-the-parameter-space)
-  - [7.5 Maximum Likelihood](#75-maximum-likelihood)
-  - [7.6 Choosing Between the Error and Lag Models](#76-choosing-between-the-error-and-lag-models)
-  - [7.7 Interpreting the Lag Model: Direct, Indirect, and Total Impacts](#77-interpreting-the-lag-model-direct-indirect-and-total-impacts)
-  - [7.8 Walkthrough and Lab 7](#78-walkthrough-and-lab-7)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 8: Conditional Autoregressive Models and Sparse Precision Matrices](#chapter-8-conditional-autoregressive-models-and-sparse-precision-matrices)
-  - [8.1 The Conditional Idea](#81-the-conditional-idea)
-  - [8.2 The Proper CAR Model](#82-the-proper-car-model)
-  - [8.3 The Intrinsic CAR Model](#83-the-intrinsic-car-model)
-  - [8.4 Computing With Precision Matrices](#84-computing-with-precision-matrices)
-  - [8.5 SAR Versus CAR](#85-sar-versus-car)
-  - [8.6 Walkthrough and Lab 8](#86-walkthrough-and-lab-8)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 9: Generalized Linear Mixed Models for Spatial Count Data](#chapter-9-generalized-linear-mixed-models-for-spatial-count-data)
-  - [9.1 Reviewing GLMs in the Style of Dobson and Barnett](#91-reviewing-glms-in-the-style-of-dobson-and-barnett)
-  - [9.2 Spatial Poisson Regression for Regional Counts](#92-spatial-poisson-regression-for-regional-counts)
-  - [9.3 Shrinkage and Spatial Random Effects](#93-shrinkage-and-spatial-random-effects)
-  - [9.4 Fitting Spatial GLMMs by Penalized Quasi-Likelihood](#94-fitting-spatial-glmms-by-penalized-quasi-likelihood)
-  - [9.5 The Laplace Approximation of the Marginal Likelihood](#95-the-laplace-approximation-of-the-marginal-likelihood)
-  - [9.6 Walkthrough and Lab 9](#96-walkthrough-and-lab-9)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 10: Exploring Point Patterns: Intensity, Randomness, and Interaction](#chapter-10-exploring-point-patterns-intensity-randomness-and-interaction)
-  - [10.1 What Changes in a Point Pattern](#101-what-changes-in-a-point-pattern)
-  - [10.2 The Homogeneous Poisson Process: Complete Spatial Randomness](#102-the-homogeneous-poisson-process-complete-spatial-randomness)
-  - [10.3 Simulating Point Patterns From First Principles](#103-simulating-point-patterns-from-first-principles)
-  - [10.4 First-Order Exploration: Kernel Intensity Estimation](#104-first-order-exploration-kernel-intensity-estimation)
-  - [10.5 Distance Methods](#105-distance-methods)
-  - [10.6 Second-Order Summaries](#106-second-order-summaries)
-  - [10.7 Multitype Patterns](#107-multitype-patterns)
-  - [10.8 Boundary Truncation](#108-boundary-truncation)
-  - [10.9 Monte Carlo Envelopes and Tests](#109-monte-carlo-envelopes-and-tests)
-  - [10.10 Walkthrough and Lab 10](#1010-walkthrough-and-lab-10)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 11: Point Processes as Generalized Linear Models](#chapter-11-point-processes-as-generalized-linear-models)
-  - [11.1 Intensity as a Regression Function](#111-intensity-as-a-regression-function)
-  - [11.2 The Exact Likelihood From a Refining Grid](#112-the-exact-likelihood-from-a-refining-grid)
-  - [11.3 The Berman-Turner Quadrature Device](#113-the-berman-turner-quadrature-device)
-  - [11.4 Offsets: Modeling Excess Over a Known Baseline](#114-offsets-modeling-excess-over-a-known-baseline)
-  - [11.5 Case-Control Data and the Logistic Bridge](#115-case-control-data-and-the-logistic-bridge)
-  - [11.6 Where Is the Excess? Spatial Scan Statistics](#116-where-is-the-excess-spatial-scan-statistics)
-  - [11.7 Separating Trend From Interaction](#117-separating-trend-from-interaction)
-  - [11.8 Inference Under Clustering](#118-inference-under-clustering)
-  - [11.9 Walkthrough and Lab 11](#119-walkthrough-and-lab-11)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 12: Models for Clustering and Inhibition](#chapter-12-models-for-clustering-and-inhibition)
-  - [12.1 Three Explanations for a Departure From CSR](#121-three-explanations-for-a-departure-from-csr)
-  - [12.2 Cluster Processes](#122-cluster-processes)
-  - [12.3 The Log-Gaussian Cox Process](#123-the-log-gaussian-cox-process)
-  - [12.4 Inhibition](#124-inhibition)
-  - [12.5 Checking a Fitted Point Process Model](#125-checking-a-fitted-point-process-model)
-  - [12.6 Walkthrough and Lab 12](#126-walkthrough-and-lab-12)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
-- [Chapter 13: Matrix Approximations and Fast Algorithms for Large $n$](#chapter-13-matrix-approximations-and-fast-algorithms-for-large-n)
-  - [13.1 The $O(n^3)$ Bottleneck](#131-the-on3-bottleneck)
-  - [13.2 Low-Rank Spatial Models](#132-low-rank-spatial-models)
-  - [13.3 Covariance Tapering](#133-covariance-tapering)
-  - [13.4 Vecchia's Approximation](#134-vecchias-approximation)
-  - [13.5 The Bridge Between Parts II and III: Matérn Fields as Markov Fields](#135-the-bridge-between-parts-ii-and-iii-matérn-fields-as-markov-fields)
-  - [13.6 Kronecker Products for Separable Space-Time Data](#136-kronecker-products-for-separable-space-time-data)
-  - [13.7 Walkthrough and Lab 13](#137-walkthrough-and-lab-13)
-  - [Exercises](#exercises)
-  - [What Comes Next](#what-comes-next)
+<!-- manuscript:book {"title": "Spatial Data Analysis", "subtitle": "A Linear Models and Matrix Approach", "author": "Jonathan Navarrete", "status": "Working draft", "tagline": "Spatial statistics, translated into the linear models you already know.", "stamp": "October 2026", "parts": [{"label": "Getting Started", "title": "", "description": "", "chapters": [{"number": 0, "title": "The Big Picture and the Math You Already Know", "description": "Why ordinary statistics misleads in space, the one equation behind the book, and a quick review of five tools you already know."}]}, {"label": "Part I", "title": "Matrix Foundations and Spatial Covariance", "description": "How spatial dependence enters the linear model you already know, and how to build and simulate it.", "chapters": [{"number": 1, "title": "Spatial Dependence Through the Lens of Linear Models", "description": "What happens to least squares when neighbors resemble each other, and how many independent observations your data are really worth."}, {"number": 2, "title": "The Spatial Linear Model, Covariance, and Simulation", "description": "The one model equation, covariance functions and variograms, and simulating spatial fields whose truth you know."}]}, {"label": "Part II", "title": "Geostatistical Models and Generalized Least Squares", "description": "Continuous surfaces: estimate the covariance, predict at new locations, and fit the whole model by likelihood.", "chapters": [{"number": 3, "title": "Empirical Variography and Weighted Least Squares Fitting", "description": "Estimating and fitting the variogram, and why an unmodeled trend contaminates it."}, {"number": 4, "title": "Spatial Prediction: Kriging as Linear Model BLUP", "description": "Best linear unbiased prediction at new locations in simple, ordinary, and universal form, plus block kriging and cross-validation."}, {"number": 5, "title": "Likelihood Inference, Model Selection, and Diagnostics", "description": "Maximum likelihood and REML for the spatial model, comparing models, and checking diagnostics."}]}, {"label": "Part III", "title": "Discrete Spatial Models (Lattice and Areal Data)", "description": "Data on regions such as counties or tracts: neighborhoods as matrices, spatial regression, and models for counts.", "chapters": [{"number": 6, "title": "Areal Units, Spatial Weights, and Quadratic Form Tests", "description": "Spatial weights, Moran's I as a quadratic form, and the modifiable areal unit problem."}, {"number": 7, "title": "Simultaneous Autoregressive Models: Spatial Regression with Feedback", "description": "Regression with spatial feedback, and what a coefficient means when effects spread."}, {"number": 8, "title": "Conditional Autoregressive Models and Sparse Precision Matrices", "description": "Sparse precision matrices, and the view from a single region and its neighbors."}, {"number": 9, "title": "Generalized Linear Mixed Models for Spatial Count Data", "description": "Poisson regression with a spatial random effect, from the basic model to BYM2."}]}, {"label": "Part IV", "title": "Spatial Point Patterns", "description": "Data that are the locations themselves: where events happen, and why.", "chapters": [{"number": 10, "title": "Exploring Point Patterns: Intensity, Randomness, and Interaction", "description": "Intensity, complete spatial randomness, and the summary functions that reveal clustering and regularity."}, {"number": 11, "title": "Point Processes as Generalized Linear Models", "description": "Intensity models with covariates, fit as an ordinary GLM with the Berman-Turner device."}, {"number": 12, "title": "Models for Clustering and Inhibition", "description": "Why points cluster or repel, and how to fit and check a model for each."}]}, {"label": "Part V", "title": "Matrix Scalability for Large Spatial Systems", "description": "What to do when the matrices no longer fit.", "chapters": [{"number": 13, "title": "Matrix Approximations and Fast Algorithms for Large $n$", "description": "Low-rank, tapered, and neighbor-based approximations, sparse precision methods, and when each is worth using."}]}]} -->
 
 ---
+
+<!-- manuscript:front:begin -->
+<div align="center">
+
+# Spatial Data Analysis
+
+### A Linear Models and Matrix Approach
+
+**Jonathan Navarrete**
+
+Working draft, October 2026
+
+*Spatial statistics, translated into the linear models you already know.*
+
+</div>
+
+---
+
+## Contents
+
+### Getting Started
+
+- **[Chapter 0: The Big Picture and the Math You Already Know](#ch0)**
+  <br>Why ordinary statistics misleads in space, the one equation behind the book, and a quick review of five tools you already know.
+
+### Part I: Matrix Foundations and Spatial Covariance
+
+*How spatial dependence enters the linear model you already know, and how to build and simulate it.*
+
+- **[Chapter 1: Spatial Dependence Through the Lens of Linear Models](#ch1)**
+  <br>What happens to least squares when neighbors resemble each other, and how many independent observations your data are really worth.
+- **[Chapter 2: The Spatial Linear Model, Covariance, and Simulation](#ch2)**
+  <br>The one model equation, covariance functions and variograms, and simulating spatial fields whose truth you know.
+
+### Part II: Geostatistical Models and Generalized Least Squares
+
+*Continuous surfaces: estimate the covariance, predict at new locations, and fit the whole model by likelihood.*
+
+- **[Chapter 3: Empirical Variography and Weighted Least Squares Fitting](#ch3)**
+  <br>Estimating and fitting the variogram, and why an unmodeled trend contaminates it.
+- **[Chapter 4: Spatial Prediction: Kriging as Linear Model BLUP](#ch4)**
+  <br>Best linear unbiased prediction at new locations in simple, ordinary, and universal form, plus block kriging and cross-validation.
+- **[Chapter 5: Likelihood Inference, Model Selection, and Diagnostics](#ch5)**
+  <br>Maximum likelihood and REML for the spatial model, comparing models, and checking diagnostics.
+
+### Part III: Discrete Spatial Models (Lattice and Areal Data)
+
+*Data on regions such as counties or tracts: neighborhoods as matrices, spatial regression, and models for counts.*
+
+- **[Chapter 6: Areal Units, Spatial Weights, and Quadratic Form Tests](#ch6)**
+  <br>Spatial weights, Moran's I as a quadratic form, and the modifiable areal unit problem.
+- **[Chapter 7: Simultaneous Autoregressive Models: Spatial Regression with Feedback](#ch7)**
+  <br>Regression with spatial feedback, and what a coefficient means when effects spread.
+- **[Chapter 8: Conditional Autoregressive Models and Sparse Precision Matrices](#ch8)**
+  <br>Sparse precision matrices, and the view from a single region and its neighbors.
+- **[Chapter 9: Generalized Linear Mixed Models for Spatial Count Data](#ch9)**
+  <br>Poisson regression with a spatial random effect, from the basic model to BYM2.
+
+### Part IV: Spatial Point Patterns
+
+*Data that are the locations themselves: where events happen, and why.*
+
+- **[Chapter 10: Exploring Point Patterns: Intensity, Randomness, and Interaction](#ch10)**
+  <br>Intensity, complete spatial randomness, and the summary functions that reveal clustering and regularity.
+- **[Chapter 11: Point Processes as Generalized Linear Models](#ch11)**
+  <br>Intensity models with covariates, fit as an ordinary GLM with the Berman-Turner device.
+- **[Chapter 12: Models for Clustering and Inhibition](#ch12)**
+  <br>Why points cluster or repel, and how to fit and check a model for each.
+
+### Part V: Matrix Scalability for Large Spatial Systems
+
+*What to do when the matrices no longer fit.*
+
+- **[Chapter 13: Matrix Approximations and Fast Algorithms for Large $n$](#ch13)**
+  <br>Low-rank, tapered, and neighbor-based approximations, sparse precision methods, and when each is worth using.
+
+<details>
+<summary><strong>Detailed contents</strong> (every section)</summary>
+
+- **[Chapter 0: The Big Picture and the Math You Already Know](#ch0)**
+  - [0.1 What Is Spatial Statistics?](#s0-1)
+  - [0.2 One Equation for the Whole Book](#s0-2)
+  - [0.3 Three Ways Classical Statistics Misleads in Space](#s0-3)
+  - [0.4 The Math Inventory: Five Tools You Already Know](#s0-4)
+  - [0.5 How This Book Works](#s0-5)
+  - [0.6 Setting Up](#s0-6)
+  - [0.7 Warm-Up Exercises](#s0-7)
+  - [What Comes Next](#ch0-what-comes-next)
+- **[Chapter 1: Spatial Dependence Through the Lens of Linear Models](#ch1)**
+  - [1.1 Reviewing the Classical Linear Model](#s1-1)
+  - [1.2 What Is a Spatial Process?](#s1-2)
+  - [1.3 Why We Cannot Ignore Space: OLS When $\operatorname{Var}(\mathbf{Y}) = \boldsymbol{\Sigma}$](#s1-3)
+  - [1.4 Effective Sample Size](#s1-4)
+  - [1.5 The Three Spatial Data Structures as Matrix Geometries](#s1-5)
+  - [1.6 Coordinates and Distance](#s1-6)
+  - [1.7 Walkthrough and Lab 1](#s1-7)
+  - [Exercises](#ch1-exercises)
+  - [What Comes Next](#ch1-what-comes-next)
+- **[Chapter 2: The Spatial Linear Model, Covariance, and Simulation](#ch2)**
+  - [2.1 One Model Equation](#s2-1)
+  - [2.2 Stationarity Expressed With Moments](#s2-2)
+  - [2.3 Reading the Variogram: Decoding the Jargon on the Curve](#s2-3)
+  - [2.4 What Makes a Covariance Matrix Valid?](#s2-4)
+  - [2.5 Parametric Correlation Families](#s2-5)
+  - [2.6 Geometric Anisotropy Through Coordinate Transformations](#s2-6)
+  - [2.7 Simulating Spatial Random Fields From First Principles](#s2-7)
+  - [2.8 Walkthrough and Lab 2](#s2-8)
+  - [Exercises](#ch2-exercises)
+  - [What Comes Next](#ch2-what-comes-next)
+- **[Chapter 3: Empirical Variography and Weighted Least Squares Fitting](#ch3)**
+  - [3.1 Estimating the Empirical Semivariogram](#s3-1)
+  - [3.2 Robust Estimation: The Cressie-Hawkins Estimator](#s3-2)
+  - [3.3 Fitting Parametric Curves to Empirical Variograms](#s3-3)
+  - [3.4 The Trend-Contamination Pitfall](#s3-4)
+  - [3.5 Walkthrough and Lab 3](#s3-5)
+  - [Exercises](#ch3-exercises)
+  - [What Comes Next](#ch3-what-comes-next)
+- **[Chapter 4: Spatial Prediction: Kriging as Linear Model BLUP](#ch4)**
+  - [4.1 Demystifying "Kriging": It Is Best Linear Unbiased Prediction](#s4-1)
+  - [4.2 Simple Kriging (Known Mean)](#s4-2)
+  - [4.3 Ordinary Kriging (Unknown Constant Mean)](#s4-3)
+  - [4.4 Universal Kriging (Spatial Regression With Covariates)](#s4-4)
+  - [4.5 Two Targets, and Interpolation Versus Smoothing](#s4-5)
+  - [4.6 Change of Support: Block Kriging](#s4-6)
+  - [4.7 Evaluating Predictions: Leave-One-Out Cross-Validation](#s4-7)
+  - [4.8 Walkthrough and Lab 4](#s4-8)
+  - [Exercises](#ch4-exercises)
+  - [What Comes Next](#ch4-what-comes-next)
+- **[Chapter 5: Likelihood Inference, Model Selection, and Diagnostics](#ch5)**
+  - [5.1 The Multivariate Normal Log-Likelihood](#s5-1)
+  - [5.2 Profile Maximum Likelihood](#s5-2)
+  - [5.3 Restricted Maximum Likelihood (REML)](#s5-3)
+  - [5.4 Numerical Optimization and Asymptotic Standard Errors](#s5-4)
+  - [5.5 Model Selection and Tests for Spatial Structure](#s5-5)
+  - [5.6 Spatial Regression Diagnostics and Confounding](#s5-6)
+  - [5.7 Walkthrough and Lab 5](#s5-7)
+  - [Exercises](#ch5-exercises)
+  - [What Comes Next](#ch5-what-comes-next)
+- **[Chapter 6: Areal Units, Spatial Weights, and Quadratic Form Tests](#ch6)**
+  - [6.1 Areal Units Are a Choice: The Modifiable Areal Unit Problem](#s6-1)
+  - [6.2 Building a Spatial Weights Matrix](#s6-2)
+  - [6.3 Representing Regions as Graphs](#s6-3)
+  - [6.4 Moran's I as a Ratio of Quadratic Forms](#s6-4)
+  - [6.5 Exact Null Moments of I Under Normality](#s6-5)
+  - [6.6 Moran's I on Regression Residuals](#s6-6)
+  - [6.7 Geary's C and Local Indicators](#s6-7)
+  - [6.8 Distribution-Free Inference: Permutation Tests](#s6-8)
+  - [6.9 Walkthrough and Lab 6](#s6-9)
+  - [Exercises](#ch6-exercises)
+  - [What Comes Next](#ch6-what-comes-next)
+- **[Chapter 7: Simultaneous Autoregressive Models: Spatial Regression with Feedback](#ch7)**
+  - [7.1 The Simultaneous Idea](#s7-1)
+  - [7.2 The Spatial Error Model](#s7-2)
+  - [7.3 The Spatial Lag Model](#s7-3)
+  - [7.4 The Parameter Space](#s7-4)
+  - [7.5 Maximum Likelihood](#s7-5)
+  - [7.6 Choosing Between the Error and Lag Models](#s7-6)
+  - [7.7 Interpreting the Lag Model: Direct, Indirect, and Total Impacts](#s7-7)
+  - [7.8 Walkthrough and Lab 7](#s7-8)
+  - [Exercises](#ch7-exercises)
+  - [What Comes Next](#ch7-what-comes-next)
+- **[Chapter 8: Conditional Autoregressive Models and Sparse Precision Matrices](#ch8)**
+  - [8.1 The Conditional Idea](#s8-1)
+  - [8.2 The Proper CAR Model](#s8-2)
+  - [8.3 The Intrinsic CAR Model](#s8-3)
+  - [8.4 Computing With Precision Matrices](#s8-4)
+  - [8.5 SAR Versus CAR](#s8-5)
+  - [8.6 Walkthrough and Lab 8](#s8-6)
+  - [Exercises](#ch8-exercises)
+  - [What Comes Next](#ch8-what-comes-next)
+- **[Chapter 9: Generalized Linear Mixed Models for Spatial Count Data](#ch9)**
+  - [9.1 Reviewing GLMs in the Style of Dobson and Barnett](#s9-1)
+  - [9.2 Spatial Poisson Regression for Regional Counts](#s9-2)
+  - [9.3 Shrinkage and Spatial Random Effects](#s9-3)
+  - [9.4 Fitting Spatial GLMMs by Penalized Quasi-Likelihood](#s9-4)
+  - [9.5 The Laplace Approximation of the Marginal Likelihood](#s9-5)
+  - [9.6 Walkthrough and Lab 9](#s9-6)
+  - [Exercises](#ch9-exercises)
+  - [What Comes Next](#ch9-what-comes-next)
+- **[Chapter 10: Exploring Point Patterns: Intensity, Randomness, and Interaction](#ch10)**
+  - [10.1 What Changes in a Point Pattern](#s10-1)
+  - [10.2 The Homogeneous Poisson Process: Complete Spatial Randomness](#s10-2)
+  - [10.3 Simulating Point Patterns From First Principles](#s10-3)
+  - [10.4 First-Order Exploration: Kernel Intensity Estimation](#s10-4)
+  - [10.5 Distance Methods](#s10-5)
+  - [10.6 Second-Order Summaries](#s10-6)
+  - [10.7 Multitype Patterns](#s10-7)
+  - [10.8 Boundary Truncation](#s10-8)
+  - [10.9 Monte Carlo Envelopes and Tests](#s10-9)
+  - [10.10 Walkthrough and Lab 10](#s10-10)
+  - [Exercises](#ch10-exercises)
+  - [What Comes Next](#ch10-what-comes-next)
+- **[Chapter 11: Point Processes as Generalized Linear Models](#ch11)**
+  - [11.1 Intensity as a Regression Function](#s11-1)
+  - [11.2 The Exact Likelihood From a Refining Grid](#s11-2)
+  - [11.3 The Berman-Turner Quadrature Device](#s11-3)
+  - [11.4 Offsets: Modeling Excess Over a Known Baseline](#s11-4)
+  - [11.5 Case-Control Data and the Logistic Bridge](#s11-5)
+  - [11.6 Where Is the Excess? Spatial Scan Statistics](#s11-6)
+  - [11.7 Separating Trend From Interaction](#s11-7)
+  - [11.8 Inference Under Clustering](#s11-8)
+  - [11.9 Walkthrough and Lab 11](#s11-9)
+  - [Exercises](#ch11-exercises)
+  - [What Comes Next](#ch11-what-comes-next)
+- **[Chapter 12: Models for Clustering and Inhibition](#ch12)**
+  - [12.1 Three Explanations for a Departure From CSR](#s12-1)
+  - [12.2 Cluster Processes](#s12-2)
+  - [12.3 The Log-Gaussian Cox Process](#s12-3)
+  - [12.4 Inhibition](#s12-4)
+  - [12.5 Checking a Fitted Point Process Model](#s12-5)
+  - [12.6 Walkthrough and Lab 12](#s12-6)
+  - [Exercises](#ch12-exercises)
+  - [What Comes Next](#ch12-what-comes-next)
+- **[Chapter 13: Matrix Approximations and Fast Algorithms for Large $n$](#ch13)**
+  - [13.1 The $O(n^3)$ Bottleneck](#s13-1)
+  - [13.2 Low-Rank Spatial Models](#s13-2)
+  - [13.3 Covariance Tapering](#s13-3)
+  - [13.4 Vecchia's Approximation](#s13-4)
+  - [13.5 The Bridge Between Parts II and III: Matérn Fields as Markov Fields](#s13-5)
+  - [13.6 Kronecker Products for Separable Space-Time Data](#s13-6)
+  - [13.7 Walkthrough and Lab 13](#s13-7)
+  - [Exercises](#ch13-exercises)
+  - [What Comes Next](#ch13-what-comes-next)
+
+</details>
+<!-- manuscript:front:end -->
+
+---
+
+<a id="ch0"></a>
 
 # Chapter 0: The Big Picture and the Math You Already Know
 
@@ -166,6 +249,8 @@ This chapter has two jobs. The first is to show, with small simulations and no h
 > - **How the Book Works (§0.5–§0.7):** What we leave out and why, the rhythm of each chapter, a map of the book, a software check, and warm-up exercises.
 
 ---
+
+<a id="s0-1"></a>
 
 ## 0.1 What Is Spatial Statistics?
 
@@ -201,6 +286,8 @@ The first type is about a quantity that varies smoothly across space, like the r
 
 ---
 
+<a id="s0-2"></a>
+
 ## 0.2 One Equation for the Whole Book
 
 Every model in this book is a variation on a single equation. For a location $\mathbf{s}$,
@@ -233,6 +320,8 @@ The parts of the book change one piece of the equation at a time:
 - **Part V** keeps the equation and asks how to compute with it when $n$ is in the tens of thousands.
 
 ---
+
+<a id="s0-3"></a>
 
 ## 0.3 Three Ways Classical Statistics Misleads in Space
 
@@ -375,6 +464,8 @@ A county with 300 people has a rate about 180 times more variable than a county 
 
 ---
 
+<a id="s0-4"></a>
+
 ## 0.4 The Math Inventory: Five Tools You Already Know
 
 Most derivations in this book use some combination of five tools from earlier courses. This section reviews each one briefly and shows it doing spatial work. If a tool feels rusty, the warm-up exercises in Section 0.7 and the review of the five tools in Appendix A will help.
@@ -505,6 +596,8 @@ The five tools carry most of the load, but not all of it. The book introduces th
 | Iteratively reweighted least squares (IRLS) | Fits generalized linear models as a sequence of weighted regressions | Chapter 9 |
 ---
 
+<a id="s0-5"></a>
+
 ## 0.5 How This Book Works
 
 ### 0.5.1 What We Leave Out, and Why
@@ -539,6 +632,8 @@ The appendices collect the matrix algebra (Appendix A), Python patterns (Appendi
 
 ---
 
+<a id="s0-6"></a>
+
 ## 0.6 Setting Up
 
 The code in this book needs four libraries: NumPy for arrays and linear algebra, SciPy for optimization, special functions, and sparse matrices, SymPy for symbolic algebra, and matplotlib for plots. Run the following check. It prints the library versions, verifies Tool 1's simulation identity by building a small covariance matrix and its Cholesky factor, and uses SymPy to redo the maximum likelihood calculation of Section 0.4.4.
@@ -569,6 +664,8 @@ If the script prints `True` and `[Q/n]`, your environment is ready.
 
 ---
 
+<a id="s0-7"></a>
+
 ## 0.7 Warm-Up Exercises
 
 Each exercise practices one of the five tools. If one gives you trouble, the matching section of Appendix A reviews the background.
@@ -591,12 +688,27 @@ Each exercise practices one of the five tools. If one gives you trouble, the mat
 
 ---
 
+<a id="ch0-what-comes-next"></a>
+
 ## What Comes Next
 
 Chapter 1 makes Section 0.3 precise. It derives the variance of the OLS estimator when the errors are spatially correlated, shows when and why standard errors are too small, and defines the effective sample size for the sample mean and shows that it depends on the question. Chapter 2 then builds the spatial linear model of Section 0.2 piece by piece and shows how to simulate from it. From there, each part of the book takes the same equation, $Y = \mu + u + \varepsilon$, to a new kind of data.
 
 
 ---
+
+<!-- manuscript:part:begin {"label": "Part I", "title": "Matrix Foundations and Spatial Covariance", "description": "How spatial dependence enters the linear model you already know, and how to build and simulate it.", "chapters": [1, 2]} -->
+<a id="part-1"></a>
+
+# Part I: Matrix Foundations and Spatial Covariance
+
+*How spatial dependence enters the linear model you already know, and how to build and simulate it.*
+
+<!-- manuscript:part:end -->
+
+---
+
+<a id="ch1"></a>
 
 # Chapter 1: Spatial Dependence Through the Lens of Linear Models
 
@@ -617,6 +729,8 @@ Two new tools enter along the way, each introduced with a small example before i
 > - **Walkthrough and Lab (§1.7):** The hand calculations in code, a coverage experiment, and a distance comparison.
 
 ---
+
+<a id="s1-1"></a>
 
 ## 1.1 Reviewing the Classical Linear Model
 
@@ -708,6 +822,8 @@ Section 1.3 removes the independence assumption and checks each of the three.
 
 ---
 
+<a id="s1-2"></a>
+
 ## 1.2 What Is a Spatial Process?
 
 Return to the rents. Two apartments in the same building share a location, a school zone, and a walk to the same train station. If one rents for more than its size predicts because the block has quietly become desirable, the other probably does too. That shared, unexplained component is what the classical model leaves out.
@@ -758,6 +874,8 @@ Two features of this setup will matter repeatedly.
 To simulate data from the model we use a matrix $\mathbf{L}$ with $\mathbf{L}\mathbf{L}' = \boldsymbol{\Sigma}$. Then $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{L}\mathbf{Z}$ with $\mathbf{Z} \sim N(\mathbf{0}, \mathbf{I}_n)$ has exactly the right mean and covariance, by Tool 1 (Section 0.4.1). The Cholesky factorization supplies $\mathbf{L}$; Chapter 2 explains how it works, and the labs in this chapter use it as a tool.
 
 ---
+
+<a id="s1-3"></a>
 
 ## 1.3 Why We Cannot Ignore Space: OLS When $\operatorname{Var}(\mathbf{Y}) = \boldsymbol{\Sigma}$
 
@@ -987,6 +1105,8 @@ OLS is the case $\mathbf{B} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'$, and Exer
 
 ---
 
+<a id="s1-4"></a>
+
 ## 1.4 Effective Sample Size
 
 ### 1.4.1 Definition
@@ -1102,6 +1222,8 @@ There is no single effective sample size for a data set. The definition above is
 
 ---
 
+<a id="s1-5"></a>
+
 ## 1.5 The Three Spatial Data Structures as Matrix Geometries
 
 The three kinds of spatial data from Section 0.1.3 lead to three different matrix structures. Seeing them side by side explains why the book's parts use different tools.
@@ -1146,6 +1268,8 @@ For point patterns, such as immune cells on a tumor slide or the addresses of di
 Two matrix views are useful. The first keeps the points and works with the distance matrix $\mathbf{H}$ between them: nearest-neighbor distances and counts of pairs within a given distance are computed directly from $\mathbf{H}$ (Chapter 10). The second lays a fine grid of pixels over the region and records the number of points in each pixel. That turns a point pattern into a vector of counts on a regular lattice, a form of areal data, and it is how Chapter 11 fits point patterns with Poisson regression.
 
 ---
+
+<a id="s1-6"></a>
 
 ## 1.6 Coordinates and Distance
 
@@ -1258,6 +1382,8 @@ Great-circle distance is not Euclidean distance in any space, and validity does 
 The practical rule for this book: for a region a few hundred kilometers across, project to flat coordinates and use Euclidean distance; for larger regions, use chordal distance with any standard covariance family, or great-circle distance only with the exponential.
 
 ---
+
+<a id="s1-7"></a>
 
 ## 1.7 Walkthrough and Lab 1
 
@@ -1395,6 +1521,8 @@ For the nearby pairs, the projection, great-circle, and chordal distances agree 
 
 ---
 
+<a id="ch1-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -1439,12 +1567,16 @@ For the nearby pairs, the projection, great-circle, and chordal distances agree 
 
 ---
 
+<a id="ch1-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter took the covariance matrix $\boldsymbol{\Sigma}$ as given and showed what goes wrong when it is ignored. Chapter 2 builds $\boldsymbol{\Sigma}$ from the ground up. It develops the model $Y = \mu + u + \varepsilon$ term by term, introduces stationarity and the variogram, explains which correlation functions are valid and why, and shows exactly how the Cholesky factorization turns independent noise into a spatial field. With those tools in hand, Part II estimates $\boldsymbol{\Sigma}$ from data and uses it for prediction and inference.
 
 
 ---
+
+<a id="ch2"></a>
 
 # Chapter 2: The Spatial Linear Model, Covariance, and Simulation
 
@@ -1466,6 +1598,8 @@ Along the way, the jargon of geostatistics (nugget, sill, range) gets translated
 > - **Walkthrough and Lab (§2.8):** Valid and invalid matrices, and a simulated rent district.
 
 ---
+
+<a id="s2-1"></a>
 
 ## 2.1 One Model Equation
 
@@ -1556,6 +1690,8 @@ The spatial model is the case where each observation has its own random effect, 
 
 ---
 
+<a id="s2-2"></a>
+
 ## 2.2 Stationarity Expressed With Moments
 
 Chapter 0 raised a puzzle. Classical statistics learns about a distribution from many independent draws, but we observe one map. How can one map tell us how values at two locations are related?
@@ -1628,6 +1764,8 @@ Why work with the variogram at all, if the covariance function says the same thi
 
 ---
 
+<a id="s2-3"></a>
+
 ## 2.3 Reading the Variogram: Decoding the Jargon on the Curve
 
 For the model of Section 2.1 with isotropic correlation, the semivariogram is
@@ -1680,6 +1818,8 @@ Because many correlation functions approach zero without reaching it, a more pra
 So far the semivariogram has depended only on distance. A process whose covariance depends only on $h = \lVert\mathbf{h}\rVert$, not on the direction of $\mathbf{h}$, is **isotropic**. Isotropy is a convenient default, but it fails when, for example, rents stay similar for a long way along a riverfront but change quickly as you move away from the river. Section 2.6 handles that case, and Chapter 3 shows how to detect it from data.
 
 ---
+
+<a id="s2-4"></a>
 
 ## 2.4 What Makes a Covariance Matrix Valid?
 
@@ -1743,6 +1883,8 @@ The "tent" function $r(h) = \max(0, 1 - h)$ shows how misleading a few checks ca
 Proving that a function is valid for every configuration requires a characterization of valid covariance functions through their Fourier transforms (Bochner's theorem), which is outside the scope of this book. The families in Section 2.5 are all proven valid in the plane, and we take those results from the literature. In practice: use a named family, combine families with the operations of Section 2.4.3, and treat any home-made function with suspicion.
 
 ---
+
+<a id="s2-5"></a>
 
 ## 2.5 Parametric Correlation Families
 
@@ -1895,6 +2037,8 @@ The linear term disappears for $\nu = 3/2$, and larger $\nu$ makes the start fla
 
 ---
 
+<a id="s2-6"></a>
+
 ## 2.6 Geometric Anisotropy Through Coordinate Transformations
 
 Suppose rents along a river stay similar for several kilometers, because the whole riverfront is desirable, but drop off quickly as you move inland. Correlation then reaches farther east-west, along the river, than north-south. A single distance cannot capture this.
@@ -1929,6 +2073,8 @@ Two apartments 0.2 km apart east-west have distance 0.2 and, with the exponentia
 The eigenvectors of $\mathbf{G}$ point along the directions of slowest and fastest decay, and the eigenvalues set the stretching. A $\mathbf{G}$ that is not diagonal describes an ellipse tilted away from the coordinate axes, for a river that does not run due east. Chapter 3 shows how to detect anisotropy in data with directional variograms.
 
 ---
+
+<a id="s2-7"></a>
 
 ## 2.7 Simulating Spatial Random Fields From First Principles
 
@@ -2000,6 +2146,8 @@ $$
 where $\mathbf{L}_u\mathbf{L}_u' = \sigma^2\mathbf{R}(\phi)$ and $\mathbf{Z}_1$, $\mathbf{Z}_2$ are independent standard normal vectors. The result has exactly the same distribution, by Section 2.1.4, and we also know the noise-free surface $\mathbf{X}\boldsymbol{\beta} + \mathbf{u}$. Chapter 4 predicts that surface, and having the truth lets us check the predictions.
 
 ---
+
+<a id="s2-8"></a>
 
 ## 2.8 Walkthrough and Lab 2
 
@@ -2113,6 +2261,8 @@ Figure 2.2 compares an exponential transect ($\phi = 0.1$, practical range about
 
 ---
 
+<a id="ch2-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -2157,12 +2307,27 @@ Figure 2.2 compares an exponential transect ($\phi = 0.1$, practical range about
 
 ---
 
+<a id="ch2-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter assumed we know $\sigma^2$, $\tau^2$, $\phi$, and the correlation family. Chapter 3 begins estimating them from data. It turns the semivariogram of Section 2.2 into an estimator by averaging squared differences over pairs of locations, fits the families of Section 2.5 to the result, and shows what happens when a trend in the mean is mistaken for spatial correlation.
 
 
 ---
+
+<!-- manuscript:part:begin {"label": "Part II", "title": "Geostatistical Models and Generalized Least Squares", "description": "Continuous surfaces: estimate the covariance, predict at new locations, and fit the whole model by likelihood.", "chapters": [3, 4, 5]} -->
+<a id="part-2"></a>
+
+# Part II: Geostatistical Models and Generalized Least Squares
+
+*Continuous surfaces: estimate the covariance, predict at new locations, and fit the whole model by likelihood.*
+
+<!-- manuscript:part:end -->
+
+---
+
+<a id="ch3"></a>
 
 # Chapter 3: Empirical Variography and Weighted Least Squares Fitting
 
@@ -2181,6 +2346,8 @@ The chapter ends with a warning that runs through the rest of the book. A variog
 > - **Walkthrough and Lab (§3.5):** The rent district from raw listings to a fitted variogram, directional variograms, and outliers, with figures.
 
 ---
+
+<a id="s3-1"></a>
 
 ## 3.1 Estimating the Empirical Semivariogram
 
@@ -2408,6 +2575,8 @@ Two refinements are worth knowing.
 
 ---
 
+<a id="s3-2"></a>
+
 ## 3.2 Robust Estimation: The Cressie-Hawkins Estimator
 
 ### 3.2.1 Why Outliers Inflate Matheron's Estimator
@@ -2525,6 +2694,8 @@ $$
 which the code also confirms. Dividing by this expectation, rather than by $m^4$ alone, removes the upward bias to first order. The independence assumption is not exactly true, which is one more reason the correction is only approximate.
 
 ---
+
+<a id="s3-3"></a>
 
 ## 3.3 Fitting Parametric Curves to Empirical Variograms
 
@@ -2648,6 +2819,8 @@ Both fits are reasonable, and they are close to each other. Both put the range a
 
 ---
 
+<a id="s3-4"></a>
+
 ## 3.4 The Trend-Contamination Pitfall
 
 So far we have estimated the variogram of $u + \varepsilon$, using our knowledge of the true trend. An analyst who has only the rents faces a choice: compute the variogram of the raw rents, or remove a trend first.
@@ -2767,6 +2940,8 @@ The bias matters in practice. The fitted partial sill in the lab is 3.736 from t
 
 ---
 
+<a id="s3-5"></a>
+
 ## 3.5 Walkthrough and Lab 3
 
 ### 3.5.1 From Raw Listings to a Fitted Variogram
@@ -2862,6 +3037,8 @@ In Figure 3.3 the Matheron estimates (squares) jump to between 5 and 9 across al
 
 ---
 
+<a id="ch3-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -2904,12 +3081,16 @@ In Figure 3.3 the Matheron estimates (squares) jump to between 5 and 9 across al
 
 ---
 
+<a id="ch3-what-comes-next"></a>
+
 ## What Comes Next
 
 The variogram is now an estimated curve with a fitted family and parameters. Chapter 4 uses such a curve for its main purpose: predicting the value of the process at locations where we have no data, such as the rent of an apartment that is not listed. Kriging, as that prediction is called, turns out to be best linear unbiased prediction in the sense of the linear models you know. Chapter 5 then returns to estimation and replaces variogram fitting with maximum likelihood and REML, which use the data directly and fix the residual bias of Section 3.4.3.
 
 
 ---
+
+<a id="ch4"></a>
 
 # Chapter 4: Spatial Prediction: Kriging as Linear Model BLUP
 
@@ -2931,6 +3112,8 @@ Throughout the chapter, the covariance parameters $\sigma^2$, $\tau^2$, and $\ph
 > - **Walkthrough and Lab (§4.8):** A symbolic derivation, a rent map with standard errors, a check of interval coverage against the truth, and how the kriging standard error depends on the number of listings.
 
 ---
+
+<a id="s4-1"></a>
 
 ## 4.1 Demystifying "Kriging": It Is Best Linear Unbiased Prediction
 
@@ -3003,6 +3186,8 @@ This quadratic form is the whole problem. The three terms have plain meanings. T
 The rest of the chapter minimizes this quadratic form under different assumptions about the mean. Each assumption leads to a different unbiasedness requirement, and so to a different version of kriging.
 
 ---
+
+<a id="s4-2"></a>
 
 ## 4.2 Simple Kriging (Known Mean)
 
@@ -3162,6 +3347,8 @@ The two pictures live in different spaces, one of random variables and one of da
 
 ---
 
+<a id="s4-3"></a>
+
 ## 4.3 Ordinary Kriging (Unknown Constant Mean)
 
 ### 4.3.1 Unbiasedness as a Constraint
@@ -3295,6 +3482,8 @@ Exchanging the roles of the two blocks gives the same formula with $\mathbf{M}_{
 For the ordinary kriging matrix, $\mathbf{M}_{11} = \boldsymbol{\Sigma}$, $\mathbf{M}_{12} = \mathbf{1}_n$, $\mathbf{M}_{21} = \mathbf{1}_n'$, $\mathbf{M}_{22} = 0$, so the Schur complement is the scalar $F = -\mathbf{1}_n'\boldsymbol{\Sigma}^{-1}\mathbf{1}_n = -q_0$. The bottom-right entry of $\mathbf{K}^{-1}$ is $-1/q_0 = -\operatorname{Var}(\hat{\mu}_{\text{GLS}})$: the variance of the estimated mean sits inside the kriging matrix. Multiplying $\mathbf{K}^{-1}$ by $(\mathbf{c}_0', 1)'$ reproduces the formulas for $\boldsymbol{\lambda}_{\text{OK}}$ and $m$ found by elimination (Exercise 3).
 
 ---
+
+<a id="s4-4"></a>
 
 ## 4.4 Universal Kriging (Spatial Regression With Covariates)
 
@@ -3444,6 +3633,8 @@ In the middle of the district, estimating the trend costs essentially nothing. O
 The weights also show the screening effect at scale. The nearest listing, 0.015 away, gets weight 0.375. The fourth nearest, at distance 0.050, gets more weight (0.160) than the third nearest at 0.045 (0.092), because the third nearest sits in the same direction as closer listings and is partly screened by them. Of the 250 weights, 103 are negative, but they are small: together they total $-0.033$.
 
 ---
+
+<a id="s4-5"></a>
 
 ## 4.5 Two Targets, and Interpolation Versus Smoothing
 
@@ -3609,6 +3800,8 @@ Over 100 simulated fields, the naive back-transformation underpredicts the noise
 
 ---
 
+<a id="s4-6"></a>
+
 ## 4.6 Change of Support: Block Kriging
 
 ### 4.6.1 Predicting an Average Over an Area
@@ -3675,6 +3868,8 @@ $$
 where the last step says the square of an average is at most the average of the squares. **The block kriging variance is never larger than the average point kriging variance**, and it is much smaller when the point errors are not strongly correlated: errors at different points in the block partly cancel. This matters in practice. A map of point predictions with wide intervals can still support precise statements about averages over areas.
 
 ---
+
+<a id="s4-7"></a>
 
 ## 4.7 Evaluating Predictions: Leave-One-Out Cross-Validation
 
@@ -3780,6 +3975,8 @@ $$
 For the variance, $f = \Sigma_{11} - \mathbf{b}'\mathbf{K}_{-1}^{-1}\mathbf{b} = \Sigma_{11} - \boldsymbol{\lambda}'\boldsymbol{\Sigma}_{-1,1} - \mathbf{x}_1'\mathbf{m}$, which is the universal kriging variance of Section 4.4.4 for predicting the observation $Y_1$ (target variance $\Sigma_{11}$). So $\operatorname{Var}(Y_1 - \hat{Y}_{-1}) = f = 1/\Pi_{11}$. $\square$
 
 ---
+
+<a id="s4-8"></a>
 
 ## 4.8 Walkthrough and Lab 4
 
@@ -3918,6 +4115,8 @@ The two columns tell different stories. The standard error of the prediction fal
 
 ---
 
+<a id="ch4-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -3956,12 +4155,16 @@ The two columns tell different stories. The standard error of the prediction fal
 
 ---
 
+<a id="ch4-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter assumed the covariance parameters were known. Chapter 5 estimates them by maximum likelihood and restricted maximum likelihood, using the same matrices that appeared here: $\boldsymbol{\Sigma}^{-1}$, the GLS estimate, and the residual precision $\boldsymbol{\Pi}$, which turns out to be the heart of the restricted likelihood. Section 5.4.5 compares the kriging variances computed at the maximum likelihood, REML, and true parameters and discusses what plugging in estimates costs, and Section 5.6.1 uses the leave-one-out residuals of Section 4.7 as a diagnostic.
 
 
 ---
+
+<a id="ch5"></a>
 
 # Chapter 5: Likelihood Inference, Model Selection, and Diagnostics
 
@@ -3984,6 +4187,8 @@ The running example throughout is a simulated data set of 250 rent listings scat
 > - **Walkthrough and Lab (§5.7):** A symbolic check of the information formula, a small-sample comparison of ML and REML, and figures of the likelihood surface.
 
 ---
+
+<a id="s5-1"></a>
 
 ## 5.1 The Multivariate Normal Log-Likelihood
 
@@ -4075,6 +4280,8 @@ print("loglik, independent:", round(gauss_loglik(y4, 0.0, np.eye(4)), 4))
 The code gives $\log\lvert\boldsymbol{\Sigma}\rvert = -0.5531$, a quadratic form of 3.1478, and log-likelihoods of $-4.9731$ (spatial) and $-5.1758$ (independent).
 
 ---
+
+<a id="s5-2"></a>
 
 ## 5.2 Profile Maximum Likelihood
 
@@ -4215,6 +4422,8 @@ for name, f in (("ML", fit_ml), ("REML", fit_reml)):
 The last row repeats the estimates of Chapter 3 (Section 3.5.1), where Cressie's weighted least squares was applied to the variogram of the OLS residuals from a plane trend in both coordinates. The trend model differs from the east-only trend used here, so the comparison is rough. Those residuals have covariance $\boldsymbol{\Sigma}_e = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\boldsymbol{\Sigma}(\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})$ (Section 3.4.3): the estimated mean absorbs smooth variation, which biases the residual variogram downward at long distances. The likelihood methods avoid the binning and the separate detrending step, and REML in particular is built to account for the part of the variation that the estimated mean absorbs (Section 5.3). On this one data set the weighted least squares estimates of $\sigma^2$ and $\phi$ happen to be closer to the truth than either likelihood estimate; that is a property of this realization, and of the ridge described in Section 5.4.4, not a ranking of the methods. The ML estimates of $\sigma^2$, $\tau^2$, and $\phi$ are all in the right neighborhood. The REML estimates, explained in the next section, put $\sigma^2$ and $\phi$ much higher. That is not a mistake in either method; Section 5.4.4 shows that this data set barely distinguishes between the two answers. (The two log-likelihoods are on different scales and cannot be compared with each other; Section 5.5.1 explains why.)
 
 ---
+
+<a id="s5-3"></a>
 
 ## 5.3 Restricted Maximum Likelihood (REML)
 
@@ -4393,6 +4602,8 @@ $$
 and rearranging gives the identity. $\square$
 
 ---
+
+<a id="s5-4"></a>
 
 ## 5.4 Numerical Optimization and Asymptotic Standard Errors
 
@@ -4689,6 +4900,8 @@ Notice that the second derivatives of $\boldsymbol{\Sigma}$ dropped out. The exp
 
 ---
 
+<a id="s5-5"></a>
+
 ## 5.5 Model Selection and Tests for Spatial Structure
 
 ### 5.5.1 Comparing Covariance Families With AIC and BIC
@@ -4798,6 +5011,8 @@ The bootstrap broadly confirms the mixture picture, with a twist. A share of 0.6
 The general lesson: the mixture is a much better guide than $\chi^2_1$, and the bootstrap is the check when a conclusion depends on the details.
 
 ---
+
+<a id="s5-6"></a>
 
 ## 5.6 Spatial Regression Diagnostics and Confounding
 
@@ -4913,6 +5128,8 @@ Without a nugget, the smallest eigenvalue is $1.6 \times 10^{-46}$, zero to mach
 One numerical detail: this code computes distances from explicit coordinate differences rather than with the `dist` function of Section 1.6.1. The quadratic-expansion trick in `dist` leaves rounding errors of about $10^{-8}$ in the distance between two identical locations that are not on the diagonal, which would make the duplicate rows almost, but not exactly, identical and hide the problem. With duplicates in the data, compute distances directly or round them.
 
 ---
+
+<a id="s5-7"></a>
 
 ## 5.7 Walkthrough and Lab 5
 
@@ -5049,6 +5266,8 @@ Figure 5.2 shows the decorrelated residuals of Section 5.6.1 against normal quan
 
 ---
 
+<a id="ch5-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -5089,12 +5308,27 @@ Figure 5.2 shows the decorrelated residuals of Section 5.6.1 against normal quan
 
 ---
 
+<a id="ch5-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter completes Part II. We can now model continuous spatial data from start to finish: explore with the variogram (Chapter 3), estimate the covariance parameters by likelihood or REML (this chapter), predict with uncertainty by kriging (Chapter 4), and check the fit with decorrelated residuals and model comparisons. Part III turns to data on regions, such as counties and census tracts, where the natural description of space is not distance but adjacency. Chapter 6 begins with how such data are defined, why the choice of regions matters, and how to test for spatial pattern with Moran's $I$.
 
 
 ---
+
+<!-- manuscript:part:begin {"label": "Part III", "title": "Discrete Spatial Models (Lattice and Areal Data)", "description": "Data on regions such as counties or tracts: neighborhoods as matrices, spatial regression, and models for counts.", "chapters": [6, 7, 8, 9]} -->
+<a id="part-3"></a>
+
+# Part III: Discrete Spatial Models (Lattice and Areal Data)
+
+*Data on regions such as counties or tracts: neighborhoods as matrices, spatial regression, and models for counts.*
+
+<!-- manuscript:part:end -->
+
+---
+
+<a id="ch6"></a>
 
 # Chapter 6: Areal Units, Spatial Weights, and Quadratic Form Tests
 
@@ -5115,6 +5349,8 @@ The chapter begins with a warning. The regions themselves are a choice, made by 
 > - **Walkthrough and Lab (§6.9):** Hand calculations collected in code, a comparison of weights, and a simulated study of the modifiable areal unit problem.
 
 ---
+
+<a id="s6-1"></a>
 
 ## 6.1 Areal Units Are a Choice: The Modifiable Areal Unit Problem
 
@@ -5241,6 +5477,8 @@ The models of Chapters 7 to 9 describe the regions that were given, and they inh
 None of these limits is cured by a better model. They are properties of the data.
 
 ---
+
+<a id="s6-2"></a>
 
 ## 6.2 Building a Spatial Weights Matrix
 
@@ -5492,6 +5730,8 @@ The values differ by weights, but their size is not the right thing to compare, 
 
 ---
 
+<a id="s6-3"></a>
+
 ## 6.3 Representing Regions as Graphs
 
 A map of regions with a neighbor relation is a graph: regions are the **nodes**, and two nodes are joined by an **edge** when they are neighbors. Graph language gives us the matrix tools of earlier chapters.
@@ -5582,6 +5822,8 @@ The 12-by-12 rook grid has smallest eigenvalue $-1$ and largest $1$, as the bipa
 **[STORY NEEDED]** A setting where a reader would care about the largest and smallest eigenvalues of the weights before meeting them in Chapter 7: for example, how strongly a shock to one region can echo through its neighbors and back, and why the answer depends on the map.
 
 ---
+
+<a id="s6-4"></a>
 
 ## 6.4 Moran's I as a Ratio of Quadratic Forms
 
@@ -5687,6 +5929,8 @@ print(f"eigenvalues of the symmetrized rook W: {lam_s[0]:.4f} to "
 ```
 
 ---
+
+<a id="s6-5"></a>
 
 ## 6.5 Exact Null Moments of I Under Normality
 
@@ -5877,6 +6121,8 @@ The two expressions agree to six decimals on both maps: $0.075$ for the hub map 
 
 ---
 
+<a id="s6-6"></a>
+
 ## 6.6 Moran's I on Regression Residuals
 
 In practice Moran's I is more often applied to the residuals of a regression than to a raw response. The question changes. For the raw rates, "Do counties resemble their neighbors?" is partly answered by the covariates: counties with similar deprivation tend to be neighbors, so their rates are similar for reasons the regression already explains. For the residuals, the question is "After accounting for deprivation, do counties still resemble their neighbors?" A positive answer means the regression is missing spatial structure, and that is the diagnostic used before and after the models of Chapters 7 and 8.
@@ -5963,6 +6209,8 @@ print(f"I of the residuals: {I_e:.3f}  E = {m_e:.3f}  sd = {s_e:.3f}  "
 The OLS coefficients are $10.28$ and $1.652$, close to the true $10$ and $1.5$. Moran's I of the raw rates is $0.615$, with $z = 10.13$ against the null mean $-0.007$ and standard deviation $0.061$. For the residuals it is $0.348$, with null mean $-0.011$, standard deviation $0.061$, and $z = 5.86$. Deprivation explains some of the spatial pattern, since $I$ drops from $0.615$ to $0.348$, but a large and highly significant amount remains. By construction, that is the spatial random effect $u$ in the model of Section 2.1, which the regression does not include. Chapters 7 and 8 model it.
 
 ---
+
+<a id="s6-7"></a>
 
 ## 6.7 Geary's C and Local Indicators
 
@@ -6083,6 +6331,8 @@ print(f"100 maps with no structure: mean flagged {flagged.mean():.2f}, "
 For the simulated rates, 26 of the 144 counties are flagged at the 5% level: 11 high-high and 15 low-low. In each of 100 maps of pure noise with no spatial structure whatever, the number flagged averaged $5.63$, with a maximum of $15$, and 98% of those maps had at least one flagged county. (With 99 shuffles the two-sided p-value is at most 0.05 only when the observed value is among the two most extreme on one side of the 100 values, which has probability $2 \times 2/100 = 0.04$, so the expected count is $0.04 \times 144 = 5.8$ rather than $0.05 \times 144 = 7.2$.) A single flagged county is therefore weak evidence. The 26 flagged in the simulated rates are far more than noise would give, but which individual counties are real is much less certain. With 144 tests per map, a correction for multiple testing (Bonferroni, or control of the false discovery rate) is needed before a flagged region is called a hot spot. Figure 6.4 in the lab shows where the flagged counties lie.
 
 ---
+
+<a id="s6-8"></a>
 
 ## 6.8 Distribution-Free Inference: Permutation Tests
 
@@ -6272,6 +6522,8 @@ for name, X in (("p = 2, deprivation", np.column_stack([np.ones(n), x])),
 With the single covariate, the mean of the naive reference, $-0.0071$, is close enough to the exact $-0.0110$ that the naive test behaves acceptably. With fifteen columns the true null mean is $-0.0950$, but the naive reference is still centered at $-0.0071$. The observed $I_e$ is compared with a reference that is too high, and the naive test rejects in 0.0% of the null data sets: its p-values are far too large, and it would miss spatial structure that the projected test finds. The projected reference has mean $-0.0951$ and rejects 5.8% of the time. The z-test from the exact moments is also close to its nominal size.
 
 ---
+
+<a id="s6-9"></a>
 
 ## 6.9 Walkthrough and Lab 6
 
@@ -6522,6 +6774,8 @@ In the first of the 200 worlds, the fitted slope is $0.46$ for the fine cells, $
 
 ---
 
+<a id="ch6-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -6570,12 +6824,16 @@ In the first of the 200 worlds, the fitted slope is $0.46$ for the fine cells, $
 
 ---
 
+<a id="ch6-what-comes-next"></a>
+
 ## What Comes Next
 
 The weights matrix and the null distribution of Moran's I give us a way to detect spatial structure in areal data. Chapters 7 and 8 turn the weights into models. Chapter 7 builds the simultaneous autoregressive models, in which each region's value is regressed on its neighbors' values, and shows how to interpret the effect of a covariate once the feedback between neighbors is accounted for. Chapter 8 builds the conditional autoregressive models, in which each region is described given its neighbors, and shows that both families produce a covariance structure that can be handled with the sparse precision matrices of Chapter 8. Chapter 9 puts these on the count scale, with expected counts and the small-population problem that Chapter 0 introduced.
 
 
 ---
+
+<a id="ch7"></a>
 
 # Chapter 7: Simultaneous Autoregressive Models: Spatial Regression with Feedback
 
@@ -6599,6 +6857,8 @@ The running data set is a simulated map of 144 square counties. Responses are si
 > - **Walkthrough and Lab (§7.8):** A four-region example in code, a simulated county map, and checks of every claim above.
 
 ---
+
+<a id="s7-1"></a>
 
 ## 7.1 The Simultaneous Idea
 
@@ -6649,6 +6909,8 @@ Two things stand out. The covariance of $\mathbf{Y}$ turns out to be the same in
 In the language of the one model equation of Section 0.2, the spatial error model writes $Y = \mu + u$ with the spatial random effect $u$ built from independent innovations $\varepsilon$. The spatial lag model has the same covariance, but its mean also passes through the feedback matrix, as Section 7.3.1 shows. There is no separate nugget in these models: the independent part is the innovation that drives $u$, and its variance is $\sigma^2$.
 
 ---
+
+<a id="s7-2"></a>
 
 ## 7.2 The Spatial Error Model
 
@@ -6786,6 +7048,8 @@ In practice $\rho$ is unknown, so GLS is not yet a method; Section 7.5 estimates
 
 ---
 
+<a id="s7-3"></a>
+
 ## 7.3 The Spatial Lag Model
 
 ### 7.3.1 The Model and Its Reduced Form
@@ -6888,6 +7152,8 @@ Neither version of OLS works. The remedy is maximum likelihood, which accounts f
 
 ---
 
+<a id="s7-4"></a>
+
 ## 7.4 The Parameter Space
 
 The reduced forms need $\mathbf{I}_n - \rho\mathbf{W}$ to be invertible. This section works out for which values of $\rho$ it is, using the eigenvalues of $\mathbf{W}$.
@@ -6925,6 +7191,8 @@ Beyond a singular point the matrix is invertible again, but the model would have
 With a binary (not row-standardized) adjacency matrix, the largest eigenvalue can be much greater than 1 (up to the largest degree), so the interval for $\rho$ is much narrower, which is one reason row-standardizing is common.
 
 ---
+
+<a id="s7-5"></a>
 
 ## 7.5 Maximum Likelihood
 
@@ -6997,6 +7265,8 @@ Each evaluation costs order $n$: a vector update, one dot product, and $n$ logar
 **Testing $\rho = 0$.** Both models reduce to the classical linear model at $\rho = 0$, and $\rho = 0$ is an interior point of the parameter space $(-1, 1)$, so the ordinary likelihood ratio test applies: $2(\hat{\ell} - \ell_{\text{OLS}})$ is approximately $\chi^2_1$ under the null. This differs from the boundary tests of Section 5.5.2, where the null value lay on the edge of the parameter space.
 
 ---
+
+<a id="s7-6"></a>
 
 ## 7.6 Choosing Between the Error and Lag Models
 
@@ -7087,6 +7357,8 @@ To test the lag parameter while allowing for the error parameter, subtract from 
 
 ---
 
+<a id="s7-7"></a>
+
 ## 7.7 Interpreting the Lag Model: Direct, Indirect, and Total Impacts
 
 ### 7.7.1 Why $\beta_k$ Is Not the Marginal Effect
@@ -7140,6 +7412,8 @@ The impacts depend on $\hat{\rho}$ and $\hat{\beta}_k$, both uncertain, and they
 A direct check on the effect matrix: simulate a data set, then simulate it again with the same innovations after raising a covariate by one unit in one county, and compare. Because the model is linear in $\boldsymbol{\varepsilon}$ and $\mathbf{X}$, the difference between the two simulated responses is exactly $\boldsymbol{\Phi}\beta_k\mathbf{e}_j$ (with $\mathbf{e}_j$ the unit vector for county $j$). The lab does this for a county in the middle of the map and then for every county, and the averages of the own effects and the total effects reproduce the formulas for $M_{\text{dir}}$ and $M_{\text{tot}}$. Figure 7.3 shows how the effect of the change spreads across the map for three values of $\rho$.
 
 ---
+
+<a id="s7-8"></a>
 
 ## 7.8 Walkthrough and Lab 7
 
@@ -7618,6 +7892,8 @@ In Figure 7.3 the effect is largest in the county itself and fades with distance
 
 ---
 
+<a id="ch7-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -7656,12 +7932,16 @@ In Figure 7.3 the effect is largest in the county itself and fades with distance
 
 ---
 
+<a id="ch7-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter specified dependence through a system of equations in which every region depends on its neighbors at once, and the covariance followed from solving the system. Chapter 8 starts from the other end. It specifies each region's distribution given its neighbors, builds the joint distribution from those conditionals, and works with the precision matrix directly, which makes large models fast. It also returns to the comparison of the two ways of building spatial dependence that Section 7.1 promised. Chapter 9 puts the same ideas inside a generalized linear model for counts.
 
 
 ---
+
+<a id="ch8"></a>
 
 # Chapter 8: Conditional Autoregressive Models and Sparse Precision Matrices
 
@@ -7681,6 +7961,8 @@ The chapter has a plan. We first show how the conditional regressions determine 
 > - **Walkthrough and Lab (§8.6):** Simulating a CAR field on a 144-county map, recovering its parameters, and four figures.
 
 ---
+
+<a id="s8-1"></a>
 
 ## 8.1 The Conditional Idea
 
@@ -7883,6 +8165,8 @@ Conditional independence is not independence. In the four-region model of Sectio
 
 ---
 
+<a id="s8-2"></a>
+
 ## 8.2 The Proper CAR Model
 
 ### 8.2.1 Equal Weights for Neighbors
@@ -8082,6 +8366,8 @@ using $\sum_jA_{ij} = d_i$ and, by symmetry, $\sum_iA_{ij} = d_j$. So $\lvert\ma
 
 ---
 
+<a id="s8-3"></a>
+
 ## 8.3 The Intrinsic CAR Model
 
 ### 8.3.1 Setting $\rho = 1$
@@ -8234,6 +8520,8 @@ so the density $\propto \exp(-\frac{1}{2\sigma^2}\sum_{k \ge 2}\xi_kt_k^2)$ fact
 For the alternative formula for the pseudo-inverse, observe that $\mathbf{D} - \mathbf{A} + \tfrac{1}{n}\mathbf{1}\mathbf{1}' = \sum_{k \ge 2}\xi_k\mathbf{v}_k\mathbf{v}_k' + \mathbf{v}_1\mathbf{v}_1'$ has eigenvalues $1, \xi_2, \dots, \xi_n$ on the same eigenvectors, so its inverse is $\mathbf{v}_1\mathbf{v}_1' + \sum_{k \ge 2}\xi_k^{-1}\mathbf{v}_k\mathbf{v}_k'$, and subtracting $\mathbf{v}_1\mathbf{v}_1' = \tfrac{1}{n}\mathbf{1}\mathbf{1}'$ leaves the pseudo-inverse. $\square$
 
 ---
+
+<a id="s8-4"></a>
 
 ## 8.4 Computing With Precision Matrices
 
@@ -8463,6 +8751,8 @@ The factorization holds to machine precision. The sample covariance of 50,000 dr
 
 ---
 
+<a id="s8-5"></a>
+
 ## 8.5 SAR Versus CAR
 
 ### 8.5.1 Simultaneous Versus Conditional
@@ -8565,6 +8855,8 @@ print(f"SAR rho matching CAR rho = 0.9: {rho_sar:.3f}")
 At the same $\rho$ the models imply very different dependence. At $\rho = 0.9$, the CAR neighbors have correlation 0.388, and the SAR neighbors have 0.753. To get the CAR's neighbor correlation of 0.388 from a SAR, one needs $\rho \approx 0.608$. Two lessons follow. First, a fitted $\hat{\rho}$ should never be compared across the two model families or interpreted as a correlation. Second, the CAR needs a $\rho$ very close to 1 to produce strong dependence: even at $\rho = 0.99$ the neighbor correlation is only 0.652. Estimates of $\rho$ near 1 are therefore the norm in applications, not a sign of trouble.
 
 ---
+
+<a id="s8-6"></a>
 
 ## 8.6 Walkthrough and Lab 8
 
@@ -8737,6 +9029,8 @@ Figure 8.4 summarizes Sections 8.6.1 and 8.6.2. The profile peaks near 0.97 and 
 
 ---
 
+<a id="ch8-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -8779,12 +9073,16 @@ Figure 8.4 summarizes Sections 8.6.1 and 8.6.2. The profile peaks near 0.97 and 
 
 ---
 
+<a id="ch8-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter defined CAR models through conditional regressions on neighbors, showed that they are Gaussian Markov random fields with sparse precision matrices, and developed the proper and intrinsic versions with the tools to fit and simulate them. Chapter 9 puts these models to work. It replaces the normal response with a count, so that a county's death count is Poisson with a log-rate that includes the spatial random effect $\mathbf{u}$. The effect $\mathbf{u}$ may be an ICAR, a proper CAR, or the blend of ICAR and independent noise known as the BYM model, and Chapter 9 compares these choices. The sparse precision matrices, the sum-to-zero constraints, and the eigenvalue determinant of this chapter are the machinery behind each.
 
 
 ---
+
+<a id="ch9"></a>
 
 # Chapter 9: Generalized Linear Mixed Models for Spatial Count Data
 
@@ -8810,6 +9108,8 @@ The running story is disease mapping. A health department has five-year overdose
 > - **Walkthrough and Lab (§9.6):** Raw, shrunken, and spatial estimates of county risk compared with the truth, a likelihood ratio test, weak identification of the mixing parameter, and a coverage experiment that revisits Chapter 1.
 
 ---
+
+<a id="s9-1"></a>
 
 ## 9.1 Reviewing GLMs in the Style of Dobson and Barnett
 
@@ -9006,6 +9306,8 @@ The two routes agree: IRLS is maximum likelihood, computed as a sequence of weig
 
 ---
 
+<a id="s9-2"></a>
+
 ## 9.2 Spatial Poisson Regression for Regional Counts
 
 ### 9.2.1 The Model Equation Again
@@ -9072,6 +9374,8 @@ The simplest alternative to the SMR is a Poisson GLM with covariates but no rand
 When the true risks also vary for reasons the covariates miss, which is the setting of this chapter, the counts are more variable than Poisson. This is **overdispersion**. The GLM standard errors, $(\mathbf{X}'\mathbf{V}\mathbf{X})^{-1}$, assume Poisson variation and come out too small. A common repair is the **quasi-Poisson** correction: multiply the covariance by the Pearson dispersion $s_P^2 = \frac{1}{n - p}\sum_i(y_i - \hat{\mu}_i)^2/\hat{\mu}_i$, the Poisson analogue of the residual variance estimate $s^2$ of Chapter 1. That corrects for extra variation that is independent between counties, but not for variation that is spatially correlated, and Chapter 1 has already shown what spatially correlated variation does to a covariate that is itself spatially smooth. Section 9.6.5 measures how well each approach covers.
 
 ---
+
+<a id="s9-3"></a>
 
 ## 9.3 Shrinkage and Spatial Random Effects
 
@@ -9408,6 +9712,8 @@ The same eigenvector expansion explains how to simulate the ICAR: draw $\mathbf{
 
 ---
 
+<a id="s9-4"></a>
+
 ## 9.4 Fitting Spatial GLMMs by Penalized Quasi-Likelihood
 
 For known hyperparameters (the variance and mixing parameters, which fix $\mathbf{Q}$), the model has two kinds of unknowns: the regression coefficients $\boldsymbol{\beta}$ and the random effects $\mathbf{u}$. This section shows how to estimate both with a small extension of IRLS, and how to estimate the hyperparameters with the REML of Chapter 5. The method is called **penalized quasi-likelihood** (PQL; Breslow and Clayton, 1993 [@breslow1993]). We present it as a teaching device: it is simple, fast, and shows why the model behaves as it does, and Section 9.5 supplies a more careful likelihood.
@@ -9609,6 +9915,8 @@ The working model replaces the Poisson noise by Gaussian noise with variance $1/
 
 ---
 
+<a id="s9-5"></a>
+
 ## 9.5 The Laplace Approximation of the Marginal Likelihood
 
 The hyperparameters ought to be estimated by maximizing the **marginal likelihood**, which averages the Poisson likelihood over the random effects:
@@ -9732,6 +10040,8 @@ The error is small whenever the random effect is modest: for $\sigma^2 = 0.5$ it
 The Laplace likelihood supports the same inference as any likelihood: maximum likelihood estimates, comparison of models by their maximized values, and likelihood ratio tests. To test whether a spatial random effect is needed at all, compare it with the plain Poisson GLM, which is the case $\sigma^2 = 0$. As in Section 5.5.2, the null value lies on the boundary of the parameter space, so the reference distribution is the mixture $\tfrac{1}{2}\chi^2_0 + \tfrac{1}{2}\chi^2_1$. (In BYM2 the mixing parameter $\rho$ disappears under the null, which makes even that reference approximate. The lab's statistic is so large that the conclusion does not depend on it.)
 
 ---
+
+<a id="s9-6"></a>
 
 ## 9.6 Walkthrough and Lab 9
 
@@ -10095,6 +10405,8 @@ The BYM2 model's standard error, 0.052, matches the actual spread of 0.048, and 
 
 ---
 
+<a id="ch9-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -10135,12 +10447,27 @@ The BYM2 model's standard error, 0.052, matches the actual spread of 0.048, and 
 
 ---
 
+<a id="ch9-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter completes Part III. For areal data we now have the full path from the raw ratio to a fitted spatial model: why small counties mislead, how shrinkage and neighbors repair it, how the model is estimated, and how its uncertainty compares with the naive one. Part IV changes what is random. In a point pattern the locations of the events are the data, and there are no regions to count in. But if we lay a fine grid of pixels over the study region, the number of events in each pixel is a Poisson count, with a mean that depends on location. Chapter 10 explores such patterns, Chapter 11 fits them with exactly the Poisson regression and IRLS of Section 9.1, using pixel areas as offsets, and Chapter 12 returns to this chapter's mixed model when the log intensity gets a Gaussian random effect, the log-Gaussian Cox process.
 
 
 ---
+
+<!-- manuscript:part:begin {"label": "Part IV", "title": "Spatial Point Patterns", "description": "Data that are the locations themselves: where events happen, and why.", "chapters": [10, 11, 12]} -->
+<a id="part-4"></a>
+
+# Part IV: Spatial Point Patterns
+
+*Data that are the locations themselves: where events happen, and why.*
+
+<!-- manuscript:part:end -->
+
+---
+
+<a id="ch10"></a>
 
 # Chapter 10: Exploring Point Patterns: Intensity, Randomness, and Interaction
 
@@ -10165,6 +10492,8 @@ Three stories run through the chapter. Immune cells on a tumor slide supply the 
 
 ---
 
+<a id="s10-1"></a>
+
 ## 10.1 What Changes in a Point Pattern
 
 Take the immune cells on a tumor slide. A pathologist stains the tissue, a scanner finds the cells, and the result is a list of coordinates: $n$ rows, two columns. In the notation of Chapter 1 this is the coordinate matrix $\mathbf{S}$, with rows $\mathbf{s}_i'$. In Parts II and III the matrix was fixed and a vector $\mathbf{Y}$ of measurements hung off it. Here the matrix is all there is, and both its entries and its number of rows are random.
@@ -10182,6 +10511,8 @@ Two words need care. The **intensity** $\lambda(\mathbf{s})$ at a location is th
 Throughout, the study window is the unit square. When a story needs real units, imagine the square scaled to a city map or a tissue slide; none of the methods depends on the scale.
 
 ---
+
+<a id="s10-2"></a>
 
 ## 10.2 The Homogeneous Poisson Process: Complete Spatial Randomness
 
@@ -10285,6 +10616,8 @@ The simulated $X^2$ has mean 23.91 and standard deviation 6.88, against 24 and $
 Quadrat counts are easy to compute and easy to explain, but they have two weaknesses that Section 10.3.4 will expose. The test says nothing about distances smaller than the quadrat, and it depends on a choice of grid.
 
 ---
+
+<a id="s10-3"></a>
 
 ## 10.3 Simulating Point Patterns From First Principles
 
@@ -10482,6 +10815,8 @@ That last result is the weakness promised in Section 10.2.3. The inhibited patte
 
 ---
 
+<a id="s10-4"></a>
+
 ## 10.4 First-Order Exploration: Kernel Intensity Estimation
 
 The first question about a pattern is usually where the events are dense. The standard answer is to smooth the events into a map.
@@ -10628,6 +10963,8 @@ Figure 10.2 shows the trade-off. At $\psi = 0.02$ the map is a field of separate
 
 ---
 
+<a id="s10-5"></a>
+
 ## 10.5 Distance Methods
 
 The second-order question is whether events interact. The simplest evidence is distances: how far is each event from its nearest neighbor, and how far is an arbitrary location from the nearest event?
@@ -10748,6 +11085,8 @@ for name, P in patterns.items():
 The random pattern tracks the CSR values and has $\hat{J}$ near 1. The clustered pattern has $\hat{G}$ far above and $\hat{F}$ far below the CSR value, and $\hat{J}$ falls to 0.026 by $r = 0.06$. The inhibited pattern has $\hat{G} = 0$ at $r = 0.02$, because no two events are closer than 0.03, and $\hat{J}$ rises to 3.0. Compare this with the quadrat test, which could not see the inhibition at all.
 
 ---
+
+<a id="s10-6"></a>
 
 ## 10.6 Second-Order Summaries
 
@@ -10937,6 +11276,8 @@ For CSR the average $\hat{g}$ is 1.00 at every distance. For the Thomas pattern 
 
 ---
 
+<a id="s10-7"></a>
+
 ## 10.7 Multitype Patterns
 
 Many point patterns carry a label for each event. The labels may be a species, a disease status, or a result: a shot in basketball is made or missed, and a shot chart is a point pattern with a label for each shot. The multitype questions are whether the types occupy different places, and whether they attract or repel each other.
@@ -11087,6 +11428,8 @@ The true relative risk at the plant is 0.404, and the likelihood cross-validatio
 The lesson goes beyond the example. A kernel relative risk map is an exploratory display, and how much it can show is set by the number of cases. Chapter 11 turns the question into a model for the case-control labels and a scan statistic aimed at local excess, which use the data far more efficiently. It also pools five years of cases, because one year of data is too thin to say much about a local excess, and it uses a new simulated draw of the same setting, not the sample of this chapter.
 
 ---
+
+<a id="s10-8"></a>
 
 ## 10.8 Boundary Truncation
 
@@ -11260,6 +11603,8 @@ For $G$ and $F$ at $r = 0.03, 0.06, 0.09, 0.12$, the truth is $1 - e^{-100\pi r^
 
 ---
 
+<a id="s10-9"></a>
+
 ## 10.9 Monte Carlo Envelopes and Tests
 
 Sections 10.5 and 10.6 gave us curves, and the curves wiggle even for random patterns. To decide whether a wiggle is meaningful we need a reference band, and that is what a simulation envelope is.
@@ -11336,6 +11681,8 @@ For the multitype summaries the right null model depends on the question.
 To simulate random labelling, permute the labels. By the same exchangeability argument, the observed summary has a uniform rank among the permuted ones. Section 10.10.2 does this for the case-control data, and plots $\hat{K}_{12}(r)$ minus the average of its relabelled versions.
 
 ---
+
+<a id="s10-10"></a>
 
 ## 10.10 Walkthrough and Lab 10
 
@@ -11564,6 +11911,8 @@ The chapter ends here with an honest limit. The exploratory tools of this chapte
 
 ---
 
+<a id="ch10-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -11614,6 +11963,8 @@ The chapter ends here with an honest limit. The exploratory tools of this chapte
 
 ---
 
+<a id="ch10-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter described patterns. It found structure in them with distances, with the $K$ and $g$ functions, and with a kernel map of intensity, and it judged that structure against simulation. It also met its limits: a small local excess is invisible to omnibus tests, the choice of bandwidth is a problem in itself, and the first-order and second-order explanations of a pattern cannot be told apart without a model.
@@ -11622,6 +11973,8 @@ Chapter 11 supplies the model. It writes the log-likelihood of an inhomogeneous 
 
 
 ---
+
+<a id="ch11"></a>
 
 # Chapter 11: Point Processes as Generalized Linear Models
 
@@ -11646,6 +11999,8 @@ Three running stories carry the chapter. A traffic safety office has the locatio
 > - **Walkthrough and Lab (§11.9):** Repeated-sampling experiments for each of the claims above.
 
 ---
+
+<a id="s11-1"></a>
 
 ## 11.1 Intensity as a Regression Function
 
@@ -11750,6 +12105,8 @@ That is exactly a Poisson regression with offset $\log a$. A point process is wh
 
 ---
 
+<a id="s11-2"></a>
+
 ## 11.2 The Exact Likelihood From a Refining Grid
 
 ### 11.2.1 Bernoulli Trials on a Pixel Grid
@@ -11848,6 +12205,8 @@ This matrix is not random: it does not involve the events. For any vector $\math
 Take only an intercept, $\mathbf{x} = 1$, so $\lambda$ is a constant. The score equation reads $n = \lambda\operatorname{area}(\mathcal{D})$, so $\hat{\lambda} = n/\operatorname{area}(\mathcal{D})$: the estimated intensity is the number of events per unit area. The information for $\beta_0 = \log\lambda$ is $\lambda\operatorname{area}(\mathcal{D})$, the expected count, so $\operatorname{Var}(\hat{\beta}_0) \approx 1/\operatorname{E}[n]$. This agrees with a delta-method calculation for the Poisson count: $\operatorname{Var}(\log n) \approx \operatorname{Var}(n)/(\operatorname{E}n)^2 = 1/\operatorname{E}n$. The likelihood framework reproduces the answer from a first course, as a check should.
 
 ---
+
+<a id="s11-3"></a>
 
 ## 11.3 The Berman-Turner Quadrature Device
 
@@ -12106,6 +12465,8 @@ fig.savefig("figures/ch11/fig_11_1_crash_fit.png", dpi=120,
 
 ---
 
+<a id="s11-4"></a>
+
 ## 11.4 Offsets: Modeling Excess Over a Known Baseline
 
 ### 11.4.1 The Offset Model
@@ -12191,6 +12552,8 @@ With one year of data the estimated excess is $0.573$ (a factor of 1.77 at the p
 The profile over $h$ is the second lesson. The log-likelihood is 1424.96 at $h = 0.05$, 1425.16 at $h = 0.075$, and 1424.97 at $h = 0.1$, and the amplitude estimate falls from $1.665$ to $1.053$ across that range. A narrow, tall bump and a wider, lower one explain the data about equally well. The reach of the plume cannot be read off these data, and any p-value that selects $h$ by maximizing the likelihood is optimistic, because the test statistic is no longer a $\chi^2$ with one degree of freedom. We fixed $h$ in advance to avoid this.
 
 ---
+
+<a id="s11-5"></a>
 
 ## 11.5 Case-Control Data and the Logistic Bridge
 
@@ -12352,6 +12715,8 @@ The result is sobering. A map with no spatial pattern at all, the constant equal
 This is not an argument for the bump model over the kernel map. The bump model succeeds because we gave it the right shape and the right center. A bump placed in the wrong spot, or a true excess shaped like a ridge, would do badly (Exercise 17). The honest summary is that parametric structure buys power if it is right, and that the nonparametric map is the safer first look but needs far more data to find a localized excess.
 
 ---
+
+<a id="s11-6"></a>
 
 ## 11.6 Where Is the Excess? Spatial Scan Statistics
 
@@ -12519,6 +12884,8 @@ The scan tests departures from the baseline, and its power depends on how good t
 
 ---
 
+<a id="s11-7"></a>
+
 ## 11.7 Separating Trend From Interaction
 
 ### 11.7.1 Why the Ordinary $K$-Function Reports Clustering
@@ -12636,6 +13003,8 @@ The ordinary $K$ is far outside the envelope at every distance: it reports clust
 **Estimating the intensity and the interaction from the same data.** The inhomogeneous $K$ uses $\hat{\lambda}$ from the same events whose interaction it assesses. A flexible $\hat{\lambda}$ can absorb the clusters it is supposed to detect: an estimate that follows every bump of the pattern will explain interaction away. How much this matters depends on the flexibility. Section 11.9.3 compares estimates in 100 Poisson patterns. The estimator is nearly unbiased with a GLM fit of three parameters, and biased downward, sometimes severely, when the intensity is a kernel estimate that includes the event itself.
 
 ---
+
+<a id="s11-8"></a>
 
 ## 11.8 Inference Under Clustering
 
@@ -12879,6 +13248,8 @@ The naive standard errors are too small by a factor of 2.2 to 2.8 against the pa
 
 ---
 
+<a id="s11-9"></a>
+
 ## 11.9 Walkthrough and Lab 11
 
 The sections above each ended with a worked example. This section collects the repeated-sampling experiments behind the claims made along the way: that the logistic fit pays a price for an unknown baseline, that the scan test has the stated size and power, that estimating the intensity from the same data biases the $K$-function, and that the corrected standard errors cover.
@@ -13068,6 +13439,8 @@ The mean bootstrap standard errors are $(0.432, 0.894, 0.651)$, close to the pai
 
 ---
 
+<a id="ch11-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -13120,12 +13493,16 @@ The mean bootstrap standard errors are $(0.432, 0.894, 0.651)$, close to the pai
 
 ---
 
+<a id="ch11-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter treated the structure of a point pattern as known or as a nuisance. Trends were modeled and clustering was corrected for, but the clusters themselves were never described. Chapter 12 turns to them. It develops the Thomas process that we used here and the Matérn cluster process, and fits them by minimum contrast, as a preview did in Section 11.8. It introduces the log-Gaussian Cox process, which puts a spatial random effect $u(\mathbf{s})$ into the log-intensity and so connects point patterns with the geostatistics of Part II. And it treats inhibition with hard-core and Strauss processes, where the interaction term enters the Berman-Turner design matrix as one more column, so that the IRLS of this chapter fits them as well.
 
 
 ---
+
+<a id="ch12"></a>
 
 # Chapter 12: Models for Clustering and Inhibition
 
@@ -13145,6 +13522,8 @@ Two threads from earlier chapters come together here. The model equation $Y = \m
 > - **Walkthrough and Lab (§12.6):** Seven figures that put the pieces side by side.
 
 ---
+
+<a id="s12-1"></a>
 
 ## 12.1 Three Explanations for a Departure From CSR
 
@@ -13177,6 +13556,8 @@ $$
 where $h_{ij}$ is the distance between points $i$ and $j$ and $\omega_{ij}$ corrects for edges. Chapter 10 derived Ripley's isotropic weights. On a rectangle there is a simpler choice, the *translation correction*, which gives each pair the weight $\omega_{ij} = 1/\left[(1 - \lvert\Delta x_{ij}\rvert)(1 - \lvert\Delta y_{ij}\rvert)\right]$, where $\Delta x_{ij}$ and $\Delta y_{ij}$ are the coordinate differences. The weight is the reciprocal of the fraction of the window that stays inside the window when it is shifted by the pair's separation vector, and it can be computed in one line. We use it throughout this chapter.
 
 ---
+
+<a id="s12-2"></a>
 
 ## 12.2 Cluster Processes
 
@@ -13680,6 +14061,8 @@ The formula tracks the simulated average to the accuracy seen for the Thomas pro
 
 ---
 
+<a id="s12-3"></a>
+
 ## 12.3 The Log-Gaussian Cox Process
 
 The cluster processes of Section 12.2 are *mechanistic*: there are parents, and offspring gather around them. A second way to produce clustering needs no parents at all. Let the intensity itself be random.
@@ -13924,6 +14307,8 @@ print(f"best sigma2 = {best[1]}; "
 The slide has $220$ points on $400$ pixels, and $62\%$ of the pixels are empty, so each pixel carries little information. The Laplace marginal likelihood is largest at $\sigma^2 = 1.0$ (log marginal $995.5$, against $989.2$ at $0.3$ and $983.7$ at $3.0$), and at that value the fitted log-intensity has a correlation of $0.72$ with the true one. The raw counts, $\log(y_k + 0.5)$, correlate only $0.53$: borrowing strength from neighbors through the GMRF prior improves the reconstruction substantially, as Chapter 9's disease maps did. The correlation is highest near the marginal-likelihood optimum, $0.721$ at $\sigma^2 = 1$ and $0.722$ at $\sigma^2 = 3$, and falls to $0.62$ at $\sigma^2 = 0.1$ when the small variance over-smooths the fit; the marginal likelihood picks a good value without knowing the truth. Figure 12.7 in Section 12.6 shows the result: the fitted surface finds the high-intensity patches in the upper left, along the right edge, and in the lower left, but it is smoother and lower in resolution than the truth.
 
 ---
+
+<a id="s12-4"></a>
 
 ## 12.4 Inhibition
 
@@ -14255,6 +14640,8 @@ The log pseudolikelihood climbs from $321.5$ at $r_0 = 0.02$ to $356.7$ at $r_0 
 
 ---
 
+<a id="s12-5"></a>
+
 ## 12.5 Checking a Fitted Point Process Model
 
 A fitted model is a claim about how the data were generated. This section gives three ways of testing the claim, in increasing order of what they can detect: residual fields (is the intensity right?), envelopes (are the pair statistics right?), and a table of goodness-of-fit tests (which model families survive?).
@@ -14481,6 +14868,8 @@ Two further caveats. First, for the Thomas, LGCP, and Strauss columns the parame
 
 ---
 
+<a id="s12-6"></a>
+
 ## 12.6 Walkthrough and Lab 12
 
 Most of the code of this chapter appeared next to the derivations that motivate it. The lab collects its output in seven figures, each produced from objects already computed above, so that the three explanations, the three kinds of fit, and the checking tools can be seen side by side. Run the code from the top folder of the repository so that the figures are written to `figures/ch12/`.
@@ -14676,6 +15065,8 @@ In Figure 12.7 the middle panel shows points concentrated in a few places: the u
 
 ---
 
+<a id="ch12-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -14728,6 +15119,8 @@ In Figure 12.7 the middle panel shows points concentrated in a few places: the u
 
 ---
 
+<a id="ch12-what-comes-next"></a>
+
 ## What Comes Next
 
 This chapter closes Part IV. A pattern of points can now be explored (Chapter 10), related to covariates through a Poisson or logistic GLM (Chapter 11), and modeled for clustering or inhibition, with the fit checked against simulation (this chapter). The same pattern of ideas runs through all of Parts II to IV: write down a model with a spatial random effect or an interaction, find the function that summarizes it (the variogram, the covariance, $K$), fit by matching or by a likelihood-type criterion, and check the fit against simulated data from the fitted model.
@@ -14736,6 +15129,19 @@ Part V turns to a different limit: what happens to these methods when $n$ is not
 
 
 ---
+
+<!-- manuscript:part:begin {"label": "Part V", "title": "Matrix Scalability for Large Spatial Systems", "description": "What to do when the matrices no longer fit.", "chapters": [13]} -->
+<a id="part-5"></a>
+
+# Part V: Matrix Scalability for Large Spatial Systems
+
+*What to do when the matrices no longer fit.*
+
+<!-- manuscript:part:end -->
+
+---
+
+<a id="ch13"></a>
 
 # Chapter 13: Matrix Approximations and Fast Algorithms for Large $n$
 
@@ -14758,6 +15164,8 @@ The tools are ones we already have. The Woodbury identity of Section 13.2 follow
 > - **Walkthrough and Lab (§13.7):** A benchmark of the four methods against the exact computation, timings at 20,000 and 50,000 listings, and four figures.
 
 ---
+
+<a id="s13-1"></a>
 
 ## 13.1 The $O(n^3)$ Bottleneck
 
@@ -14871,6 +15279,8 @@ The remaining sections each exploit one structure of the model. The table says w
 The listings in the story come from the rent model of Chapters 3 to 5. The benchmarks use the exact simulation up to $n = 5{,}000$, because only there can we compute the true answer. For the 20,000 listings of Section 13.4.4 the data cannot be simulated exactly, and the text says how they are generated.
 
 ---
+
+<a id="s13-2"></a>
 
 ## 13.2 Low-Rank Spatial Models
 
@@ -15125,6 +15535,8 @@ and the low-rank model puts none of it in $\boldsymbol{\Sigma}$. The deficit is 
 
 ---
 
+<a id="s13-3"></a>
+
 ## 13.3 Covariance Tapering
 
 ### 13.3.1 The Idea and Why It Stays Valid
@@ -15233,6 +15645,8 @@ for n_t, ph, thetas in ((2000, 0.15, (0.05, 0.1, 0.2, 0.3, 0.45)),
 **The benefit is for much larger problems.** For $n = 20{,}000$ listings in the same unit square and a taper range of $0.05$ (0.76% of the entries nonzero), the sparse LU factorization of Section 13.7 takes about 29 seconds, with a fill-in of 8.2. That is a sparse problem, but a slow one, and a taper range of $0.05$ is far too short for the exponential model with $\phi = 0.15$. Tapering pays when the study region is large compared with the correlation range, so that $\theta \gg \phi$ still leaves a sparse matrix: a continent of listings, not a city. It also needs a good sparse Cholesky routine, which this book's toolset does not provide. Iterative solvers such as conjugate gradients (Exercise 7) avoid the factorization altogether.
 
 ---
+
+<a id="s13-4"></a>
 
 ## 13.4 Vecchia's Approximation
 
@@ -15483,6 +15897,8 @@ The log-likelihood at the fitted parameters rises with $k$: $-32072.7$ for $k = 
 
 ---
 
+<a id="s13-5"></a>
+
 ## 13.5 The Bridge Between Parts II and III: Matérn Fields as Markov Fields
 
 ### 13.5.1 The Result of Lindgren, Rue, and Lindström
@@ -15636,6 +16052,8 @@ The two log-determinants agree to six decimal places ($1263.826506$), and so do 
 
 ---
 
+<a id="s13-6"></a>
+
 ## 13.6 Kronecker Products for Separable Space-Time Data
 
 ### 13.6.1 Separable Covariance
@@ -15782,6 +16200,8 @@ The last block above builds a nonseparable covariance, $\exp\{-\sqrt{(u/3)^2 + (
 Two other conditions are needed. The data must form a complete rectangle, every site observed in every week, because a missing value breaks the Kronecker structure of $\boldsymbol{\Sigma}$ (an imbalanced panel needs the Woodbury identity or an iterative solver). And a sum of a few Kronecker products, $\sum_r\boldsymbol{\Sigma}_{T,r} \otimes \boldsymbol{\Sigma}_{S,r}$, can represent some nonseparable covariances, but inverting such a sum is not as cheap. The same Kronecker structure holds for multivariate data on a common set of sites, with $\boldsymbol{\Sigma}_T$ replaced by the covariance matrix among the variables. Appendix D points to the literature on nonseparable and multivariate models.
 
 ---
+
+<a id="s13-7"></a>
 
 ## 13.7 Walkthrough and Lab 13
 
@@ -15937,6 +16357,8 @@ print("figures saved")
 
 ---
 
+<a id="ch13-exercises"></a>
+
 ## Exercises
 
 **Analytical**
@@ -15984,6 +16406,8 @@ print("figures saved")
 20. For a data set with 5% of the cells of a $400 \times 50$ space-time rectangle missing at random, explain why the Kronecker computation of Section 13.6.2 no longer applies, and implement the likelihood with the Woodbury identity: write the observed covariance matrix as a submatrix of $\boldsymbol{\Sigma}_T \otimes \boldsymbol{\Sigma}_S$ and use a conjugate gradient solver with Kronecker matrix-vector products.
 
 ---
+
+<a id="ch13-what-comes-next"></a>
 
 ## What Comes Next
 

@@ -72,8 +72,8 @@ def main() -> int:
     pdf_parser.add_argument(
         "--font",
         type=str,
-        default="Liberation Serif",
-        help="Main body font (default: 'Liberation Serif').",
+        default="New Computer Modern",
+        help="Main body font (default: 'New Computer Modern').",
     )
     pdf_parser.add_argument(
         "--paper",
@@ -113,8 +113,8 @@ def main() -> int:
     build_parser.add_argument(
         "--font",
         type=str,
-        default="Liberation Serif",
-        help="Main body font (default: 'Liberation Serif').",
+        default="New Computer Modern",
+        help="Main body font (default: 'New Computer Modern').",
     )
     build_parser.add_argument(
         "--paper",

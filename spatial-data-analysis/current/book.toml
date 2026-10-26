@@ -1,0 +1,62 @@
+# Book-level metadata and structure, read by `python -m tools.manuscript`.
+# The chapter files hold the text; this file holds what sits around it:
+# the title page, the grouping into parts, and the one-line descriptions
+# shown on the contents pages. Plain prose only in descriptions (no LaTeX).
+
+title = "Spatial Data Analysis"
+subtitle = "A Linear Models and Matrix Approach"
+author = "Jonathan Navarrete"
+status = "Working draft"
+tagline = "Spatial statistics, translated into the linear models you already know."
+
+[[parts]]
+label = "Getting Started"
+title = ""
+description = ""
+chapters = [0]
+
+[[parts]]
+label = "Part I"
+title = "Matrix Foundations and Spatial Covariance"
+description = "How spatial dependence enters the linear model you already know, and how to build and simulate it."
+chapters = [1, 2]
+
+[[parts]]
+label = "Part II"
+title = "Geostatistical Models and Generalized Least Squares"
+description = "Continuous surfaces: estimate the covariance, predict at new locations, and fit the whole model by likelihood."
+chapters = [3, 4, 5]
+
+[[parts]]
+label = "Part III"
+title = "Discrete Spatial Models (Lattice and Areal Data)"
+description = "Data on regions such as counties or tracts: neighborhoods as matrices, spatial regression, and models for counts."
+chapters = [6, 7, 8, 9]
+
+[[parts]]
+label = "Part IV"
+title = "Spatial Point Patterns"
+description = "Data that are the locations themselves: where events happen, and why."
+chapters = [10, 11, 12]
+
+[[parts]]
+label = "Part V"
+title = "Matrix Scalability for Large Spatial Systems"
+description = "What to do when the matrices no longer fit."
+chapters = [13]
+
+[chapters]
+0 = "Why ordinary statistics misleads in space, the one equation behind the book, and a quick review of five tools you already know."
+1 = "What happens to least squares when neighbors resemble each other, and how many independent observations your data are really worth."
+2 = "The one model equation, covariance functions and variograms, and simulating spatial fields whose truth you know."
+3 = "Estimating and fitting the variogram, and why an unmodeled trend contaminates it."
+4 = "Best linear unbiased prediction at new locations in simple, ordinary, and universal form, plus block kriging and cross-validation."
+5 = "Maximum likelihood and REML for the spatial model, comparing models, and checking diagnostics."
+6 = "Spatial weights, Moran's I as a quadratic form, and the modifiable areal unit problem."
+7 = "Regression with spatial feedback, and what a coefficient means when effects spread."
+8 = "Sparse precision matrices, and the view from a single region and its neighbors."
+9 = "Poisson regression with a spatial random effect, from the basic model to BYM2."
+10 = "Intensity, complete spatial randomness, and the summary functions that reveal clustering and regularity."
+11 = "Intensity models with covariates, fit as an ordinary GLM with the Berman-Turner device."
+12 = "Why points cluster or repel, and how to fit and check a model for each."
+13 = "Low-rank, tapered, and neighbor-based approximations, sparse precision methods, and when each is worth using."
