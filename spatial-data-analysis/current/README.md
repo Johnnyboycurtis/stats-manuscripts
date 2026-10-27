@@ -50,7 +50,7 @@ Read these files in this order:
 
 ## Current Status
 
-As of 2026-10-25. Chapters 0 to 13 are drafted; the appendices are not. The author has read Chapters 0, 1, 2, and 3 and approved them; Chapters 4 to 13 are unreviewed. The drafts lean long on derivations so they can be trimmed in review.
+As of 2026-10-26. Chapters 0 to 13 are drafted; the appendices are not. The author has read Chapters 0, 1, 2, 3, and 4 and approved them; Chapters 5 to 13 are unreviewed. The drafts lean long on derivations so they can be trimmed in review.
 
 | Chapter | File | Words (including code and equations) | Figures |
 | :--- | :--- | :--- | :--- |
@@ -58,7 +58,7 @@ As of 2026-10-25. Chapters 0 to 13 are drafted; the appendices are not. The auth
 | 1 | `chapters/ch01_spatial_dependence.md` | 9,484 | 0 |
 | 2 | `chapters/ch02_spatial_linear_model.md` | 8,020 | 2 |
 | 3 | `chapters/ch03_empirical_variography.md` | 8,180 | 3 |
-| 4 | `chapters/ch04_kriging_blup.md` | 10,005 | 2 |
+| 4 | `chapters/ch04_kriging_blup.md` | 10,823 | 2 |
 | 5 | `chapters/ch05_likelihood_reml.md` | 10,719 | 2 |
 | 6 | `chapters/ch06_areal_units_moran.md` | 15,613 | 4 |
 | 7 | `chapters/ch07_sar_models.md` | 12,771 | 3 |

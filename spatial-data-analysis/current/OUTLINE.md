@@ -178,7 +178,7 @@ All notation, the typographic conventions, the model used throughout, and the co
 
 ### Chapter 4: Spatial Prediction: Kriging as Linear Model BLUP
 
-*Running stories:* predicting the rent of an unlisted building; the average rent over a neighborhood (block kriging; a parallel is the average noise level over a park); kriging log rents.
+*Running stories:* predicting the rent of an unlisted building; the average rent over a neighborhood (block kriging; housing agency benchmark); kriging log rents.
 
 * 4.1 Demystifying "kriging": it is best linear unbiased prediction
     * 4.1.1 The prediction target: the noise-free value $\tilde{Y}(\mathbf{s}_0) = \mu(\mathbf{s}_0) + u(\mathbf{s}_0)$, with $\mathbf{c}_0 = \operatorname{Cov}(\mathbf{Y}, \tilde{Y}(\mathbf{s}_0))$
@@ -202,7 +202,7 @@ All notation, the typographic conventions, the model used throughout, and the co
 * 4.5 Two targets, and interpolation versus smoothing
     * 4.5.1 Predicting the noise-free value at a data location: interpolation when $\tau^2 = 0$, smoothing when $\tau^2 > 0$ (with Figure 4.1)
     * 4.5.2 Predicting a new observation: the same predictor, with $\tau^2$ added to the variance
-    * 4.5.3 Kriging as a conditional mean, Gaussian process regression, and kernel ridge regression
+    * 4.5.3 Kriging as a conditional mean, Gaussian process regression, and kernel ridge regression (Optional)
     * 4.5.4 Skewed responses: kriging $\log Y$ and the back-transformation correction $e^{\sigma^2_{\text{SK}}/2}$
 * 4.6 Change of support: block kriging
     * 4.6.1 Predicting an areal average $\tilde{Y}(B)$

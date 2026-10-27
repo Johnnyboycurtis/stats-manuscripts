@@ -617,7 +617,9 @@ $$
 
 The prediction is the same; the interval is wider, by the nugget. A landlord who asks "what will this particular apartment rent for?" needs the wider interval. An agency mapping the rent level of a neighborhood needs the narrower one. Software output often does not say which it reports, which is one reason to understand the derivation.
 
-### 4.5.3 Kriging Is Gaussian Process Regression and Kernel Ridge Regression
+### 4.5.3 Kriging Is Gaussian Process Regression and Kernel Ridge Regression (Optional)
+
+*This subsection connects kriging to Gaussian process regression and kernel ridge regression in machine learning. It can be skipped on a first reading.*
 
 Kriging appears under other names in machine learning. Two connections are worth making precise.
 
@@ -657,7 +659,7 @@ $$
 
 The naive back-transformation $\exp(\hat{Y}_{\text{SK}})$ estimates the conditional median, not the mean, and is biased low. The correction factor $e^{\sigma^2_{\text{SK}}/2}$ is largest where the prediction is least certain. (With an estimated mean, as in ordinary or universal kriging, the exact correction has an extra term; using the kriging variance in its place is a common approximation.)
 
-The code checks this on a simulated log-rent field, with log-scale mean 3 (a typical rent of $e^3 \approx 20$, about \$2,000), $\sigma^2 = 0.09$, $\tau^2 = 0.01$, and $\phi = 0.15$. It predicts the noise-free rent on a $20 \times 20$ grid of unlisted locations. Checking against the truth requires the true values at those grid locations, so the spatial effect must be simulated jointly at the listings and the grid. The function `joint_field` does that: one Cholesky factorization of the combined covariance matrix, as in Section 2.7. The rent district generator used elsewhere in this chapter simulates only at the listings, which is why a second generator is needed here.
+The code checks this on a simulated log-rent field, with log-scale mean 3 (a typical rent of $e^3 \approx 20$, about \$2,000), $\sigma^2 = 0.09$, $\tau^2 = 0.01$, and $\phi = 0.15$. It predicts the noise-free rent on a $20 \times 20$ grid of unlisted locations. Checking against the truth requires knowing what the true surface was at those unlisted grid locations. Simulating the listings first with `rent_district()` and then simulating the grid in a separate call would produce two independent realizations, destroying the spatial correlation between the data and the targets. To preserve the covariance $\mathbf{c}_0$, the random effect $\mathbf{u}$ must be drawn jointly from the combined $(n + m)$-dimensional distribution. The function `joint_field` does that through a single Cholesky factorization of the combined covariance matrix, as in Section 2.7. The rent district generator used elsewhere in this chapter simulates only at the listings, which is why a second generator is needed here.
 
 ```python
 def joint_field(S_obs, S_new, sigma2, phi, seed):
@@ -1029,17 +1031,50 @@ The two columns tell different stories. The standard error of the prediction fal
 
 10. In the block-kriging argument of Section 4.6.3, when is the inequality an equality? Describe a covariance model and a block for which block kriging gives almost no improvement over point kriging.
 
+11. Formulate ordinary kriging directly through the semivariogram $\gamma(\mathbf{h})$ rather than the covariance $C(\mathbf{h})$. Assume intrinsic stationarity, with $\gamma(\mathbf{s}_i - \mathbf{s}_j) = C(\mathbf{0}) - C(\mathbf{s}_i - \mathbf{s}_j)$. Define the $n \times n$ semivariogram matrix $\boldsymbol{\Gamma}$ with entries $\Gamma_{ij} = \gamma(\mathbf{s}_i - \mathbf{s}_j)$ and the target semivariogram vector $\boldsymbol{\gamma}_0$ with entries $(\boldsymbol{\gamma}_0)_i = \gamma(\mathbf{s}_i - \mathbf{s}_0)$.
+    (a) For any weight vector satisfying $\boldsymbol{\lambda}'\mathbf{1}_n = 1$, show that $\boldsymbol{\lambda}'\boldsymbol{\Sigma}\boldsymbol{\lambda} = C(\mathbf{0}) - \boldsymbol{\lambda}'\boldsymbol{\Gamma}\boldsymbol{\lambda}$ and $\boldsymbol{\lambda}'\mathbf{c}_0 = C(\mathbf{0}) - \boldsymbol{\lambda}'\boldsymbol{\gamma}_0$.
+    (b) Show that minimizing the prediction error variance subject to $\boldsymbol{\lambda}'\mathbf{1}_n = 1$ leads to the linear system
+    $$
+    \begin{bmatrix} \boldsymbol{\Gamma} & \mathbf{1}_n \\ \mathbf{1}_n' & 0 \end{bmatrix} \begin{bmatrix} \boldsymbol{\lambda} \\ m_\gamma \end{bmatrix} = \begin{bmatrix} \boldsymbol{\gamma}_0 \\ 1 \end{bmatrix}
+    $$
+    with $m_\gamma = -m$, giving the identical weights $\boldsymbol{\lambda}_{\text{OK}}$ as the covariance system.
+    (c) Show that the ordinary kriging variance equals $\sigma^2_{\text{OK}} = \boldsymbol{\lambda}'\boldsymbol{\gamma}_0 + m_\gamma$. Use this to explain why ordinary kriging requires only intrinsic stationarity, whereas simple kriging requires second-order stationarity.
+
+12. In a one-dimensional spatial process on the line with exponential covariance $C(h) = \sigma^2 \exp(-\lvert h\rvert / \phi)$ and no nugget ($\tau^2 = 0$), the process is a stationary Markov process (the Ornstein-Uhlenbeck process). Suppose observations are located at $s_1 < s_2 < \dots < s_n$. We want to predict $\tilde{Y}(s_0)$ at an interior point $s_0 \in (s_k, s_{k+1})$ by simple kriging with mean zero.
+    (a) Using the tridiagonal structure of $\boldsymbol{\Sigma}^{-1}$ from Section 1.3.2, show that the simple kriging weights $\lambda_j$ are zero for all $j \notin \{k, k+1\}$: the screening effect is exact.
+    (b) Solve the reduced $2 \times 2$ system for the weights $\lambda_k$ and $\lambda_{k+1}$ on the two enclosing neighbors in terms of $d_1 = s_0 - s_k$, $d_2 = s_{k+1} - s_0$, and $\Delta = s_{k+1} - s_k = d_1 + d_2$.
+    (c) Show that both weights are positive. Show that as the correlation range $\phi \to \infty$, the weights converge to linear interpolation: $\lambda_k \to d_2 / \Delta$ and $\lambda_{k+1} \to d_1 / \Delta$.
+
+13. Derive the simple kriging predictor as a conditional expectation under joint normality. Suppose $\mathbf{Y}$ and $\tilde{Y}_0 = \tilde{Y}(\mathbf{s}_0)$ are jointly Gaussian:
+    $$
+    \begin{bmatrix} \mathbf{Y} \\ \tilde{Y}_0 \end{bmatrix} \sim N\!\left(\begin{bmatrix} \boldsymbol{\mu} \\ \mu_0 \end{bmatrix},\; \begin{bmatrix} \boldsymbol{\Sigma} & \mathbf{c}_0 \\ \mathbf{c}_0' & \sigma^2 \end{bmatrix}\right)
+    $$
+    Define the random variable $Z = \tilde{Y}_0 - \mathbf{c}_0'\boldsymbol{\Sigma}^{-1}\mathbf{Y}$.
+    (a) Compute $\operatorname{Cov}(Z, \mathbf{Y})$ and show that it equals $\mathbf{0}'$.
+    (b) Because linear combinations of Gaussian vectors are Gaussian, zero covariance implies that $Z$ and $\mathbf{Y}$ are independent. Use this independence to evaluate $\operatorname{E}[\tilde{Y}_0 \mid \mathbf{Y}]$ and $\operatorname{Var}(\tilde{Y}_0 \mid \mathbf{Y})$ by writing $\tilde{Y}_0 = Z + \mathbf{c}_0'\boldsymbol{\Sigma}^{-1}\mathbf{Y}$.
+    (c) Confirm that the conditional mean and conditional variance match the simple kriging formulas $\hat{Y}_{\text{SK}}(\mathbf{s}_0)$ and $\sigma^2_{\text{SK}}(\mathbf{s}_0)$. Explain why this implies that under normality, no nonlinear predictor can achieve a lower mean squared prediction error than simple kriging.
+
+14. Suppose simple kriging weights $\boldsymbol{\lambda}_n = \boldsymbol{\Sigma}_n^{-1}\mathbf{c}_0$ have been computed for $n$ listings. A new listing arrives at location $\mathbf{s}_{n+1}$, expanding the covariance matrix to $\boldsymbol{\Sigma}_{n+1} = \begin{bmatrix} \boldsymbol{\Sigma}_n & \mathbf{k} \\ \mathbf{k}' & \Sigma_{n+1, n+1} \end{bmatrix}$ and the target covariance to $\mathbf{c}_{0, n+1} = (\mathbf{c}_0', c_{0, n+1})'$.
+    (a) Use the block inversion formula of Section 4.3.4 to express $\boldsymbol{\Sigma}_{n+1}^{-1}$ in terms of $\boldsymbol{\Sigma}_n^{-1}$, $\mathbf{k}$, and the scalar Schur complement $s = \Sigma_{n+1, n+1} - \mathbf{k}'\boldsymbol{\Sigma}_n^{-1}\mathbf{k}$.
+    (b) Show that the new weight on listing $n+1$ is $\lambda_{n+1} = (c_{0, n+1} - \mathbf{k}'\boldsymbol{\lambda}_n) / s$, and express the updated weights $\boldsymbol{\lambda}_{1:n}$ on the original $n$ listings in terms of $\boldsymbol{\lambda}_n$ and $\lambda_{n+1}$.
+    (c) Show that the updated simple kriging variance satisfies $\sigma^2_{\text{SK}, n+1} = \sigma^2_{\text{SK}, n} - s\,\lambda_{n+1}^2$. Conclude that adding an observation can never increase the simple kriging variance.
+
+15. In ordinary kriging, consider relaxing the unbiasedness constraint to $\boldsymbol{\lambda}'\mathbf{1}_n = c$ for an arbitrary scalar $c$.
+    (a) Minimize $\operatorname{MSPE}(\boldsymbol{\lambda}) = \boldsymbol{\lambda}'\boldsymbol{\Sigma}\boldsymbol{\lambda} - 2\boldsymbol{\lambda}'\mathbf{c}_0 + \sigma^2$ subject to $\boldsymbol{\lambda}'\mathbf{1}_n = c$ using the Lagrangian $\mathcal{L}_c(\boldsymbol{\lambda}, m) = \operatorname{MSPE}(\boldsymbol{\lambda}) + 2m(\boldsymbol{\lambda}'\mathbf{1}_n - c)$. Show that the constrained minimum variance as a function of $c$, $V(c)$, satisfies $V(c) = \sigma^2_{\text{SK}} + (c - a_0)^2 / q_0$, where $a_0 = \mathbf{1}_n'\boldsymbol{\Sigma}^{-1}\mathbf{c}_0$ and $q_0 = \mathbf{1}_n'\boldsymbol{\Sigma}^{-1}\mathbf{1}_n$.
+    (b) Differentiate $V(c)$ with respect to $c$ and evaluate at $c = 1$. Show that $V'(1) = 2m$, confirming the economic interpretation of the Lagrange multiplier as the marginal change in prediction variance per unit shift in the constraint.
+    (c) Using $m = (a_0 - 1) / q_0$, explain under what conditions on the location $\mathbf{s}_0$ the Lagrange multiplier satisfies $m < 0$, $m = 0$, or $m > 0$.
+
 **Computational and simulation**
 
-11. For the rent district, compute the universal kriging standard error along the line from $(0.5, 0.5)$ to $(2, 0.5)$, east out of the district. Plot the simple kriging variance and the trend cost separately. Where does the trend cost overtake the simple kriging variance?
+16. For the rent district, compute the universal kriging standard error along the line from $(0.5, 0.5)$ to $(2, 0.5)$, east out of the district. Plot the simple kriging variance and the trend cost separately. Where does the trend cost overtake the simple kriging variance?
 
-12. Repeat the coverage experiment of Section 4.8.3 for the other target: a new observation at each grid location, with intervals $\hat{Y} \pm 1.96\sqrt{\sigma^2_{\text{UK}} + \tau^2}$. Confirm about 95% coverage, and show that the intervals for $\tilde{Y}$ cover new observations far less often.
+17. Repeat the coverage experiment of Section 4.8.3 for the other target: a new observation at each grid location, with intervals $\hat{Y} \pm 1.96\sqrt{\sigma^2_{\text{UK}} + \tau^2}$. Confirm about 95% coverage, and show that the intervals for $\tilde{Y}$ cover new observations far less often.
 
-13. Run the coverage experiment with a misspecified covariance: krige with $\phi = 0.05$ or $\phi = 0.4$ while simulating with $\phi = 0.15$. Report coverage and RMSE. Which mistake is worse, and why?
+18. Run the coverage experiment with a misspecified covariance: krige with $\phi = 0.05$ or $\phi = 0.4$ while simulating with $\phi = 0.15$. Report coverage and RMSE. Which mistake is worse, and why?
 
-14. Use the LOOCV shortcut to choose $\phi$ for the rent district: compute the leave-one-out root mean squared error for $\phi$ from 0.05 to 0.40, keeping $\sigma^2$ and $\tau^2$ fixed. Does the minimum fall near the true value 0.15?
+19. Use the LOOCV shortcut to choose $\phi$ for the rent district: compute the leave-one-out root mean squared error for $\phi$ from 0.05 to 0.40, keeping $\sigma^2$ and $\tau^2$ fixed. Does the minimum fall near the true value 0.15?
 
-15. Compute block kriging variances for squares $[0.5 - w/2, 0.5 + w/2]^2$ with $w$ from 0.02 to 0.8, and plot them against $w$. Explain the shape of the curve, including its value as $w \to 0$.
+20. Compute block kriging variances for squares $[0.5 - w/2, 0.5 + w/2]^2$ with $w$ from 0.02 to 0.8, and plot them against $w$. Explain the shape of the curve, including its value as $w \to 0$.
 
 ---
 

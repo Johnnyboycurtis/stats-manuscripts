@@ -31,11 +31,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 4: Kriging as BLUP
 
-1. **Block-kriging story.** The outline's running-stories line is now updated, but the original story was "the average noise level over a park," but the chapter's data are rents, so §4.6 predicts the average rent over a neighborhood (a housing agency's benchmark) and mentions the park only as a parallel. **Recommendation:** keep rents for continuity, and update the outline's running-stories line (not yet changed).
-2. **A second simulation for truth checks.** The chapter uses `rent_district()` for most examples, plus a second generator, `joint_field()`, for checks against the true surface at unlisted locations (log kriging and the coverage experiment). Is the explanation in §4.5.4 of why a second generator is needed clear enough?
-3. **What else to mark Optional.** Only the leave-one-out proof (§4.7.4) is Optional. The block-inversion tool (§4.3.4) and the kernel ridge derivation (§4.5.3) are in the main text. **Recommendation:** make §4.5.3's kernel ridge derivation Optional and keep §4.3.4, which Chapters 5 and 8 use.
-4. **Lognormal correction with an estimated mean.** §4.5.4 derives the exact back-transformation correction only for simple kriging and calls the ordinary and universal versions "a common approximation." Add the exact ordinary-kriging correction, or leave it for Appendix D?
-5. **The symbol $\mathbf{K}$** for the bordered kriging matrix. It is bold, so it does not clash with $K(r)$ or $K_\nu$, and it is listed in `NOTATION.md`. OK?
+1. **Trim candidates:** The Optional derivation of kernel ridge regression (§4.5.3) and the leave-one-out proof (§4.7.4) could move to Appendix A if trimming is desired later. (Items 1-5 settled on 2026-10-26: keep neighborhood rent story in outline and chapter, clarify joint_field rationale for graduate students in §4.5.4, mark §4.5.3 Optional, defer exact ordinary lognormal kriging correction to Appendix D, keep bold K for bordered kriging matrix).
 
 ## Chapter 5: Likelihood, REML, and Diagnostics
 
