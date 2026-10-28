@@ -48,12 +48,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 6: Areal Units, Weights, and Moran's I
 
-1. **Multiple testing for local indicators.** §6.7.2 shows that 26 of 144 counties are flagged at 5% (and 100 pure-noise maps average 5.6 flagged counties), and recommends Bonferroni or false-discovery-rate corrections without implementing one. Add a short implementation, or leave as advice?
-2. **Unequal variances break both tests.** With variances that differ across counties and no spatial structure, the z-test rejects 26.2% and the permutation test 28.8% (nominal 5%). The text points to Chapter 9 for the fix. Should Chapter 6 show the fix itself?
-3. **Symmetrized weights have eigenvalues outside $\pm 1$** (for the hub map from $-0.812$ to $1.052$; for the county map $\pm 1.0023$), so $I$ is not confined to $[-1, 1]$. §6.4.4 says so. Keep?
-4. **MAUP simulation is invented.** The signs (a local effect of $+1$ and a regional effect of $-0.5$) are labeled as simulated, the regional part is anisotropic so that east-west and north-south strips differ, and cells are averaged rather than population-weighted. Prefer an isotropic version?
-5. **One placeholder.** §6.3.3 has a `**[STORY NEEDED]**`: a setting where a reader would care about the eigenvalues of $\mathbf{W}$ before Chapter 7.
-6. **Trim candidates:** §6.5.6 (Optional), the residual-permutation experiment in §6.8.5, the null simulation in §6.7.2, exercises 15 to 20.
+1. **Trim candidates:** The Optional subsection on exact variance under the randomization hypothesis (§6.5.6) could move to Appendix A if trimming is desired later. (Items 1-6 settled on 2026-10-28: implemented Benjamini-Hochberg FDR in §6.7.2 code and prose; kept unequal variances pointing to Chapter 9 GLMMs; kept eigenvalues of symmetrized weights outside $[-1, 1]$ with sharp Rayleigh quotient bounds in Exercise 14; kept anisotropic MAUP simulation; resolved §6.3.3 placeholder with conceptual eigenvalue interpretation and spatial multiplier shock propagation narrative with citations [@besley1995; @brueckner2003; @lesage2009; @ord1975; @acemoglu2012; @carvalho2021]; expanded exercise bank from 20 to 25 exercises).
 
 ## Chapter 7: SAR Models
 

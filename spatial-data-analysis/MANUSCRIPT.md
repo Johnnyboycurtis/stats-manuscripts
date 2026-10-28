@@ -3721,7 +3721,9 @@ $$
 
 The prediction is the same; the interval is wider, by the nugget. A landlord who asks "what will this particular apartment rent for?" needs the wider interval. An agency mapping the rent level of a neighborhood needs the narrower one. Software output often does not say which it reports, which is one reason to understand the derivation.
 
-### 4.5.3 Kriging Is Gaussian Process Regression and Kernel Ridge Regression
+### 4.5.3 Kriging Is Gaussian Process Regression and Kernel Ridge Regression (Optional)
+
+*This subsection connects kriging to Gaussian process regression and kernel ridge regression in machine learning. It can be skipped on a first reading.*
 
 Kriging appears under other names in machine learning. Two connections are worth making precise.
 
@@ -3761,7 +3763,7 @@ $$
 
 The naive back-transformation $\exp(\hat{Y}_{\text{SK}})$ estimates the conditional median, not the mean, and is biased low. The correction factor $e^{\sigma^2_{\text{SK}}/2}$ is largest where the prediction is least certain. (With an estimated mean, as in ordinary or universal kriging, the exact correction has an extra term; using the kriging variance in its place is a common approximation.)
 
-The code checks this on a simulated log-rent field, with log-scale mean 3 (a typical rent of $e^3 \approx 20$, about \$2,000), $\sigma^2 = 0.09$, $\tau^2 = 0.01$, and $\phi = 0.15$. It predicts the noise-free rent on a $20 \times 20$ grid of unlisted locations. Checking against the truth requires the true values at those grid locations, so the spatial effect must be simulated jointly at the listings and the grid. The function `joint_field` does that: one Cholesky factorization of the combined covariance matrix, as in Section 2.7. The rent district generator used elsewhere in this chapter simulates only at the listings, which is why a second generator is needed here.
+The code checks this on a simulated log-rent field, with log-scale mean 3 (a typical rent of $e^3 \approx 20$, about \$2,000), $\sigma^2 = 0.09$, $\tau^2 = 0.01$, and $\phi = 0.15$. It predicts the noise-free rent on a $20 \times 20$ grid of unlisted locations. Checking against the truth requires knowing what the true surface was at those unlisted grid locations. Simulating the listings first with `rent_district()` and then simulating the grid in a separate call would produce two independent realizations, destroying the spatial correlation between the data and the targets. To preserve the covariance $\mathbf{c}_0$, the random effect $\mathbf{u}$ must be drawn jointly from the combined $(n + m)$-dimensional distribution. The function `joint_field` does that through a single Cholesky factorization of the combined covariance matrix, as in Section 2.7. The rent district generator used elsewhere in this chapter simulates only at the listings, which is why a second generator is needed here.
 
 ```python
 def joint_field(S_obs, S_new, sigma2, phi, seed):
@@ -4141,17 +4143,50 @@ The two columns tell different stories. The standard error of the prediction fal
 
 10. In the block-kriging argument of Section 4.6.3, when is the inequality an equality? Describe a covariance model and a block for which block kriging gives almost no improvement over point kriging.
 
+11. Formulate ordinary kriging directly through the semivariogram $\gamma(\mathbf{h})$ rather than the covariance $C(\mathbf{h})$. Assume intrinsic stationarity, with $\gamma(\mathbf{s}_i - \mathbf{s}_j) = C(\mathbf{0}) - C(\mathbf{s}_i - \mathbf{s}_j)$. Define the $n \times n$ semivariogram matrix $\boldsymbol{\Gamma}$ with entries $\Gamma_{ij} = \gamma(\mathbf{s}_i - \mathbf{s}_j)$ and the target semivariogram vector $\boldsymbol{\gamma}_0$ with entries $(\boldsymbol{\gamma}_0)_i = \gamma(\mathbf{s}_i - \mathbf{s}_0)$.
+    (a) For any weight vector satisfying $\boldsymbol{\lambda}'\mathbf{1}_n = 1$, show that $\boldsymbol{\lambda}'\boldsymbol{\Sigma}\boldsymbol{\lambda} = C(\mathbf{0}) - \boldsymbol{\lambda}'\boldsymbol{\Gamma}\boldsymbol{\lambda}$ and $\boldsymbol{\lambda}'\mathbf{c}_0 = C(\mathbf{0}) - \boldsymbol{\lambda}'\boldsymbol{\gamma}_0$.
+    (b) Show that minimizing the prediction error variance subject to $\boldsymbol{\lambda}'\mathbf{1}_n = 1$ leads to the linear system
+    $$
+    \begin{bmatrix} \boldsymbol{\Gamma} & \mathbf{1}_n \\ \mathbf{1}_n' & 0 \end{bmatrix} \begin{bmatrix} \boldsymbol{\lambda} \\ m_\gamma \end{bmatrix} = \begin{bmatrix} \boldsymbol{\gamma}_0 \\ 1 \end{bmatrix}
+    $$
+    with $m_\gamma = -m$, giving the identical weights $\boldsymbol{\lambda}_{\text{OK}}$ as the covariance system.
+    (c) Show that the ordinary kriging variance equals $\sigma^2_{\text{OK}} = \boldsymbol{\lambda}'\boldsymbol{\gamma}_0 + m_\gamma$. Use this to explain why ordinary kriging requires only intrinsic stationarity, whereas simple kriging requires second-order stationarity.
+
+12. In a one-dimensional spatial process on the line with exponential covariance $C(h) = \sigma^2 \exp(-\lvert h\rvert / \phi)$ and no nugget ($\tau^2 = 0$), the process is a stationary Markov process (the Ornstein-Uhlenbeck process). Suppose observations are located at $s_1 < s_2 < \dots < s_n$. We want to predict $\tilde{Y}(s_0)$ at an interior point $s_0 \in (s_k, s_{k+1})$ by simple kriging with mean zero.
+    (a) Using the tridiagonal structure of $\boldsymbol{\Sigma}^{-1}$ from Section 1.3.2, show that the simple kriging weights $\lambda_j$ are zero for all $j \notin \{k, k+1\}$: the screening effect is exact.
+    (b) Solve the reduced $2 \times 2$ system for the weights $\lambda_k$ and $\lambda_{k+1}$ on the two enclosing neighbors in terms of $d_1 = s_0 - s_k$, $d_2 = s_{k+1} - s_0$, and $\Delta = s_{k+1} - s_k = d_1 + d_2$.
+    (c) Show that both weights are positive. Show that as the correlation range $\phi \to \infty$, the weights converge to linear interpolation: $\lambda_k \to d_2 / \Delta$ and $\lambda_{k+1} \to d_1 / \Delta$.
+
+13. Derive the simple kriging predictor as a conditional expectation under joint normality. Suppose $\mathbf{Y}$ and $\tilde{Y}_0 = \tilde{Y}(\mathbf{s}_0)$ are jointly Gaussian:
+    $$
+    \begin{bmatrix} \mathbf{Y} \\ \tilde{Y}_0 \end{bmatrix} \sim N\!\left(\begin{bmatrix} \boldsymbol{\mu} \\ \mu_0 \end{bmatrix},\; \begin{bmatrix} \boldsymbol{\Sigma} & \mathbf{c}_0 \\ \mathbf{c}_0' & \sigma^2 \end{bmatrix}\right)
+    $$
+    Define the random variable $Z = \tilde{Y}_0 - \mathbf{c}_0'\boldsymbol{\Sigma}^{-1}\mathbf{Y}$.
+    (a) Compute $\operatorname{Cov}(Z, \mathbf{Y})$ and show that it equals $\mathbf{0}'$.
+    (b) Because linear combinations of Gaussian vectors are Gaussian, zero covariance implies that $Z$ and $\mathbf{Y}$ are independent. Use this independence to evaluate $\operatorname{E}[\tilde{Y}_0 \mid \mathbf{Y}]$ and $\operatorname{Var}(\tilde{Y}_0 \mid \mathbf{Y})$ by writing $\tilde{Y}_0 = Z + \mathbf{c}_0'\boldsymbol{\Sigma}^{-1}\mathbf{Y}$.
+    (c) Confirm that the conditional mean and conditional variance match the simple kriging formulas $\hat{Y}_{\text{SK}}(\mathbf{s}_0)$ and $\sigma^2_{\text{SK}}(\mathbf{s}_0)$. Explain why this implies that under normality, no nonlinear predictor can achieve a lower mean squared prediction error than simple kriging.
+
+14. Suppose simple kriging weights $\boldsymbol{\lambda}_n = \boldsymbol{\Sigma}_n^{-1}\mathbf{c}_0$ have been computed for $n$ listings. A new listing arrives at location $\mathbf{s}_{n+1}$, expanding the covariance matrix to $\boldsymbol{\Sigma}_{n+1} = \begin{bmatrix} \boldsymbol{\Sigma}_n & \mathbf{k} \\ \mathbf{k}' & \Sigma_{n+1, n+1} \end{bmatrix}$ and the target covariance to $\mathbf{c}_{0, n+1} = (\mathbf{c}_0', c_{0, n+1})'$.
+    (a) Use the block inversion formula of Section 4.3.4 to express $\boldsymbol{\Sigma}_{n+1}^{-1}$ in terms of $\boldsymbol{\Sigma}_n^{-1}$, $\mathbf{k}$, and the scalar Schur complement $s = \Sigma_{n+1, n+1} - \mathbf{k}'\boldsymbol{\Sigma}_n^{-1}\mathbf{k}$.
+    (b) Show that the new weight on listing $n+1$ is $\lambda_{n+1} = (c_{0, n+1} - \mathbf{k}'\boldsymbol{\lambda}_n) / s$, and express the updated weights $\boldsymbol{\lambda}_{1:n}$ on the original $n$ listings in terms of $\boldsymbol{\lambda}_n$ and $\lambda_{n+1}$.
+    (c) Show that the updated simple kriging variance satisfies $\sigma^2_{\text{SK}, n+1} = \sigma^2_{\text{SK}, n} - s\,\lambda_{n+1}^2$. Conclude that adding an observation can never increase the simple kriging variance.
+
+15. In ordinary kriging, consider relaxing the unbiasedness constraint to $\boldsymbol{\lambda}'\mathbf{1}_n = c$ for an arbitrary scalar $c$.
+    (a) Minimize $\operatorname{MSPE}(\boldsymbol{\lambda}) = \boldsymbol{\lambda}'\boldsymbol{\Sigma}\boldsymbol{\lambda} - 2\boldsymbol{\lambda}'\mathbf{c}_0 + \sigma^2$ subject to $\boldsymbol{\lambda}'\mathbf{1}_n = c$ using the Lagrangian $\mathcal{L}_c(\boldsymbol{\lambda}, m) = \operatorname{MSPE}(\boldsymbol{\lambda}) + 2m(\boldsymbol{\lambda}'\mathbf{1}_n - c)$. Show that the constrained minimum variance as a function of $c$, $V(c)$, satisfies $V(c) = \sigma^2_{\text{SK}} + (c - a_0)^2 / q_0$, where $a_0 = \mathbf{1}_n'\boldsymbol{\Sigma}^{-1}\mathbf{c}_0$ and $q_0 = \mathbf{1}_n'\boldsymbol{\Sigma}^{-1}\mathbf{1}_n$.
+    (b) Differentiate $V(c)$ with respect to $c$ and evaluate at $c = 1$. Show that $V'(1) = 2m$, confirming the economic interpretation of the Lagrange multiplier as the marginal change in prediction variance per unit shift in the constraint.
+    (c) Using $m = (a_0 - 1) / q_0$, explain under what conditions on the location $\mathbf{s}_0$ the Lagrange multiplier satisfies $m < 0$, $m = 0$, or $m > 0$.
+
 **Computational and simulation**
 
-11. For the rent district, compute the universal kriging standard error along the line from $(0.5, 0.5)$ to $(2, 0.5)$, east out of the district. Plot the simple kriging variance and the trend cost separately. Where does the trend cost overtake the simple kriging variance?
+16. For the rent district, compute the universal kriging standard error along the line from $(0.5, 0.5)$ to $(2, 0.5)$, east out of the district. Plot the simple kriging variance and the trend cost separately. Where does the trend cost overtake the simple kriging variance?
 
-12. Repeat the coverage experiment of Section 4.8.3 for the other target: a new observation at each grid location, with intervals $\hat{Y} \pm 1.96\sqrt{\sigma^2_{\text{UK}} + \tau^2}$. Confirm about 95% coverage, and show that the intervals for $\tilde{Y}$ cover new observations far less often.
+17. Repeat the coverage experiment of Section 4.8.3 for the other target: a new observation at each grid location, with intervals $\hat{Y} \pm 1.96\sqrt{\sigma^2_{\text{UK}} + \tau^2}$. Confirm about 95% coverage, and show that the intervals for $\tilde{Y}$ cover new observations far less often.
 
-13. Run the coverage experiment with a misspecified covariance: krige with $\phi = 0.05$ or $\phi = 0.4$ while simulating with $\phi = 0.15$. Report coverage and RMSE. Which mistake is worse, and why?
+18. Run the coverage experiment with a misspecified covariance: krige with $\phi = 0.05$ or $\phi = 0.4$ while simulating with $\phi = 0.15$. Report coverage and RMSE. Which mistake is worse, and why?
 
-14. Use the LOOCV shortcut to choose $\phi$ for the rent district: compute the leave-one-out root mean squared error for $\phi$ from 0.05 to 0.40, keeping $\sigma^2$ and $\tau^2$ fixed. Does the minimum fall near the true value 0.15?
+19. Use the LOOCV shortcut to choose $\phi$ for the rent district: compute the leave-one-out root mean squared error for $\phi$ from 0.05 to 0.40, keeping $\sigma^2$ and $\tau^2$ fixed. Does the minimum fall near the true value 0.15?
 
-15. Compute block kriging variances for squares $[0.5 - w/2, 0.5 + w/2]^2$ with $w$ from 0.02 to 0.8, and plot them against $w$. Explain the shape of the curve, including its value as $w \to 0$.
+20. Compute block kriging variances for squares $[0.5 - w/2, 0.5 + w/2]^2$ with $w$ from 0.02 to 0.8, and plot them against $w$. Explain the shape of the curve, including its value as $w \to 0$.
 
 ---
 
@@ -5006,7 +5041,7 @@ print(f"bootstrap: share of LRT below 0.01 = "
       f"{np.mean(lrt_boot >= lrt):.3f}")
 ```
 
-The bootstrap broadly confirms the mixture picture, with a twist. A share of 0.675 of the simulated statistics are essentially zero, more than the half the mixture predicts, and the bootstrap 95th percentile is 1.739, below the mixture's 2.706. In this finite spatial sample the true null distribution has even more mass at zero than the asymptotic mixture, so the mixture is itself somewhat conservative. Either way, the observed statistic of 24.94 is larger than all 200 bootstrap values, so the bootstrap p-value is below $1/200$, and the conclusion stands.
+The bootstrap broadly confirms the mixture picture, with a twist. A share of 0.675 of the simulated statistics are essentially zero, more than the half the mixture predicts, and the bootstrap 95th percentile is 1.739, below the mixture's 2.706. The reason stems from finite-sample spatial dependence. With a finite number of locations, nearby listings are positively correlated, so subtle sample fluctuations in the data can easily be absorbed into the smooth spatial field by shortening the range slightly, rather than requiring an explicit nugget. This pulls the unconstrained estimate of $\tau^2$ toward zero even more frequently than the 50% predicted by large-sample theory, piling extra mass at the boundary. Either way, the observed statistic of 24.94 is larger than all 200 bootstrap values, so the bootstrap p-value is below $1/200$, and the conclusion stands.
 
 The general lesson: the mixture is a much better guide than $\chi^2_1$, and the bootstrap is the check when a conclusion depends on the details.
 
@@ -5292,19 +5327,51 @@ Figure 5.2 shows the decorrelated residuals of Section 5.6.1 against normal quan
 
 10. For two units at the same location, show that $\operatorname{Var}(Y_i - Y_j) = 2\tau^2$ under the model of Section 2.1. Explain why a data set with many buildings containing several units can estimate $\tau^2$ well even when $\phi$ is poorly determined.
 
+11. Under infill asymptotics in a bounded interval $[0, 1]$, suppose a mean-zero Gaussian process $Y(s)$ with exponential covariance $C(h) = \sigma^2 \exp(-\lvert h\rvert / \phi)$ and no nugget ($\tau^2 = 0$) is observed at regularly spaced points $s_i = i/n$ for $i = 0, 1, \dots, n$.
+    (a) Using the Taylor expansion $e^{-h/\phi} = 1 - h/\phi + O(h^2)$, show that for adjacent observations at distance $h = 1/n$, $\operatorname{E}[(Y(s_i) - Y(s_{i-1}))^2] = 2\sigma^2(1 - e^{-1/(n\phi)}) = \frac{2\sigma^2}{n\phi} + O(n^{-2})$.
+    (b) Show that the sample quadratic variation $Q_n = \sum_{i=1}^n (Y(s_i) - Y(s_{i-1}))^2$ has expectation $\operatorname{E}[Q_n] \to 2\sigma^2/\phi$ as $n \to \infty$.
+    (c) Using the property that independent increments in a 1D Markov process have variance proportional to $1/n^2$, show that $\operatorname{Var}(Q_n) \to 0$ as $n \to \infty$. Conclude why dense sampling within a fixed region determines the ratio $\sigma^2/\phi$ consistently, while estimating $\sigma^2$ separately requires expanding the domain to observe pairs at large lag distances.
+
+12. Derive the REML log-likelihood as the marginal likelihood obtained by integrating out the regression coefficients $\boldsymbol{\beta}$ under an improper flat prior $p(\boldsymbol{\beta}) \propto 1$.
+    (a) Write the joint Gaussian likelihood $L(\boldsymbol{\beta}, \boldsymbol{\theta})$ and show that the exponent can be expanded as
+    $$
+    -\tfrac{1}{2}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) = -\tfrac{1}{2}\mathbf{y}'\boldsymbol{\Pi}\mathbf{y} - \tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})
+    $$
+    where $\boldsymbol{\Pi} = \boldsymbol{\Sigma}^{-1} - \boldsymbol{\Sigma}^{-1}\mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$.
+    (b) Evaluate the Gaussian integral $\int_{\mathbb{R}^p} \exp\!\left\{-\tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})\right\} d\boldsymbol{\beta}$.
+    (c) Combine the terms to recover the REML marginal log-likelihood of Section 5.3.3, including the factor $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$. Explain why integrating out $\boldsymbol{\beta}$ automatically penalizes covariance parameters for the degrees of freedom consumed by estimating the mean.
+
+13. Show that the Fisher information matrix for the spatial linear model is block diagonal between the mean parameters $\boldsymbol{\beta}$ and the covariance parameters $\boldsymbol{\theta}$.
+    (a) Starting from the score for the regression coefficients $\partial\ell/\partial\boldsymbol{\beta} = \mathbf{X}'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$, differentiate with respect to a covariance parameter $\theta_j$.
+    (b) Take expectations with $\operatorname{E}[\mathbf{Y}] = \mathbf{X}\boldsymbol{\beta}$ and show that $\operatorname{E}[\partial^2\ell/\partial\boldsymbol{\beta}\partial\theta_j] = \mathbf{0}$.
+    (c) Deduce that the asymptotic covariance of $\hat{\boldsymbol{\beta}}$ is $(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}$, identical to the variance when $\boldsymbol{\theta}$ is known. Explain why this means estimating $\boldsymbol{\theta}$ from the data does not cost precision in estimating $\boldsymbol{\beta}$ asymptotically, even though in finite samples it widens prediction intervals.
+
+14. In Section 5.6.2, spatial confounding arises when a covariate $\mathbf{x}$ is correlated with the smooth eigenvectors of $\boldsymbol{\Sigma}$. One proposed remedy is Restricted Spatial Regression (RSR), which decomposes the spatial random effect into parts parallel and orthogonal to the design matrix: $\mathbf{u} = \mathbf{u}_X + \mathbf{u}_\perp$, with $\mathbf{u}_X = \mathbf{P}_{\mathbf{X}}\mathbf{u}$ and $\mathbf{u}_\perp = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\mathbf{u}$, and restricts the model to $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{u}_\perp + \boldsymbol{\varepsilon}$.
+    (a) Show that $\mathbf{X}'\mathbf{u}_\perp = \mathbf{0}$.
+    (b) Show that the generalized least squares estimator of $\boldsymbol{\beta}$ under the restricted model coincides exactly with the ordinary least squares estimator $\hat{\boldsymbol{\beta}}_{\text{OLS}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}$.
+    (c) Discuss the trade-off: does RSR solve the problem of an unobserved spatially varying confounder, or does it merely force the spatial model to reproduce the OLS estimate at the expense of ignoring potential confounding bias?
+
+15. Section 5.3.3 noted that the profile REML log-likelihood contains an extra term, $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$, compared to the profile maximum likelihood objective.
+    (a) Using the matrix derivative of a log-determinant (Section 5.4.2), prove that
+    $$
+    \frac{\partial}{\partial\theta_j}\left[-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert\right] = \frac{1}{2}\operatorname{tr}\!\left((\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{X}\right)
+    $$
+    (b) Show that this derivative can be written as $\frac{1}{2}\operatorname{tr}\!\left(\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\right)$, where $\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}} = \mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$ is the oblique projection matrix onto the column space of $\mathbf{X}$.
+    (c) For the scale parameter $\sigma^2$ with $\dot{\boldsymbol{\Sigma}}_{\sigma^2} = \mathbf{R}$, show that this term is strictly positive. Use this to explain mathematically why the REML score has an extra positive contribution that pushes $\hat{\sigma}^2_{\text{REML}}$ to be systematically larger than $\hat{\sigma}^2_{\text{ML}}$.
+
 **Computational and simulation**
 
-11. Implement Newton-Raphson for the REML log-likelihood using the finite-difference Hessian of Section 5.4.3, starting from $(1, 1, 0.3)$. Compare the number of iterations and the stability with Fisher scoring. What happens if you start from $(1, 1, 3)$?
+16. Implement Newton-Raphson for the REML log-likelihood using the finite-difference Hessian of Section 5.4.3, starting from $(1, 1, 0.3)$. Compare the number of iterations and the stability with Fisher scoring. What happens if you start from $(1, 1, 3)$?
 
-12. Repeat the small-sample comparison of Section 5.7.2 with 30, 60, and 120 listings. Plot the median ML and REML estimates of $\sigma^2 + \tau^2$ against the number of listings.
+17. Repeat the small-sample comparison of Section 5.7.2 with 30, 60, and 120 listings. Plot the median ML and REML estimates of $\sigma^2 + \tau^2$ against the number of listings.
 
-13. Extend the parametric bootstrap of Section 5.5.3 to the test of $\sigma^2 = 0$. Simulate from the fitted independent-errors model, fit both models to each data set, and describe the null distribution of the likelihood ratio statistic. How much of it is at zero?
+18. Extend the parametric bootstrap of Section 5.5.3 to the test of $\sigma^2 = 0$. Simulate from the fitted independent-errors model, fit both models to each data set, and describe the null distribution of the likelihood ratio statistic. How much of it is at zero?
 
-14. Fit the rent data with an anisotropic exponential model (Section 2.6), adding two parameters for the direction and ratio of anisotropy. Use a likelihood ratio test (with ML) to decide whether anisotropy is needed. Is this test on the boundary?
+19. Fit the rent data with an anisotropic exponential model (Section 2.6), adding two parameters for the direction and ratio of anisotropy. Use a likelihood ratio test (with ML) to decide whether anisotropy is needed. Is this test on the boundary?
 
-15. Add 30 duplicate units to the rent data (several units in each of 10 buildings, simulated from the model with $\tau^2 = 1$). Refit by REML and compare the standard error of $\hat{\tau}^2$ with and without the duplicates.
+20. Add 30 duplicate units to the rent data (several units in each of 10 buildings, simulated from the model with $\tau^2 = 1$). Refit by REML and compare the standard error of $\hat{\tau}^2$ with and without the duplicates.
 
-16. Compute the condition number of $\mathbf{R}$ for the rent data with $\tau^2 = 0$ as $\phi$ grows from 0.05 to 2. At what range does the Cholesky factorization fail? Repeat with $\tau^2 = 0.01$.
+21. Compute the condition number of $\mathbf{R}$ for the rent data with $\tau^2 = 0$ as $\phi$ grows from 0.05 to 2. At what range does the Cholesky factorization fail? Repeat with $\tau^2 = 0.01$.
 
 ---
 
@@ -5819,7 +5886,30 @@ for name in ("4 nearest", "8 nearest"):
 
 The 12-by-12 rook grid has smallest eigenvalue $-1$ and largest $1$, as the bipartite argument predicts. The nearest-neighbor matrices have complex eigenvalues, with imaginary parts as large as $0.098$ and $0.040$: small, but not zero, and enough to break any argument that needs a real spectrum.
 
-**[STORY NEEDED]** A setting where a reader would care about the largest and smallest eigenvalues of the weights before meeting them in Chapter 7: for example, how strongly a shock to one region can echo through its neighbors and back, and why the answer depends on the map.
+**What the eigenvalues of W mean conceptually.** In Chapter 1, eigenvalues measured the variance of spatial patterns in a covariance matrix $\boldsymbol{\Sigma}$. Here $\mathbf{W}$ is an averaging operator, so its eigenvalues have a different, dynamic meaning. Multiplying a vector $\mathbf{x}$ by $\mathbf{W}$ replaces each region's value with the average of its neighbors. An eigenvector is a spatial pattern whose geometric shape is preserved under neighbor averaging, and its eigenvalue $\lambda$ is the factor by which that pattern expands or shrinks:
+
+- **$\lambda = 1$ (constant surface):** If every region has the same value, averaging neighbors changes nothing ($\mathbf{W}\mathbf{1}_n = 1\cdot\mathbf{1}_n$).
+- **$\lambda > 0$ near 1 (smooth regional waves):** When neighbors are already alike, averaging barely dampens the pattern, so $\lambda$ remains positive and close to 1.
+- **$\lambda \approx 0$ (unstructured noise):** When values vary erratically, positive and negative neighbors cancel each other out in the row average, crushing the pattern toward zero.
+- **$\lambda = -1$ (bipartite checkerboards):** On a bipartite map, every region is surrounded exclusively by neighbors of the opposite sign. Averaging neighbors flips the sign of every entry while preserving its magnitude ($\mathbf{W}\mathbf{x} = -1\cdot\mathbf{x}$).
+
+**Why the eigenvalues matter: spatial echoes and the multiplier.** In an interconnected regional system, a shock to one county never stays local. In regional economics and public finance, local policies and economic shocks trigger strategic feedback: when a county adjusts its tax rate or experiences an industrial plant closure, neighboring counties respond, and their adjustments reverberate across the map [@besley1995; @brueckner2003]. 
+
+In spatial autoregressive models (developed in Chapter 7), this feedback is expressed as $\mathbf{y} = \rho\mathbf{W}\mathbf{y} + \boldsymbol{\varepsilon}$, where $\rho$ is the spatial autoregressive parameter. Solving for the reduced form yields the **spatial multiplier** [@lesage2009]:
+
+$$
+\mathbf{y} = (\mathbf{I}_n - \rho\mathbf{W})^{-1}\boldsymbol{\varepsilon} = \left(\mathbf{I}_n + \rho\mathbf{W} + \rho^2\mathbf{W}^2 + \rho^3\mathbf{W}^3 + \dots\right)\boldsymbol{\varepsilon}
+$$
+
+The expansion decomposes total impact into distinct physical rounds of transmission:
+1. **$\mathbf{I}_n$:** The direct, local shock to each region.
+2. **$\rho\mathbf{W}$:** The first-order spillover to adjacent neighbors.
+3. **$\rho^2\mathbf{W}^2$:** The second-order spillover to neighbors-of-neighbors. In particular, the diagonal entries $[\mathbf{W}^2]_{ii} = \sum_j w_{ij}w_{ji}$ represent closed loops of length two ($i \to j \to i$): an initial shock spills over to a neighbor, which reacts, echoing back to the originator.
+4. **$\rho^k\mathbf{W}^k$:** Higher-order reverberations along paths of length $k$.
+
+The eigenvalues of $\mathbf{W}$ govern whether these echoes dampen over time or explode into an unstable cascade. By the spectral radius theorem, the matrix geometric series converges if and only if $\lvert\rho\lambda_k\rvert < 1$ for every eigenvalue $\lambda_k$, placing the autoregressive parameter inside the stability interval $1/\lambda_{\min} < \rho < 1/\lambda_{\max}$ [@ord1975]. 
+
+Furthermore, network structure determines how shocks dissipate. On a homogeneous grid, spillovers diffuse evenly. On an asymmetric network where out-degrees have heavy tails (such as the hub map of Section 6.3.1, or nationwide production and supply-chain networks), the principal eigenvectors concentrate on central hubs. Shocks hitting central hubs echo through multiple downstream channels simultaneously, generating systemic volatility that does not average out [@acemoglu2012; @carvalho2021].
 
 ---
 
@@ -6318,6 +6408,12 @@ p_loc, Li_county = local_pvalues(y_strong, W_rook, rng)
 print("counties flagged at 5%:", int(np.sum(p_loc <= 0.05)),
       " (expected by chance alone: about", round(0.04 * n, 1), ")")
 
+p_sorted = np.sort(p_loc)
+threshold = (np.arange(1, n + 1) / n) * 0.05
+surviving = np.sum(p_loc <= p_sorted[p_sorted <= threshold].max()) \
+    if np.any(p_sorted <= threshold) else 0
+print("counties surviving 5% FDR control:", surviving)
+
 flagged = []
 for _ in range(100):
     y0 = rng.standard_normal(n)          # no spatial structure at all
@@ -6328,7 +6424,9 @@ print(f"100 maps with no structure: mean flagged {flagged.mean():.2f}, "
       f"{np.mean(flagged >= 1):.2f}")
 ```
 
-For the simulated rates, 26 of the 144 counties are flagged at the 5% level: 11 high-high and 15 low-low. In each of 100 maps of pure noise with no spatial structure whatever, the number flagged averaged $5.63$, with a maximum of $15$, and 98% of those maps had at least one flagged county. (With 99 shuffles the two-sided p-value is at most 0.05 only when the observed value is among the two most extreme on one side of the 100 values, which has probability $2 \times 2/100 = 0.04$, so the expected count is $0.04 \times 144 = 5.8$ rather than $0.05 \times 144 = 7.2$.) A single flagged county is therefore weak evidence. The 26 flagged in the simulated rates are far more than noise would give, but which individual counties are real is much less certain. With 144 tests per map, a correction for multiple testing (Bonferroni, or control of the false discovery rate) is needed before a flagged region is called a hot spot. Figure 6.4 in the lab shows where the flagged counties lie.
+For the simulated rates, 26 of the 144 counties are flagged at the uncorrected 5% level: 11 high-high and 15 low-low. In each of 100 maps of pure noise with no spatial structure whatever, the number flagged averaged $5.63$, with a maximum of $15$, and 98% of those maps had at least one flagged county. (With 99 shuffles the two-sided p-value is at most 0.05 only when the observed value is among the two most extreme on one side of the 100 values, which has probability $2 \times 2/100 = 0.04$, so the expected count is $0.04 \times 144 = 5.8$ rather than $0.05 \times 144 = 7.2$.) A single flagged county is therefore weak evidence. The 26 flagged in the simulated rates are far more than noise would give, but which individual counties are real is much less certain.
+
+With 144 tests per map, a correction for multiple testing is necessary before declaring a cluster. Under the Benjamini-Hochberg procedure [@benjamini1995] at target false discovery rate $q = 0.05$, the $k$-th ordered p-value must satisfy $p_{(k)} \le (k/n) q$. Here, because $B = 99$, the smallest two-sided Monte Carlo p-value is $2/(B+1) = 0.02$. Even at rank $k = 26$, the Benjamini-Hochberg threshold is $(26/144) \times 0.05 \approx 0.009$, which is strictly smaller than the discrete resolution of 99 shuffles. Consequently, zero counties survive 5% FDR control with $B = 99$. Multiple testing under permutation inference requires either substantially more permutations ($B \gg n/q$) to resolve small tail probabilities, or analytical normal-theory approximations [@anselin1995]. Figure 6.4 in the lab shows where the uncorrected flagged counties lie.
 
 ---
 
@@ -6806,21 +6904,56 @@ In the first of the 200 worlds, the fitted slope is $0.46$ for the fine cells, $
 
 13. Explain why the residuals of an OLS fit are not exchangeable even when the errors are independent and identically distributed: find $\operatorname{Var}(e_i)$ and $\operatorname{Cov}(e_i, e_j)$ in terms of $\mathbf{P}_{\mathbf{X}}$, and compute them for the hub map with $\mathbf{X} = [\mathbf{1}\ \ \mathbf{x}]$, $\mathbf{x} = (0, 1, 2, 3)'$.
 
+14. Show that Moran's $I$ can be expressed as a Rayleigh quotient on the subspace orthogonal to $\mathbf{1}_n$:
+$$
+I = \frac{n}{S_0} \frac{\mathbf{y}_c'\mathbf{W}_s\mathbf{y}_c}{\mathbf{y}_c'\mathbf{y}_c} = \frac{n}{S_0} \frac{\mathbf{y}'\mathbf{M}\mathbf{y}}{\mathbf{y}'\mathbf{P}_c\mathbf{y}}
+$$
+where $\mathbf{M} = \mathbf{P}_c\mathbf{W}_s\mathbf{P}_c$. Because $\mathbf{M}\mathbf{1}_n = \mathbf{0}$, one eigenvalue of $\mathbf{M}$ is zero with eigenvector $\mathbf{1}_n$. Let the eigenvalues of $\mathbf{M}$ on the $(n-1)$-dimensional subspace $\mathbf{1}_n^{\perp}$ be ordered as $\lambda_2 \le \lambda_3 \le \dots \le \lambda_n$.
+(a) Prove that for any non-constant data vector $\mathbf{y}$, the values of Moran's $I$ are strictly bounded:
+$$
+\frac{n}{S_0}\lambda_2 \le I \le \frac{n}{S_0}\lambda_n
+$$
+(b) Explain why these sharp algebraic bounds can fall outside the interval $[-1, 1]$.
+(c) Using the eigenvalues of $\mathbf{M}$ calculated for the hub map in Section 6.4.2, compute these bounds explicitly and check that the observed $I = 1/6$ satisfies them.
+
+15. The graph Laplacian associated with the symmetrized weights $\mathbf{W}_s$ is $\mathcal{L} = \mathbf{D}_s - \mathbf{W}_s$, where $\mathbf{D}_s = \operatorname{diag}(\mathbf{W}_s\mathbf{1}_n)$.
+(a) Show that the quadratic form $\mathbf{y}'\mathcal{L}\mathbf{y}$ equals the Dirichlet energy:
+$$
+\mathbf{y}'\mathcal{L}\mathbf{y} = \frac{1}{2}\sum_{i=1}^n\sum_{j=1}^n [\mathbf{W}_s]_{ij}(y_i - y_j)^2
+$$
+(b) Verify that $\mathcal{L}$ is positive semi-definite with $\mathcal{L}\mathbf{1}_n = \mathbf{0}$.
+(c) Geary's $C$ satisfies $C = \frac{n-1}{S_0}\frac{\mathbf{y}'\mathcal{L}\mathbf{y}}{\mathbf{y}'\mathbf{P}_c\mathbf{y}}$. Use the Courant-Fischer min-max theorem to show that the non-constant map pattern $\mathbf{y}$ that minimizes Geary's $C$ is the eigenvector of $\mathcal{L}$ corresponding to its smallest positive eigenvalue $\lambda_2(\mathcal{L})$ (the Fiedler vector). What kind of spatial pattern does this vector represent?
+
+16. Consider a connected bipartite graph with adjacency matrix $\mathbf{A} = \begin{bmatrix} \mathbf{0} & \mathbf{B} \\ \mathbf{B}' & \mathbf{0} \end{bmatrix}$, partitioned into vertex sets $V_1$ of size $n_1$ and $V_2$ of size $n_2$.
+(a) Show that if $\lambda$ is an eigenvalue of the normalized matrix $\tilde{\mathbf{A}} = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$ with eigenvector $(\mathbf{u}_1', \mathbf{u}_2')'$, then $-\lambda$ is also an eigenvalue with eigenvector $(\mathbf{u}_1', -\mathbf{u}_2')'$.
+(b) Deduce that the spectrum of $\mathbf{W} = \mathbf{D}^{-1}\mathbf{A}$ is symmetric about zero, with $\lambda_{\min} = -1$ and $\lambda_{\max} = 1$.
+(c) On a regular $m \times m$ grid with rook neighbors, construct the eigenvector corresponding to $\lambda = -1$ (the checkerboard pattern). Show that when an autoregressive process $\mathbf{y} = (\mathbf{I}_n - \rho\mathbf{W})^{-1}\boldsymbol{\varepsilon}$ is driven by negative autocorrelation $\rho < 0$, the spatial multiplier amplifies this checkerboard pattern by the factor $(1 + \lvert\rho\rvert)^{-1}$ when $\rho > -1$, and discuss what happens as $\rho \to -1$.
+
+17. The asymptotic normality of Moran's $I$ under the randomization null hypothesis requires that no individual region dominates the network, formalized by the condition $\sum_{i=1}^n d_i^2 = o(S_0^2)$ as $n \to \infty$. Consider a star graph with one central hub connected to $n - 1$ outer leaves ($A_{1j} = A_{j1} = 1$ for $j \ge 2$, and all other $A_{ij} = 0$).
+(a) Compute the degree sum $\sum_{i=1}^n d_i^2$ for the star graph with binary adjacency weights, and show that $\sum_{i=1}^n d_i^2 = O(n^2)$ while $S_0^2 = 4(n-1)^2$, so that the condition $\sum_{i=1}^n d_i^2 = o(S_0^2)$ fails.
+(b) For binary weights on the star graph, show that the centered quadratic form $\mathbf{y}_c'\mathbf{A}\mathbf{y}_c$ reduces to $-2 y_{c,1}^2$.
+(c) Explain why the null distribution of $I$ on a star graph cannot be asymptotically normal, and describe the physical consequence for testing spatial autocorrelation on centralized transportation or flow networks.
+
+18. In local spatial cluster analysis, $n$ dependent hypothesis tests are evaluated simultaneously.
+(a) The Benjamini-Hochberg procedure controls the false discovery rate at level $q$ under independence or positive regression dependence. State the step-up rejection rule in terms of the ordered p-values $p_{(1)} \le p_{(2)} \le \dots \le p_{(n)}$.
+(b) Benjamini and Yekutieli (2001) showed that under arbitrary dependence, false discovery rate control at level $q$ is guaranteed by replacing $q$ with $q / c(n)$, where $c(n) = \sum_{i=1}^n 1/i$. For the 144 counties of Section 6.7.2, compute $c(144) = \sum_{i=1}^{144} 1/i$ and find the effective penalized discovery threshold.
+(c) Because spatial weights matrices perform local averaging, local indicators $I_i$ of adjacent counties share common terms and exhibit positive spatial dependence. Evaluate whether the conservative Benjamini-Yekutieli penalty is appropriate for exploratory map analysis, and contrast it with permutation-based cluster-extent tests.
+
 **Computational and simulation**
 
-14. Rebuild the table of Section 6.2.4 for the queen weights with the rows standardized and not standardized. Does Moran's I change? Does its null mean change? (Remember the factor $n/S_0$.)
+19. Rebuild the table of Section 6.2.4 for the queen weights with the rows standardized and not standardized. Does Moran's I change? Does its null mean change? (Remember the factor $n/S_0$.)
 
-15. Simulate 5,000 data sets on the county map with independent standard normal values and compute $I$ with rook weights. Compare the histogram of $I$ with a normal density with the exact mean and standard deviation. Repeat with $n = 9$ regions ($3 \times 3$ rook grid) and describe how the approximation changes.
+20. Simulate 5,000 data sets on the county map with independent standard normal values and compute $I$ with rook weights. Compare the histogram of $I$ with a normal density with the exact mean and standard deviation. Repeat with $n = 9$ regions ($3 \times 3$ rook grid) and describe how the approximation changes.
 
-16. Using the data of Section 6.8.5, find the simplest rescaling of the values (dividing by $\exp(\text{deprivation})$) that restores the 5% size for both tests. Then find what happens if the variance field is not known and has to be estimated from the data.
+21. Using the data of Section 6.8.5, find the simplest rescaling of the values (dividing by $\exp(\text{deprivation})$) that restores the 5% size for both tests. Then find what happens if the variance field is not known and has to be estimated from the data.
 
-17. Repeat the residual experiment of Section 6.8.5 for polynomial trend surfaces of degrees 1, 2, 3, and 4 ($p = 3, 6, 10, 15$) and plot the exact null mean of $I_e$ against $p$. At what $p$ does the naive permutation test first lose half its power against a spatial effect with $\phi = 0.2$?
+22. Repeat the residual experiment of Section 6.8.5 for polynomial trend surfaces of degrees 1, 2, 3, and 4 ($p = 3, 6, 10, 15$) and plot the exact null mean of $I_e$ against $p$. At what $p$ does the naive permutation test first lose half its power against a spatial effect with $\phi = 0.2$?
 
-18. Extend the MAUP simulation of Section 6.9.3 with a second regional range, 0.3 east-west and 0.1 north-south. Does the slope still change sign as the units grow? Predict the answer from the weighted-average formula first, and then check it.
+23. Extend the MAUP simulation of Section 6.9.3 with a second regional range, 0.3 east-west and 0.1 north-south. Does the slope still change sign as the units grow? Predict the answer from the weighted-average formula first, and then check it.
 
-19. Build a $48 \times 48$ fine grid and a zoning by 144 irregular units: draw 144 random points, assign each cell to its nearest point (a Voronoi partition), and aggregate. Compare the slope with that of the squares and strips, and compute Moran's I with queen weights between the Voronoi units (adjacent when any of their cells touch).
+24. Build a $48 \times 48$ fine grid and a zoning by 144 irregular units: draw 144 random points, assign each cell to its nearest point (a Voronoi partition), and aggregate. Compare the slope with that of the squares and strips, and compute Moran's I with queen weights between the Voronoi units (adjacent when any of their cells touch).
 
-20. A permutation test for Geary's $C$ is analogous to the one for $I$. Implement it and apply it to the strong response with the rook weights. Compare the p-value with that of Moran's I.
+25. A permutation test for Geary's $C$ is analogous to the one for $I$. Implement it and apply it to the strong response with the rook weights. Compare the p-value with that of Moran's I.
 
 ---
 
