@@ -35,11 +35,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 5: Likelihood, REML, and Diagnostics
 
-1. **The boundary bootstrap disagrees with the textbook mixture.** For $\tau^2 = 0$, the 200-replicate bootstrap puts 67.5% of the null distribution at zero, with a 95th percentile of 1.74, below the mixture's 2.71, so the mixture is conservative here. The text reports this as an empirical observation. Add a sentence on the likely reason (finite sample and dependence limit the information about $\tau^2$), or leave it?
-2. **AIC prefers the wrong family, narrowly.** AIC picks Matérn 3/2 over the true exponential by less than 1 unit (991.17 against 991.90). The text presents this as "the data cannot tell them apart." Keep, or switch to a case where AIC picks the truth? **Recommendation:** keep; it is the honest lesson.
-3. **Spatial confounding** (§5.6.2) is brief, with a pointer to Appendix D. Expand here (for example, restricted spatial regression), or keep it brief?
-4. **Runtime.** The lab takes about 15 to 40 seconds of wall time, mostly the bootstrap. Acceptable?
-5. **Trim candidates:** the two Optional proofs (§5.3.4 and §5.4.6) are long; either could move to Appendix A.
+1. **Trim candidates:** The two Optional proofs (§5.3.4 and §5.4.6) are long; either could move to Appendix A if trimming is desired later. (Items 1-5 settled on 2026-10-26: explained boundary bootstrap mass at zero via finite-sample spatial dependence in §5.5.3, kept honest AIC lesson with $\Delta\text{AIC} < 2$, kept spatial confounding concise in §5.6.2 with RSR covered in Exercise 14 and Appendix D, lab runtime of ~14s confirmed acceptable, optional proofs retained with tags).
 
 ---
 

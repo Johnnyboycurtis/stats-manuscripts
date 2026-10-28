@@ -828,7 +828,7 @@ print(f"bootstrap: share of LRT below 0.01 = "
       f"{np.mean(lrt_boot >= lrt):.3f}")
 ```
 
-The bootstrap broadly confirms the mixture picture, with a twist. A share of 0.675 of the simulated statistics are essentially zero, more than the half the mixture predicts, and the bootstrap 95th percentile is 1.739, below the mixture's 2.706. In this finite spatial sample the true null distribution has even more mass at zero than the asymptotic mixture, so the mixture is itself somewhat conservative. Either way, the observed statistic of 24.94 is larger than all 200 bootstrap values, so the bootstrap p-value is below $1/200$, and the conclusion stands.
+The bootstrap broadly confirms the mixture picture, with a twist. A share of 0.675 of the simulated statistics are essentially zero, more than the half the mixture predicts, and the bootstrap 95th percentile is 1.739, below the mixture's 2.706. The reason stems from finite-sample spatial dependence. With a finite number of locations, nearby listings are positively correlated, so subtle sample fluctuations in the data can easily be absorbed into the smooth spatial field by shortening the range slightly, rather than requiring an explicit nugget. This pulls the unconstrained estimate of $\tau^2$ toward zero even more frequently than the 50% predicted by large-sample theory, piling extra mass at the boundary. Either way, the observed statistic of 24.94 is larger than all 200 bootstrap values, so the bootstrap p-value is below $1/200$, and the conclusion stands.
 
 The general lesson: the mixture is a much better guide than $\chi^2_1$, and the bootstrap is the check when a conclusion depends on the details.
 
@@ -1108,19 +1108,51 @@ Figure 5.2 shows the decorrelated residuals of Section 5.6.1 against normal quan
 
 10. For two units at the same location, show that $\operatorname{Var}(Y_i - Y_j) = 2\tau^2$ under the model of Section 2.1. Explain why a data set with many buildings containing several units can estimate $\tau^2$ well even when $\phi$ is poorly determined.
 
+11. Under infill asymptotics in a bounded interval $[0, 1]$, suppose a mean-zero Gaussian process $Y(s)$ with exponential covariance $C(h) = \sigma^2 \exp(-\lvert h\rvert / \phi)$ and no nugget ($\tau^2 = 0$) is observed at regularly spaced points $s_i = i/n$ for $i = 0, 1, \dots, n$.
+    (a) Using the Taylor expansion $e^{-h/\phi} = 1 - h/\phi + O(h^2)$, show that for adjacent observations at distance $h = 1/n$, $\operatorname{E}[(Y(s_i) - Y(s_{i-1}))^2] = 2\sigma^2(1 - e^{-1/(n\phi)}) = \frac{2\sigma^2}{n\phi} + O(n^{-2})$.
+    (b) Show that the sample quadratic variation $Q_n = \sum_{i=1}^n (Y(s_i) - Y(s_{i-1}))^2$ has expectation $\operatorname{E}[Q_n] \to 2\sigma^2/\phi$ as $n \to \infty$.
+    (c) Using the property that independent increments in a 1D Markov process have variance proportional to $1/n^2$, show that $\operatorname{Var}(Q_n) \to 0$ as $n \to \infty$. Conclude why dense sampling within a fixed region determines the ratio $\sigma^2/\phi$ consistently, while estimating $\sigma^2$ separately requires expanding the domain to observe pairs at large lag distances.
+
+12. Derive the REML log-likelihood as the marginal likelihood obtained by integrating out the regression coefficients $\boldsymbol{\beta}$ under an improper flat prior $p(\boldsymbol{\beta}) \propto 1$.
+    (a) Write the joint Gaussian likelihood $L(\boldsymbol{\beta}, \boldsymbol{\theta})$ and show that the exponent can be expanded as
+    $$
+    -\tfrac{1}{2}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) = -\tfrac{1}{2}\mathbf{y}'\boldsymbol{\Pi}\mathbf{y} - \tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})
+    $$
+    where $\boldsymbol{\Pi} = \boldsymbol{\Sigma}^{-1} - \boldsymbol{\Sigma}^{-1}\mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$.
+    (b) Evaluate the Gaussian integral $\int_{\mathbb{R}^p} \exp\!\left\{-\tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})\right\} d\boldsymbol{\beta}$.
+    (c) Combine the terms to recover the REML marginal log-likelihood of Section 5.3.3, including the factor $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$. Explain why integrating out $\boldsymbol{\beta}$ automatically penalizes covariance parameters for the degrees of freedom consumed by estimating the mean.
+
+13. Show that the Fisher information matrix for the spatial linear model is block diagonal between the mean parameters $\boldsymbol{\beta}$ and the covariance parameters $\boldsymbol{\theta}$.
+    (a) Starting from the score for the regression coefficients $\partial\ell/\partial\boldsymbol{\beta} = \mathbf{X}'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$, differentiate with respect to a covariance parameter $\theta_j$.
+    (b) Take expectations with $\operatorname{E}[\mathbf{Y}] = \mathbf{X}\boldsymbol{\beta}$ and show that $\operatorname{E}[\partial^2\ell/\partial\boldsymbol{\beta}\partial\theta_j] = \mathbf{0}$.
+    (c) Deduce that the asymptotic covariance of $\hat{\boldsymbol{\beta}}$ is $(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}$, identical to the variance when $\boldsymbol{\theta}$ is known. Explain why this means estimating $\boldsymbol{\theta}$ from the data does not cost precision in estimating $\boldsymbol{\beta}$ asymptotically, even though in finite samples it widens prediction intervals.
+
+14. In Section 5.6.2, spatial confounding arises when a covariate $\mathbf{x}$ is correlated with the smooth eigenvectors of $\boldsymbol{\Sigma}$. One proposed remedy is Restricted Spatial Regression (RSR), which decomposes the spatial random effect into parts parallel and orthogonal to the design matrix: $\mathbf{u} = \mathbf{u}_X + \mathbf{u}_\perp$, with $\mathbf{u}_X = \mathbf{P}_{\mathbf{X}}\mathbf{u}$ and $\mathbf{u}_\perp = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\mathbf{u}$, and restricts the model to $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{u}_\perp + \boldsymbol{\varepsilon}$.
+    (a) Show that $\mathbf{X}'\mathbf{u}_\perp = \mathbf{0}$.
+    (b) Show that the generalized least squares estimator of $\boldsymbol{\beta}$ under the restricted model coincides exactly with the ordinary least squares estimator $\hat{\boldsymbol{\beta}}_{\text{OLS}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}$.
+    (c) Discuss the trade-off: does RSR solve the problem of an unobserved spatially varying confounder, or does it merely force the spatial model to reproduce the OLS estimate at the expense of ignoring potential confounding bias?
+
+15. Section 5.3.3 noted that the profile REML log-likelihood contains an extra term, $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$, compared to the profile maximum likelihood objective.
+    (a) Using the matrix derivative of a log-determinant (Section 5.4.2), prove that
+    $$
+    \frac{\partial}{\partial\theta_j}\left[-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert\right] = \frac{1}{2}\operatorname{tr}\!\left((\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{X}\right)
+    $$
+    (b) Show that this derivative can be written as $\frac{1}{2}\operatorname{tr}\!\left(\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\right)$, where $\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}} = \mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$ is the oblique projection matrix onto the column space of $\mathbf{X}$.
+    (c) For the scale parameter $\sigma^2$ with $\dot{\boldsymbol{\Sigma}}_{\sigma^2} = \mathbf{R}$, show that this term is strictly positive. Use this to explain mathematically why the REML score has an extra positive contribution that pushes $\hat{\sigma}^2_{\text{REML}}$ to be systematically larger than $\hat{\sigma}^2_{\text{ML}}$.
+
 **Computational and simulation**
 
-11. Implement Newton-Raphson for the REML log-likelihood using the finite-difference Hessian of Section 5.4.3, starting from $(1, 1, 0.3)$. Compare the number of iterations and the stability with Fisher scoring. What happens if you start from $(1, 1, 3)$?
+16. Implement Newton-Raphson for the REML log-likelihood using the finite-difference Hessian of Section 5.4.3, starting from $(1, 1, 0.3)$. Compare the number of iterations and the stability with Fisher scoring. What happens if you start from $(1, 1, 3)$?
 
-12. Repeat the small-sample comparison of Section 5.7.2 with 30, 60, and 120 listings. Plot the median ML and REML estimates of $\sigma^2 + \tau^2$ against the number of listings.
+17. Repeat the small-sample comparison of Section 5.7.2 with 30, 60, and 120 listings. Plot the median ML and REML estimates of $\sigma^2 + \tau^2$ against the number of listings.
 
-13. Extend the parametric bootstrap of Section 5.5.3 to the test of $\sigma^2 = 0$. Simulate from the fitted independent-errors model, fit both models to each data set, and describe the null distribution of the likelihood ratio statistic. How much of it is at zero?
+18. Extend the parametric bootstrap of Section 5.5.3 to the test of $\sigma^2 = 0$. Simulate from the fitted independent-errors model, fit both models to each data set, and describe the null distribution of the likelihood ratio statistic. How much of it is at zero?
 
-14. Fit the rent data with an anisotropic exponential model (Section 2.6), adding two parameters for the direction and ratio of anisotropy. Use a likelihood ratio test (with ML) to decide whether anisotropy is needed. Is this test on the boundary?
+19. Fit the rent data with an anisotropic exponential model (Section 2.6), adding two parameters for the direction and ratio of anisotropy. Use a likelihood ratio test (with ML) to decide whether anisotropy is needed. Is this test on the boundary?
 
-15. Add 30 duplicate units to the rent data (several units in each of 10 buildings, simulated from the model with $\tau^2 = 1$). Refit by REML and compare the standard error of $\hat{\tau}^2$ with and without the duplicates.
+20. Add 30 duplicate units to the rent data (several units in each of 10 buildings, simulated from the model with $\tau^2 = 1$). Refit by REML and compare the standard error of $\hat{\tau}^2$ with and without the duplicates.
 
-16. Compute the condition number of $\mathbf{R}$ for the rent data with $\tau^2 = 0$ as $\phi$ grows from 0.05 to 2. At what range does the Cholesky factorization fail? Repeat with $\tau^2 = 0.01$.
+21. Compute the condition number of $\mathbf{R}$ for the rent data with $\tau^2 = 0$ as $\phi$ grows from 0.05 to 2. At what range does the Cholesky factorization fail? Repeat with $\tau^2 = 0.01$.
 
 ---
 
