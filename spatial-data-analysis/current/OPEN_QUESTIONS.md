@@ -52,12 +52,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 7: SAR Models
 
-1. **The covariate is the deprivation index, not a policy variable.** The stories (tax rates, minimum wage, R&D) are told in prose only; the lab reuses the shared index. Dress the lab in one of the stories?
-2. **Spatial Durbin Model** gets one sentence ("which we do not develop here") and no pointer, because Appendix D does not list it. Add a subsection, or add it to Appendix D? (This is the earlier open item on the Durbin model.)
-3. **Standard errors by numerical Hessian.** The analytic information for SAR models is messier than for Chapter 5; the lab uses central differences. Add the analytic form as an Optional subsection?
-4. **Error-model tests are harder.** Robust LM-error rejects 78% at $\rho = 0.6$ against 100% for the lag test; the text states it without an explanation. ML is also slightly low for $\rho$ (mean 0.586 against 0.6). Both are reported as small-sample observations.
-5. **Impact intervals** use a normal approximation truncated to $|\rho| < 0.999$; coverage over many data sets is Exercise 12 and was not run.
-6. **Length:** about 12,700 words. Candidates: the Optional LM derivation (§7.6.4), the eight lab subsections.
+1. **Trim candidates:** The Optional LM derivation (§7.6.4) and parts of the lab subsections could move to Appendix A/D if trimming is desired later. (Items 1-5 settled on 2026-10-28: recast lab simulation dataset to property tax rates in mills with smooth school-funding need index `need` at seed 2071 with $\rho = 0.6$, $\boldsymbol{\beta} = (8.0, 1.5)'$, $\sigma^2 = 2.25$; kept concise mention of Spatial Durbin Model in §7.6.3 with pointers to Exercise 11 and Appendix D; kept numerical Hessian in lab code with exact Fisher information derived in analytical Exercise 12; kept honest small-sample ML bias and robust LM test power lessons in §7.8.4 and §7.8.6; kept truncated normal impact approximation in §7.8.7 with delta method coverage in Exercise 22; added standard citations [@besley1995; @brueckner2003; @ord1975; @anselin1988; @anselin1996; @lesage2009; @kelejian1998]; expanded exercise bank from 15 to 22 exercises).
 
 ## Chapter 8: CAR Models
 
@@ -153,7 +148,7 @@ You asked to proceed through Sections 2 to 6 of `CONSISTENCY_REVIEW.md` without 
 2. **Chapter 10's "shared setting" paragraph** still writes $\text{pop}(\mathbf{s})$ and $\text{ex}(\mathbf{s})$ while the code uses `pop_density` and `excess_risk`; Chapter 11 maps the names, Chapter 10 does not.
 3. **Two reviewer findings turned out to be wrong or already fine:** the "0.404 versus 0.408" relative risk at the plant (only 0.404 appears), and the claim that Chapter 4 does not mention the exchanged-blocks form of the block inverse (it does; Chapter 13 now matches it).
 4. **Skipped on purpose:** the fourth-decimal difference between the hand log-determinant (−0.5530) and the code (−0.5531) in Chapter 5, which the text already explains as rounding of the eigenvalues.
-5. **Unattributed material.** Chapter 4's history sentence (Krige and Matheron), Chapter 7's economics literature, and most named authors in Chapters 6, 8, 10, 11, and 12 have no citation keys yet.
+5. **Unattributed material.** Chapter 4's history sentence (Krige and Matheron), and most named authors in Chapters 8, 10, 11, and 12 have no citation keys yet (Chapters 6 and 7 citation keys added).
 
 ---
 
@@ -163,4 +158,3 @@ You asked to proceed through Sections 2 to 6 of `CONSISTENCY_REVIEW.md` without 
 2. **GitHub-style `[!NOTE]` boxes.** The "Chapter at a Glance" box is a plain blockquote because pandoc prints `[!NOTE]` literally. A small Lua filter would allow `[!NOTE]` in both GitHub and the PDF. Not yet decided.
 3. **Version control.** The repository is not under git. Recommended before more chapters are added.
 4. **`USECASES.md` references** have known problems (duplicate Blonigen entry with different coauthors, `google.com/search` links, one "suspicious link removed," possible name-order errors). Verify before citing anything from it.
-5. **Spatial Durbin Model** in Chapter 7: see Chapter 7, item 2 above.

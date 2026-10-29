@@ -61,7 +61,7 @@ As of 2026-10-28. Chapters 0 to 13 are drafted; the appendices are not. The auth
 | 4 | `chapters/ch04_kriging_blup.md` | 10,823 | 2 |
 | 5 | `chapters/ch05_likelihood_reml.md` | 11,376 | 2 |
 | 6 | `chapters/ch06_areal_units_moran.md` | 16,847 | 4 |
-| 7 | `chapters/ch07_sar_models.md` | 12,771 | 3 |
+| 7 | `chapters/ch07_sar_models.md` | 14,068 | 3 |
 | 8 | `chapters/ch08_car_models.md` | 11,992 | 4 |
 | 9 | `chapters/ch09_spatial_glmms.md` | 14,242 | 3 |
 | 10 | `chapters/ch10_exploring_point_patterns.md` | 16,010 | 5 |

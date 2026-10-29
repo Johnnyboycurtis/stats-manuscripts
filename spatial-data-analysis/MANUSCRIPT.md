@@ -7177,7 +7177,7 @@ $$
 \mathbf{y}^* = \mathbf{y} - 0.5\,\mathbf{W}\mathbf{y} = (2 - 1,\ 1 - 1,\ 3 - 1,\ 2 - 1)' = (1, 0, 2, 1)'
 $$
 
-In practice $\rho$ is unknown, so GLS is not yet a method; Section 7.5 estimates $\rho$ by maximum likelihood and then applies this filter. Section 7.8.8 shows what is gained: with spatially correlated shocks, the naive OLS interval for a slope covers the truth 83.2% of the time, and the interval from the filtered fit covers it 93.4% of the time.
+In practice $\rho$ is unknown, so GLS is not yet a method; Section 7.5 estimates $\rho$ by maximum likelihood and then applies this filter. Section 7.8.8 shows what is gained: with spatially correlated shocks, the naive OLS interval for a slope covers the truth 77.0% of the time, and the interval from the filtered fit covers it 91.6% of the time.
 
 ---
 
@@ -7193,7 +7193,7 @@ $$
 \mathbf{Y} = \rho\mathbf{W}\mathbf{Y} + \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}, \qquad \boldsymbol{\varepsilon} \sim N(\mathbf{0}, \sigma^2\mathbf{I}_n)
 $$
 
-A city's tax rate responds to its neighbors' rates (this is $\rho$) and to its own characteristics, such as population and income (these are in $\mathbf{X}\boldsymbol{\beta}$). The coefficient $\rho$ is the slope of a *reaction function*: how much a city moves when its neighbors move. A positive $\rho$ describes mimicking, as when cities follow each other's rates. This is an idea from the economics literature on strategic interaction, and it is a good example of a model where the dependence is itself the object of interest, not a nuisance.
+A city's tax rate responds to its neighbors' rates (this is $\rho$) and to its own characteristics, such as population and income (these are in $\mathbf{X}\boldsymbol{\beta}$). The coefficient $\rho$ is the slope of a *reaction function*: how much a city moves when its neighbors move. A positive $\rho$ describes mimicking, as when cities follow each other's rates. This is an idea from the economics literature on strategic interaction [@besley1995; @brueckner2003], and it is a good example of a model where the dependence is itself the object of interest, not a nuisance.
 
 Collect the $\mathbf{Y}$ terms and solve:
 
@@ -7255,7 +7255,7 @@ $$
 \operatorname{E}[\hat{\boldsymbol{\beta}}_{\text{OLS}}] = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Phi}\mathbf{X}\boldsymbol{\beta} \ne \boldsymbol{\beta}
 $$
 
-unless $\rho = 0$. This is omitted-variable bias: the true model contains the neighbors' average $\mathbf{W}\mathbf{Y}$, which is correlated with $\mathbf{X}$ because covariates are themselves spatially smooth, and leaving it out loads its effect onto $\mathbf{X}$. For a smooth covariate the slope absorbs part of the spillover. The lab shows the exact mean slope of $1.74$ against a true $\beta_1$ of $1$.
+unless $\rho = 0$. This is omitted-variable bias: the true model contains the neighbors' average $\mathbf{W}\mathbf{Y}$, which is correlated with $\mathbf{X}$ because covariates are themselves spatially smooth, and leaving it out loads its effect onto $\mathbf{X}$. For a smooth covariate the slope absorbs part of the spillover. The lab shows the exact mean slope of $2.68$ mills against a true $\beta_1$ of $1.5$ mills.
 
 **Including the lag.** The natural fix is to include $\mathbf{W}\mathbf{Y}$ as a regressor, giving OLS of $\mathbf{Y}$ on $\mathbf{X}_L = [\mathbf{W}\mathbf{Y},\ \mathbf{X}]$. This is also inconsistent, for a different reason: the new regressor is correlated with the disturbance. Since $\mathbf{W}\mathbf{Y} = \mathbf{W}\boldsymbol{\Phi}(\mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon})$ and $\mathbf{X}\boldsymbol{\beta}$ is fixed,
 
@@ -7279,7 +7279,7 @@ $$
 
 The lower block is zero because $\mathbf{X}$ is not random and $\operatorname{E}[\boldsymbol{\varepsilon}] = \mathbf{0}$. In the four-region example, $\mathbf{W}\boldsymbol{\Phi} = \tfrac{4}{3}\mathbf{W} + \tfrac{2}{3}\mathbf{W}^2$ (using $\mathbf{W}^3 = \mathbf{W}$), whose diagonal is $\tfrac{2}{3}\cdot\tfrac{1}{2} = \tfrac{1}{3}$. Each region's regressor carries covariance $\sigma^2/3$ with its own disturbance, an amount comparable to the size of the disturbance itself.
 
-The bias also spreads to the other coefficients, through the inverse of $\operatorname{E}[\mathbf{X}_L'\mathbf{X}_L]$: when $\rho$ is overstated, the coefficients on $\mathbf{X}$ are understated, because the lag regressor has taken credit for part of what $\mathbf{X}$ explains. In the lab with $\rho = 0.6$, the formula predicts a bias of $+0.147$ in $\hat{\rho}$ and $-0.181$ in the slope; the simulated biases are $+0.130$ and $-0.167$.
+The bias also spreads to the other coefficients, through the inverse of $\operatorname{E}[\mathbf{X}_L'\mathbf{X}_L]$: when $\rho$ is overstated, the coefficients on $\mathbf{X}$ are understated, because the lag regressor has taken credit for part of what $\mathbf{X}$ explains. In the lab with $\rho = 0.6$, the formula predicts a bias of $+0.148$ in $\hat{\rho}$ and $-0.290$ in the slope; the simulated biases are $+0.128$ and $-0.259$.
 
 Neither version of OLS works. The remedy is maximum likelihood, which accounts for the dependence between $\mathbf{W}\mathbf{Y}$ and $\boldsymbol{\varepsilon}$ through a term that OLS leaves out (Section 7.5.1).
 
@@ -7363,7 +7363,7 @@ $$
 \log\lvert\mathbf{I}_n - \rho\mathbf{W}\rvert = \sum_{i=1}^n\log(1 - \rho\lambda_i)
 $$
 
-This is **Ord's identity**. Once the eigenvalues $\lambda_i$ of $\mathbf{W}$ are computed, each new value of $\rho$ costs only $n$ logarithms. The eigenvalues themselves are found once, at a cost of order $n^3$, and that is made faster and more stable by computing them from the symmetric matrix $\tilde{\mathbf{A}} = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$, which has the same eigenvalues as $\mathbf{W}$ (Section 6.3.3) and for which symmetric eigenvalue routines apply. For the four-region example the identity gives $\log 0.5 + 2\log 1 + \log 1.5 = \log 0.75$. The lab checks it on the county map, where $\log\lvert\mathbf{I} - 0.9\mathbf{W}\rvert = -23.5143$ both ways.
+This is **Ord's identity** [@ord1975]. Once the eigenvalues $\lambda_i$ of $\mathbf{W}$ are computed, each new value of $\rho$ costs only $n$ logarithms. The eigenvalues themselves are found once, at a cost of order $n^3$, and that is made faster and more stable by computing them from the symmetric matrix $\tilde{\mathbf{A}} = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$, which has the same eigenvalues as $\mathbf{W}$ (Section 6.3.3) and for which symmetric eigenvalue routines apply. For the four-region example the identity gives $\log 0.5 + 2\log 1 + \log 1.5 = \log 0.75$. The lab checks it on the county map, where $\log\lvert\mathbf{I} - 0.9\mathbf{W}\rvert = -23.5143$ both ways.
 
 For maps with tens of thousands of regions even one eigendecomposition is too expensive. Chapter 8 and Chapter 13 use sparse matrix factorizations instead.
 
@@ -7409,7 +7409,7 @@ The standard workflow starts from OLS, which is quick to fit and needs only resi
 
 ### 7.6.1 The Idea of a Score Test
 
-**A tool we need: the score test.** A test of a null hypothesis can look at the fitted alternative, as the likelihood ratio test does, or at the slope of the log-likelihood at the null value. If the null value is the maximum of the log-likelihood, the slope there is zero. If the data fit the null poorly, the log-likelihood is still climbing at the null value, and the slope there is large. The slope is called the **score**, and a test based on it needs only the null fit, which here is OLS. A one-parameter example: for $Y_i \sim N(\mu, 1)$ and the null $\mu = 0$, the score at the null is $\sum_i y_i$, its variance under the null is $n$, and the score test statistic $(\sum_i y_i)^2/n$ is the square of the usual $z$ statistic. In general, the statistic is the score squared divided by the information (the variance of the score), and under the null it is approximately $\chi^2_1$. In the spatial setting these tests are called **Lagrange multiplier** (LM) tests, the name used in econometrics for the same construction.
+**A tool we need: the score test.** A test of a null hypothesis can look at the fitted alternative, as the likelihood ratio test does, or at the slope of the log-likelihood at the null value. If the null value is the maximum of the log-likelihood, the slope there is zero. If the data fit the null poorly, the log-likelihood is still climbing at the null value, and the slope there is large. The slope is called the **score**, and a test based on it needs only the null fit, which here is OLS. A one-parameter example: for $Y_i \sim N(\mu, 1)$ and the null $\mu = 0$, the score at the null is $\sum_i y_i$, its variance under the null is $n$, and the score test statistic $(\sum_i y_i)^2/n$ is the square of the usual $z$ statistic. In general, the statistic is the score squared divided by the information (the variance of the score), and under the null it is approximately $\chi^2_1$. In the spatial setting these tests are called **Lagrange multiplier** (LM) tests, the name used in econometrics for the same construction [@anselin1988; @anselin1996].
 
 ### 7.6.2 The Four Statistics
 
@@ -7444,13 +7444,13 @@ Each is approximately $\chi^2_1$ under its null. Section 7.6.4 derives them as s
 2. If only one is significant, fit that model.
 3. If both are significant, compare the robust statistics. Fit the model whose robust statistic is significant, and if both are, the one with the larger robust statistic.
 
-The lab shows the rule at work: on data simulated from a lag model, $\text{LM}_{\text{err}}$ is 15.96 and $\text{LM}_{\text{lag}}$ is 52.35, both far beyond the $\chi^2_1$ cutoff of 3.84. The robust statistics separate them: $\text{RLM}_{\text{err}}$ is 2.85 (p-value 0.091, not significant at 5%) and $\text{RLM}_{\text{lag}}$ is 39.25 (p-value below $10^{-9}$).
+The lab shows the rule at work: on data simulated from a lag model, $\text{LM}_{\text{err}}$ is 16.30 and $\text{LM}_{\text{lag}}$ is 40.43, both far beyond the $\chi^2_1$ cutoff of 3.84. The robust statistics separate them: $\text{RLM}_{\text{err}}$ is 0.19 (p-value 0.662, not significant) and $\text{RLM}_{\text{lag}}$ is 24.32 (p-value $8.2 \times 10^{-7}$).
 
 ### 7.6.3 Likelihood Ratio Tests and AIC
 
 Once both models are fit by ML, they can be compared directly. Each reduces to OLS at $\rho = 0$, so each can be tested against OLS with the likelihood ratio test of Section 7.5.3. The two models are not nested in each other: neither is a special case of the other, so a likelihood ratio test between them is not available. Both have the same number of parameters ($p + 2$: the $p$ coefficients, $\rho$, and $\sigma^2$), so AIC, which equals $-2\hat{\ell}$ plus twice the number of parameters (Section 5.5.1), reduces to comparing the maximized log-likelihoods. The model with the larger maximized log-likelihood is preferred. In the lab, on lag-model data, the lag model has log-likelihood $-200.06$ and the error model $-215.34$, a difference of about 15 log-likelihood units.
 
-A model that contains both as special cases adds the neighbors' covariates $\mathbf{W}\mathbf{X}$ to the lag model; it is known as the spatial Durbin model, which we do not develop here. Such a model can be tested against each of the two simpler ones with likelihood ratio tests.
+A model that contains both as special cases adds the neighbors' covariates $\mathbf{W}\mathbf{X}$ to the lag model. It is known as the spatial Durbin model, and it can be tested against each of the two simpler ones with likelihood ratio tests. We do not develop it here: Exercise 11 shows how it reduces to the error model under one restriction on its coefficients, and Appendix D points to its estimation.
 
 ### 7.6.4 Deriving the LM Statistics (Optional)
 
@@ -7510,7 +7510,7 @@ The effect matrix has $n^2$ entries, and different regions have different effect
 
 ### 7.7.2 Direct, Indirect, and Total Impacts
 
-The standard summaries average the effect matrix in three ways.
+The standard summaries average the effect matrix in three ways [@lesage2009].
 
 - The **direct impact** is the average of the diagonal: the average effect of a change in a region on the same region, $M_{\text{dir}} = \beta_k\operatorname{tr}(\boldsymbol{\Phi})/n$.
 - The **total impact** is the average row sum: the average total effect on a region of raising the covariate by one unit in *all* regions at once, $M_{\text{tot}} = \beta_k\mathbf{1}'\boldsymbol{\Phi}\mathbf{1}/n$. The average of the column sums is the same number: it is the average total effect on the whole map of raising the covariate in one region.
@@ -7596,7 +7596,7 @@ The eigenvalues are $-1, 0, 0, 1$, and $6\boldsymbol{\Phi}$ has rows $(7, 2, 2, 
 
 ### 7.8.2 The County Map and Its Eigenvalues
 
-Now the simulated map. The function below builds 144 square counties on a $12 \times 12$ grid, their rook adjacency matrix, populations (used in Chapter 9), and a smooth standardized covariate, which we call a deprivation index. We row-standardize the adjacency matrix and compute the eigenvalues of $\mathbf{W}$ through the symmetric matrix $\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$, checking the result against the eigenvalues of $\mathbf{W}$ itself and Ord's identity at $\rho = 0.9$.
+Now the simulated map. The function below is the county map of Chapter 6: 144 square counties on a $12 \times 12$ grid, their rook adjacency matrix, populations (used in Chapter 9), and a smooth deprivation index (used in Chapters 6, 8, and 9, but not here). We row-standardize the adjacency matrix and compute the eigenvalues of $\mathbf{W}$ through the symmetric matrix $\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$, checking the result against the eigenvalues of $\mathbf{W}$ itself and Ord's identity at $\rho = 0.9$.
 
 ```python
 def county_map(m=12):
@@ -7622,8 +7622,8 @@ def county_map(m=12):
     return S, A, pop, (x - x.mean()) / x.std()
 
 
-S, A, pop, x = county_map()
-n = len(x)
+S, A, pop, _ = county_map()    # the deprivation index is not used here
+n = len(S)
 deg = A.sum(axis=1)
 W = A / deg[:, None]
 D_half = 1 / np.sqrt(deg)
@@ -7644,13 +7644,28 @@ The smallest and largest eigenvalues are $-1$ and $1$, so the parameter space is
 
 ### 7.8.3 A Simulated Lag Model: How Badly Does OLS Do?
 
-We simulate from a lag model with $\rho = 0.6$, $\boldsymbol{\beta} = (0.5, 1)'$, and $\sigma^2 = 1$, with the deprivation index as the covariate. The seed is 2050. The block first shows the two OLS estimators on one data set, then repeats the simulation 500 times, and then evaluates the bias formula of Section 7.3.3.
+Return to the tax-rate story of Section 7.1, with the 144 counties as the taxing governments (counties levy property taxes too). The response is a county's property tax rate in mills, that is, dollars of tax per \$1,000 of assessed value. The covariate is a **school-funding need index**: pupils enrolled per unit of taxable property, standardized to mean 0 and standard deviation 1. A county with more pupils per dollar of tax base must charge a higher rate to fund the same schools, and need is smooth across the map because enrollment and property values are. Each county also reacts to its neighbors' rates, as in Section 7.1.
+
+We simulate from a lag model with $\rho = 0.6$, $\boldsymbol{\beta} = (8, 1.5)'$ in mills, and $\sigma^2 = 2.25$ (an innovation standard deviation of 1.5 mills). Since $\boldsymbol{\Phi}\mathbf{1} = \mathbf{1}/(1 - \rho)$, the average rate is $8/(1 - 0.6) = 20$ mills, and a county one standard deviation above average need has, before any feedback, a rate $1.5$ mills higher. The need index has its own seed, 2071, and the responses use seed 2050. The block first shows the two OLS estimators on one data set, then repeats the simulation 500 times, and then evaluates the bias formula of Section 7.3.3.
 
 ```python
-X = np.column_stack([np.ones(n), x])
-rho_true, beta_true, sigma2_true = 0.6, np.array([0.5, 1.0]), 1.0
+def school_need(S, seed=2071):
+    """Smooth standardized school-funding need index (pupils per unit of
+    taxable property), one value per county."""
+    d = np.sqrt(((S[:, None, :] - S[None, :, :]) ** 2).sum(axis=2))
+    L = np.linalg.cholesky(np.exp(-d / 0.25) + 1e-8 * np.eye(len(S)))
+    z = L @ np.random.default_rng(seed).standard_normal(len(S))
+    return (z - z.mean()) / z.std()
+
+
+need = school_need(S)
+X = np.column_stack([np.ones(n), need])
+rho_true, beta_true, sigma2_true = 0.6, np.array([8.0, 1.5]), 2.25
 Phi = np.linalg.inv(np.eye(n) - rho_true * W)
 rng = np.random.default_rng(2050)
+y_mean = Phi @ X @ beta_true
+print("expected tax rates (mills): mean", round(y_mean.mean(), 2),
+      " range", round(y_mean.min(), 2), "to", round(y_mean.max(), 2))
 
 
 def simulate(kind):
@@ -7672,8 +7687,8 @@ def ols_plain(y):
 
 
 y_lag = simulate("lag")
-print("one data set, OLS on [Wy, 1, x]:", np.round(ols_with_wy(y_lag), 4))
-print("one data set, OLS on [1, x]:", np.round(ols_plain(y_lag), 4))
+print("one data set, OLS on [Wy, 1, need]:", np.round(ols_with_wy(y_lag), 4))
+print("one data set, OLS on [1, need]:", np.round(ols_plain(y_lag), 4))
 
 reps = 500
 est_wy = np.array([ols_with_wy(simulate("lag")) for _ in range(reps)])
@@ -7697,7 +7712,7 @@ xs_exact = np.linalg.solve(X.T @ X, X.T @ Phi @ X @ beta_true)
 print("exact mean of OLS without Wy:", np.round(xs_exact, 4))
 ```
 
-On one data set, OLS with the lag regressor gives $\hat{\rho} = 0.687$ (true $0.6$) and a slope of $0.932$ (true $1$); OLS without the lag gives a slope of $1.849$. Over 500 data sets, OLS with the lag has mean $\hat{\rho} = 0.7298$ and mean slope $0.8333$, a bias of $+0.130$ and $-0.167$. The approximate formula gives $+0.147$ and $-0.181$, close but not exact because it replaces ratios of random quantities by ratios of expectations. The average of $\operatorname{Cov}(\mathbf{W}\mathbf{Y}_i, \varepsilon_i)/\sigma^2$ is $0.2155$. OLS without the lag has mean slope $1.7389$, against the exact value $1.7398$ from the formula of Section 7.3.3: it estimates something between the direct and total impact, as Section 7.8.7 shows, and not the coefficient $\beta_1 = 1$.
+On one data set, OLS with the lag regressor gives $\hat{\rho} = 0.597$ (true $0.6$), intercept $7.888$, and a slope of $1.610$ (true $1.5$); OLS without the lag gives an intercept of $19.591$ and a slope of $2.789$. Over 500 data sets, OLS with the lag has mean $\hat{\rho} = 0.7283$, mean intercept $5.4321$, and mean slope $1.2409$, a bias of $+0.128$ in $\rho$, $-2.568$ in the intercept, and $-0.259$ in the slope. The approximate formula gives $+0.148$, $-2.949$, and $-0.290$, close but not exact because it replaces ratios of random quantities by ratios of expectations. The average of $\operatorname{Cov}(\mathbf{W}\mathbf{Y}_i, \varepsilon_i)/\sigma^2$ is $0.2155$. OLS without the lag has mean slope $2.6767$, against the exact value $2.6783$ from the formula of Section 7.3.3: it estimates something between the direct and total impact ($1.69$ and $3.75$ mills), as Section 7.8.7 shows, and not the coefficient $\beta_1 = 1.5$.
 
 ### 7.8.4 Maximum Likelihood
 
@@ -7799,11 +7814,11 @@ print("AIC lag:", round(-2 * ll_lag + 2 * 4, 2),
       " AIC error:", round(-2 * ll_err + 2 * 4, 2))
 ```
 
-The lag model fit gives $(\hat{\beta}_0, \hat{\beta}_1, \hat{\rho}, \hat{\sigma}^2) = (0.419, 1.098, 0.563, 0.855)$ against the truth $(0.5, 1, 0.6, 1)$, with standard errors $(0.095, 0.110, 0.059, 0.103)$. Each estimate is within about 1.4 standard errors of the truth, and $\sigma^2$ is the furthest. The likelihood ratio statistic against OLS is $63.91$ ($p < 10^{-14}$). The error model fitted to the same data has log-likelihood $-215.34$, against $-200.06$ for the lag model, so AIC prefers the lag model, $408.13$ against $438.68$. Figure 7.1 shows the two profile log-likelihoods.
+The lag model fit gives $(\hat{\beta}_0, \hat{\beta}_1, \hat{\rho}, \hat{\sigma}^2) = (10.030, 1.825, 0.488, 1.928)$ against the truth $(8.0, 1.5, 0.6, 2.25)$, with standard errors $(1.210, 0.168, 0.061, 0.230)$. Each estimate is within about 1.9 standard errors of the truth. The likelihood ratio statistic against OLS is $48.05$ ($p < 10^{-11}$). The error model fitted to the same data has log-likelihood $-267.40$, against $-256.70$ for the lag model, so AIC prefers the lag model, $521.39$ against $542.80$. Figure 7.1 shows the two profile log-likelihoods.
 
 ![Figure 7.1. Profile log-likelihood of rho for the lag model and the error model, fitted to data simulated from a lag model with rho = 0.6. The lag model fits better, and its curve peaks near the truth; the error model compensates with a larger rho.](current/figures/ch07/fig_7_1_profile.png)
 
-In Figure 7.1 the lag curve peaks at $\hat{\rho} = 0.563$, a little below the true $0.6$, and is about $15$ units higher than the error curve at its own peak, $\hat{\rho} = 0.717$. The error model tries to account for the neighbor dependence through the errors alone, and does so less well because the data have a mean that depends on the neighbors' covariates. Both curves fall steeply as $\rho \to 1$, where the Jacobian term $\sum\log(1 - \rho\lambda_i)$ goes to minus infinity.
+In Figure 7.1 the lag curve peaks at $\hat{\rho} = 0.488$, a little below the true $0.6$, and is about $11$ units higher than the error curve at its own peak, $\hat{\rho} = 0.639$. The error model tries to account for the neighbor dependence through the errors alone, and does so less well because the data have a mean that depends on the neighbors' covariates. Both curves fall steeply as $\rho \to 1$, where the Jacobian term $\sum\log(1 - \rho\lambda_i)$ goes to minus infinity.
 
 ### 7.8.5 The Sampling Distribution of the Estimators
 
@@ -7823,7 +7838,7 @@ print("share of estimates below the truth: ML",
       round(np.mean(est_wy[:, 0] < rho_true), 3))
 ```
 
-Across the 500 data sets, ML has mean $\hat{\rho} = 0.586$ (standard deviation $0.061$) and mean slope $1.012$ (standard deviation $0.108$). OLS with the lag has mean $\hat{\rho} = 0.730$ (standard deviation $0.071$). ML is slightly low for $\rho$, a small-sample effect, but far closer to the truth than OLS, whose estimate is on average $0.13$ too high. Only 4.0% of the OLS estimates fall below the true $0.6$, while 58.4% of the ML estimates do.
+Across the 500 data sets, ML has mean $\hat{\rho} = 0.585$ (standard deviation $0.062$) and mean slope $1.528$ (standard deviation $0.170$). OLS with the lag has mean $\hat{\rho} = 0.728$ (standard deviation $0.069$). ML is slightly low for $\rho$, a small-sample effect, but far closer to the truth than OLS, whose estimate is on average $0.13$ too high. Only 3.8% of the OLS estimates fall below the true $0.6$, while 56.6% of the ML estimates do.
 
 ### 7.8.6 Lagrange Multiplier Tests
 
@@ -7867,19 +7882,19 @@ for truth in ("none", "lag", "error"):
           "  ".join(f"{k}: {v:.3f}" for k, v in rows[truth].items()))
 ```
 
-For the single data set, $T_W = 80.167$ for this map, and the statistics are $\text{LM}_{\text{err}} = 15.96$, $\text{LM}_{\text{lag}} = 52.35$, $\text{RLM}_{\text{err}} = 2.85$, and $\text{RLM}_{\text{lag}} = 39.25$, as quoted in Section 7.6.2. The rejection rates are:
+For the single simulated lag data set, $T_W = 80.167$ for this map, and the statistics are $\text{LM}_{\text{err}} = 16.30$, $\text{LM}_{\text{lag}} = 40.43$, $\text{RLM}_{\text{err}} = 0.19$, and $\text{RLM}_{\text{lag}} = 24.32$. The rejection rates across 2,000 simulations are:
 
 | Truth | LM-error | LM-lag | Robust LM-error | Robust LM-lag |
 | :--- | :--- | :--- | :--- | :--- |
-| No spatial dependence | 0.046 | 0.035 | 0.056 | 0.044 |
-| Lag | 0.999 | 1.000 | 0.036 | 0.997 |
-| Error | 0.999 | 0.993 | 0.779 | 0.103 |
+| No spatial dependence | 0.043 | 0.050 | 0.053 | 0.044 |
+| Lag | 0.997 | 1.000 | 0.046 | 0.999 |
+| Error | 0.999 | 0.993 | 0.790 | 0.087 |
 
-With no dependence all four tests reject close to the nominal 5%. When the truth is a lag, both ordinary tests reject nearly always, as Section 7.6.2 warned, while the robust error test rejects only 3.6% of the time and the robust lag test rejects 99.7%. When the truth is an error model, both ordinary tests again reject nearly always, the robust error test rejects 77.9%, and the robust lag test rejects only 10.3%. The robust tests give the right answer in both cases, though the error model is harder to identify: its power is 78%, against 100% for the lag.
+With no dependence all four tests reject close to the nominal 5%. When the truth is a lag, both ordinary tests reject nearly always, as Section 7.6.2 warned, while the robust error test rejects only 4.6% of the time and the robust lag test rejects 99.9%. When the truth is an error model, both ordinary tests again reject nearly always, the robust error test rejects 79.0%, and the robust lag test rejects only 8.7%. The robust tests give the right answer in both cases, though the error model is harder to identify: its power is 79%, against 100% for the lag.
 
 ### 7.8.7 Impacts
 
-The next block computes the true and estimated impacts from the eigenvalues, draws from the normal approximation to the estimates to get intervals, and runs the check of Section 7.7.4: raise the deprivation index by one unit in one county in the middle of the map, county 78, with the innovations held fixed, and compare the change in the response with the entries of $\boldsymbol{\Phi}\beta_1$.
+The next block computes the true and estimated impacts from the eigenvalues, draws from the normal approximation to the estimates to get intervals, and runs the check of Section 7.7.4: raise the school-funding need index by one unit in one county in the middle of the map, county 78, with the innovations held fixed, and compare the change in the response with the entries of $\boldsymbol{\Phi}\beta_1$.
 
 ```python
 def impacts(rho, beta1, lam):
@@ -7911,7 +7926,7 @@ X1 = X.copy()
 X1[j, 1] += 1.0
 y1 = Phi @ (X1 @ beta_true + eps0)
 diff = y1 - y0
-print("raise x by one unit in county", j, ": change in county", j, "=",
+print("raise need by one unit in county", j, ": change in county", j, "=",
       round(diff[j], 4), " sum of all changes =", round(diff.sum(), 4))
 print("analytic:", round(Phi[j, j] * beta_true[1], 4),
       round(Phi[:, j].sum() * beta_true[1], 4))
@@ -7924,17 +7939,17 @@ print("average own effect:", round(own.mean(), 4),
       " average total effect:", round(allc.mean(), 4))
 ```
 
-The true impacts per unit of $\beta_1 = 1$ at $\rho = 0.6$ are $1.129$ (direct), $1.371$ (indirect), and $2.5$ (total). At the estimates they are $1.218$, $1.295$, and $2.513$. The 95% intervals are:
+The true impacts for $\beta_1 = 1.5$ at $\rho = 0.6$ are $1.694$ mills (direct), $2.056$ mills (indirect), and $3.750$ mills (total). At the estimates they are $1.967$, $1.596$, and $3.563$. The 95% intervals are:
 
 | Impact | True | 95% interval |
 | :--- | :--- | :--- |
-| Direct | 1.129 | (1.022, 1.415) |
-| Indirect | 1.371 | (0.908, 1.888) |
-| Total | 2.500 | (2.106, 3.109) |
+| Direct | 1.694 | (1.673, 2.259) |
+| Indirect | 2.056 | (1.083, 2.290) |
+| Total | 3.750 | (3.056, 4.243) |
 
-All three contain the truth. The spillover is large: more than half of the total effect of the covariate reaches other counties. Compare these with two naive numbers. The lag model's coefficient is $\hat{\beta}_1 = 1.098$, close to the direct impact and less than half of the total, and the OLS slope is $1.849$, which lies between the direct and total impacts and measures neither.
+All three contain the truth. The spillover is large: more than half of the total effect of the covariate reaches other counties. Compare these with two naive numbers. The lag model's coefficient is $\hat{\beta}_1 = 1.826$, close to the direct impact and less than half of the total, and the OLS slope is $2.789$, which lies between the direct and total impacts and measures neither.
 
-The simulation check agrees with the formulas exactly. Raising the covariate by one unit in county 78 changes the response there by $1.1146$, which is $\Phi_{78,78}\beta_1$, and the changes in all counties sum to $2.5009$, which is $\sum_i\Phi_{i,78}\beta_1$. An east neighbor changes by $0.1909$, a county two steps east by $0.0343$, and a county on the far edge of the map by $0.0001$. Averaged over all 144 counties, the own effect is $1.1293$ and the total effect is $2.5$, which equal the direct and total impacts.
+The simulation check agrees with the formulas exactly. Raising the school-funding need index by one unit in county 78 changes the property tax rate there by $1.6718$ mills, which is $\Phi_{78,78}\beta_1$, and the changes in all counties sum to $3.7513$ mills, which is $\sum_i\Phi_{i,78}\beta_1$. An east neighbor changes by $0.2864$ mills, a county two steps east by $0.0515$, and a county on the far edge of the map by $0.0001$. Averaged over all 144 counties, the own effect is $1.6939$ mills and the total effect is $3.75$ mills, which equal the direct and total impacts.
 
 ### 7.8.8 The Error Model: Naive Versus ML Intervals
 
@@ -7964,7 +7979,7 @@ print("error model, ML:  coverage", cover_ml / reps,
       " mean SE", round(se_ml_sum / reps, 4))
 ```
 
-The naive OLS interval covers the true slope $\beta_1 = 1$ in 83.2% of the data sets and its average standard error is $0.0987$. The ML interval covers in 93.4% and its average standard error is $0.1125$. The ML interval is wider on average, and that is correct: the OLS standard error is too small because it ignores the correlation, as Chapter 1 explained for a smooth covariate. The wider interval is the honest price of admitting that the data carry less independent information than OLS assumed. How large the shortfall of OLS is depends on how smooth the covariate is and how large $\rho$ is (Exercise 15).
+The naive OLS interval covers the true slope $\beta_1 = 1.5$ in 77.0% of the data sets and its average standard error is $0.1478$. The ML interval covers in 91.6% and its average standard error is $0.1719$. The ML interval is wider on average, and that is correct: the OLS standard error is too small because it ignores the correlation, as Chapter 1 explained for a smooth covariate. The wider interval is the honest price of admitting that the data carry less independent information than OLS assumed. How large the shortfall of OLS is depends on how smooth the covariate is and how large $\rho$ is (Exercise 20).
 
 ### 7.8.9 Figures
 
@@ -8017,11 +8032,11 @@ print("figures saved")
 
 ![Figure 7.2. Estimates of rho from 500 data sets simulated from a lag model with rho = 0.6. Maximum likelihood is centered near the truth, slightly low. OLS with the lag regressor is centered well above it.](current/figures/ch07/fig_7_2_rho_estimates.png)
 
-In Figure 7.2 the OLS histogram sits to the right of the dashed line for the true value, centered near $0.73$, and the ML histogram is centered near $0.59$. Only 4.0% of the OLS estimates fall below $0.6$.
+In Figure 7.2 the OLS histogram sits to the right of the dashed line for the true value, centered near $0.73$, and the ML histogram is centered near $0.59$. Only 3.8% of the OLS estimates fall below $0.6$.
 
-![Figure 7.3. The effect of raising the deprivation index by one unit in the middle county, on the expected response in every county, for three values of rho. The panel titles give the sum of the effects. Colors use a power scale so that the small spillovers are visible.](current/figures/ch07/fig_7_3_spillover.png)
+![Figure 7.3. The effect of raising the school-funding need index by one unit in the middle county, on the expected property tax rate in every county, for three values of rho. The panel titles give the sum of the effects. Colors use a power scale so that the small spillovers are visible.](current/figures/ch07/fig_7_3_spillover.png)
 
-In Figure 7.3 the effect is largest in the county itself and fades with distance across the map. At $\rho = 0.3$ it is confined to the nearest few counties and the total effect is $1.43$. At $\rho = 0.6$ it reaches farther and the total is $2.50$. At $\rho = 0.9$ the spillover covers most of the map and the total is $10.16$ (the column sum for this county; the average total impact is exactly $1/(1 - \rho) = 10$), more than ten times the coefficient. Large values of $\rho$ make the total impact extremely sensitive to the estimate, since $1/(1 - \rho)$ grows quickly near 1.
+In Figure 7.3 the effect is largest in the county itself and fades with distance across the map. At $\rho = 0.3$ it is confined to the nearest few counties and the total effect is $2.14$ mills. At $\rho = 0.6$ it reaches farther and the total is $3.75$ mills. At $\rho = 0.9$ the spillover covers most of the map and the total is $15.24$ mills (the column sum for this county; the average total impact across the map is exactly $1.5/(1 - \rho) = 15$ mills), ten times the coefficient. Large values of $\rho$ make the total impact extremely sensitive to the estimate, since $1/(1 - \rho)$ grows quickly near 1.
 
 ---
 
@@ -8051,17 +8066,52 @@ In Figure 7.3 the effect is largest in the county itself and fades with distance
 
 10. Show that for the error model $\beta_k$ is the marginal effect of covariate $k$, and that for the lag model the direct impact is never smaller than $\beta_k$ (for $\beta_k > 0$). (Hint: the direct impact is $\beta_k$ times the average of $1/(1 - \rho\lambda_i)$. Use Jensen's inequality for the convex function $1/(1 - \rho\lambda)$ and the fact that $\sum_i\lambda_i = \operatorname{tr}(\mathbf{W}) = 0$.)
 
+11. The **spatial Durbin model** adds the neighbors' covariates to the lag model: $\mathbf{Y} = \rho\mathbf{W}\mathbf{Y} + \mathbf{X}\boldsymbol{\beta} + \mathbf{W}\tilde{\mathbf{X}}\boldsymbol{\gamma} + \boldsymbol{\varepsilon}$, where $\tilde{\mathbf{X}}$ is $\mathbf{X}$ without its column of ones.
+(a) Explain why the column of ones must be left out of $\mathbf{W}\tilde{\mathbf{X}}$. (Hint: what is $\mathbf{W}\mathbf{1}_n$?)
+(b) Write the error model as $(\mathbf{I}_n - \rho\mathbf{W})\mathbf{Y} = (\mathbf{I}_n - \rho\mathbf{W})\mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ and expand it. Show that it is the Durbin model with the **common factor restriction** $\boldsymbol{\gamma} = -\rho\tilde{\boldsymbol{\beta}}$, where $\tilde{\boldsymbol{\beta}}$ holds the coefficients of $\tilde{\mathbf{X}}$, and with intercept $(1 - \rho)\beta_0$ in place of $\beta_0$. How many restrictions does a likelihood ratio test of the error model against the Durbin model have?
+(c) Show that the effect matrix of covariate $k$ in the Durbin model is $\boldsymbol{\Phi}(\beta_k\mathbf{I}_n + \gamma_k\mathbf{W})$. Derive the direct and total impacts, $M_{\text{dir}} = [\beta_k\operatorname{tr}(\boldsymbol{\Phi}) + \gamma_k\operatorname{tr}(\boldsymbol{\Phi}\mathbf{W})]/n$ and $M_{\text{tot}} = (\beta_k + \gamma_k)/(1 - \rho)$, and check that under the common factor restriction the total impact reduces to $\beta_k$, as it must for the error model.
+(d) For the four-region map with $\rho = 0.5$, $\beta_k = 1$, and $\gamma_k = 0.5$, compute the three impacts by hand and compare them with the lag model's ($\gamma_k = 0$) of Section 7.7.2.
+
+12. Derive the expected Fisher information of the lag model, with the parameters ordered $\boldsymbol{\theta} = (\boldsymbol{\beta}', \rho, \sigma^2)'$ as in Section 7.8.4. Write $\mathbf{G} = \mathbf{W}\boldsymbol{\Phi}$, and use $\boldsymbol{\varepsilon} = (\mathbf{I}_n - \rho\mathbf{W})\mathbf{Y} - \mathbf{X}\boldsymbol{\beta}$ and $\mathbf{W}\mathbf{Y} = \mathbf{G}(\mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon})$.
+(a) Show that $\operatorname{E}[-\partial^2\ell/\partial\boldsymbol{\beta}\,\partial\boldsymbol{\beta}'] = \mathbf{X}'\mathbf{X}/\sigma^2$ and $\operatorname{E}[-\partial^2\ell/\partial\boldsymbol{\beta}\,\partial\rho] = \mathbf{X}'\mathbf{G}\mathbf{X}\boldsymbol{\beta}/\sigma^2$.
+(b) Show that the derivative of $\log\lvert\mathbf{I}_n - \rho\mathbf{W}\rvert$ is $-\operatorname{tr}(\mathbf{G})$ and its second derivative is $-\operatorname{tr}(\mathbf{G}^2)$. Then, using the mean of a quadratic form, show
+$$
+\operatorname{E}\!\left[-\frac{\partial^2\ell}{\partial\rho^2}\right] = \operatorname{tr}(\mathbf{G}^2) + \operatorname{tr}(\mathbf{G}'\mathbf{G}) + \frac{(\mathbf{G}\mathbf{X}\boldsymbol{\beta})'(\mathbf{G}\mathbf{X}\boldsymbol{\beta})}{\sigma^2}
+$$
+(c) Show that the remaining entries are $\operatorname{E}[-\partial^2\ell/\partial\rho\,\partial\sigma^2] = \operatorname{tr}(\mathbf{G})/\sigma^2$, $\operatorname{E}[-\partial^2\ell/\partial(\sigma^2)^2] = n/(2\sigma^4)$, and $\operatorname{E}[-\partial^2\ell/\partial\boldsymbol{\beta}\,\partial\sigma^2] = \mathbf{0}$.
+(d) Repeat (a) for the error model and show that its $(\boldsymbol{\beta}, \rho)$ block is zero. Explain why $\hat{\boldsymbol{\beta}}$ and $\hat{\rho}$ are correlated in the lag model but approximately uncorrelated in the error model, and what this means for the impact intervals of Section 7.7.3.
+(e) Evaluate the matrix at the true parameters of Section 7.8.3, invert it, and compare the standard errors with the numerical-Hessian standard errors of Section 7.8.4.
+
+13. Instead of maximum likelihood, the lag model can be fit by **two-stage least squares** (2SLS), using spatial lags of the covariates as instruments for $\mathbf{W}\mathbf{Y}$ [@kelejian1998].
+(a) Use the Neumann series to show that $\operatorname{E}[\mathbf{W}\mathbf{Y}] = \mathbf{G}\mathbf{X}\boldsymbol{\beta} = \sum_{k \ge 0}\rho^k\mathbf{W}^{k+1}\mathbf{X}\boldsymbol{\beta}$. Explain why the columns of $\mathbf{W}\tilde{\mathbf{X}}$ and $\mathbf{W}^2\tilde{\mathbf{X}}$ are correlated with $\mathbf{W}\mathbf{Y}$ and uncorrelated with $\boldsymbol{\varepsilon}$, which is what an instrument needs.
+(b) With $\mathbf{Z} = [\mathbf{W}\mathbf{Y},\ \mathbf{X}]$, instruments $\mathbf{H} = [\mathbf{X},\ \mathbf{W}\tilde{\mathbf{X}},\ \mathbf{W}^2\tilde{\mathbf{X}}]$, and the projection $\mathbf{P}_{\mathbf{H}} = \mathbf{H}(\mathbf{H}'\mathbf{H})^{-1}\mathbf{H}'$, show that the 2SLS estimator $(\mathbf{Z}'\mathbf{P}_{\mathbf{H}}\mathbf{Z})^{-1}\mathbf{Z}'\mathbf{P}_{\mathbf{H}}\mathbf{Y}$ is OLS of $\mathbf{Y}$ on the fitted values $\mathbf{P}_{\mathbf{H}}\mathbf{Z}$ from a first-stage regression.
+(c) The instruments are weak when $\mathbf{W}\tilde{\mathbf{X}}\tilde{\boldsymbol{\beta}}$ carries little information beyond $\mathbf{X}$. Show that if $\tilde{\boldsymbol{\beta}} = \mathbf{0}$, then $\operatorname{E}[\mathbf{W}\mathbf{Y}]$ is a multiple of $\mathbf{1}_n$ and 2SLS cannot identify $\rho$, while ML still can. What does the Jacobian term contribute that 2SLS lacks?
+
+14. Compare the lag model with the **SLX model** (spatial lag of $\mathbf{X}$), $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{W}\tilde{\mathbf{X}}\boldsymbol{\theta} + \boldsymbol{\varepsilon}$, with independent errors.
+(a) Show that the effect matrix of covariate $k$ in the SLX model is $\beta_k\mathbf{I}_n + \theta_k\mathbf{W}$. Conclude that a change in region $j$ reaches only region $j$ and its immediate neighbors (**local spillovers**), and that its direct, indirect, and total impacts are $\beta_k$, $\theta_k$, and $\beta_k + \theta_k$.
+(b) Contrast this with the lag model, where $\boldsymbol{\Phi}\beta_k = \beta_k\sum_{k' \ge 0}\rho^{k'}\mathbf{W}^{k'}$ reaches every region of a connected map (**global spillovers**). On the $2 \times 2$ block, compute both effect matrices with $\beta_k = 1$, $\rho = 0.5$, and $\theta_k$ chosen so that the two models have the same total impact. Which entries differ?
+(c) Explain why the SLX model can be fit by OLS while the lag model cannot.
+
+15. Chapter 6 built $k$-nearest-neighbor weights, for which $\mathbf{A}$ is not symmetric and the row-standardized $\mathbf{W}$ can have complex eigenvalues $\lambda_j = a_j + ib_j$ (Section 6.3.3).
+(a) Explain why complex eigenvalues of a real matrix come in conjugate pairs $a_j \pm ib_j$, and show that each pair contributes the positive real factor $(1 - \rho a_j)^2 + \rho^2b_j^2$ to $\lvert\mathbf{I}_n - \rho\mathbf{W}\rvert$ for real $\rho$.
+(b) Show that $1 - \rho\lambda_j \ne 0$ for every real $\rho$ when $b_j \ne 0$. Conclude that only the real eigenvalues limit the parameter space, which becomes $(1/\lambda_{\min}, 1/\lambda_{\max})$ with $\lambda_{\min}$ the smallest real eigenvalue, and that the determinant is positive on it.
+(c) Ord's identity still holds with complex eigenvalues, $\log\lvert\mathbf{I}_n - \rho\mathbf{W}\rvert = \sum_j\log(1 - \rho\lambda_j)$, as long as the logarithms of each conjugate pair are added together. Why can the symmetric shortcut of Section 7.5.2 not be used here, and what does that cost?
+
 **Computational and simulation**
 
-11. Repeat the 500-replicate comparison of Section 7.8.5 for $\rho = 0.2$, $0.4$, $0.8$. Plot the bias of OLS-with-lag and of ML as functions of $\rho$. Compare the bias of OLS-with-lag with the formula of Section 7.3.3.
+16. Repeat the 500-replicate comparison of Section 7.8.5 for $\rho = 0.2$, $0.4$, $0.8$. Plot the bias of OLS-with-lag and of ML as functions of $\rho$. Compare the bias of OLS-with-lag with the formula of Section 7.3.3.
 
-12. Extend Section 7.7.3: compute the 95% intervals for the three impacts in 200 simulated data sets, and report how often each interval covers the true impact. Do the intervals cover about 95% of the time?
+17. Extend Section 7.7.3: compute the 95% intervals for the three impacts in 200 simulated data sets, and report how often each interval covers the true impact. Do the intervals cover about 95% of the time?
 
-13. Repeat the LM test comparison of Section 7.8.6 with $\rho = 0.2$ and with $\rho = 0.4$. How does the power of the four tests change? Which truth, lag or error, is harder to identify at small $\rho$?
+18. Repeat the LM test comparison of Section 7.8.6 with $\rho = 0.2$ and with $\rho = 0.4$. How does the power of the four tests change? Which truth, lag or error, is harder to identify at small $\rho$?
 
-14. Replace the row-standardized $\mathbf{W}$ by the binary adjacency matrix $\mathbf{A}$ and compute the eigenvalues, the parameter space, and the profile log-likelihood for the simulated lag data. Why is the parameter space so much narrower, and what does the fitted $\hat{\rho}$ mean on this scale?
+19. Replace the row-standardized $\mathbf{W}$ by the binary adjacency matrix $\mathbf{A}$ and compute the eigenvalues, the parameter space, and the profile log-likelihood for the simulated lag data. Why is the parameter space so much narrower, and what does the fitted $\hat{\rho}$ mean on this scale?
 
-15. Simulate the error model with $\rho = 0.6$ and fit it by OLS and by ML. Compare the estimated slope and its standard error from the two fits. Then use a coordinate covariate instead of the smooth deprivation index (for example, the east coordinate of the county centroid). Is the shortfall of the OLS interval larger or smaller, and why? (Use the variance ratio of Section 1.3.4.)
+20. Simulate the error model with $\rho = 0.6$ and fit it by OLS and by ML. Compare the estimated slope and its standard error from the two fits. Then use a coordinate covariate instead of the smooth school-funding need index (for example, the east coordinate of the county centroid). Is the shortfall of the OLS interval larger or smaller, and why? (Use the variance ratio of Section 1.3.4.)
+
+21. Implement the 2SLS estimator of Exercise 13 and apply it to the 500 lag-model data sets of Section 7.8.5. Compare the mean, standard deviation, and root mean squared error of $\hat{\rho}$ and $\hat{\beta}_1$ with those of ML and of OLS with the lag. Then repeat with a true slope of $\beta_1 = 0.2$ in place of $1.5$, and explain the change in 2SLS using part (c) of Exercise 13.
+
+22. Compute intervals for the three impacts of Section 7.8.7 by the **delta method**: write each impact as a function of $(\beta_1, \rho)$, find its gradient (for example, the total impact $\beta_1/(1 - \rho)$ has gradient $(1/(1 - \rho),\ \beta_1/(1 - \rho)^2)$, and the direct impact has $\partial M_{\text{dir}}/\partial\rho = \beta_1 n^{-1}\sum_i\lambda_i/(1 - \rho\lambda_i)^2$), and combine it with the covariance matrix from the numerical Hessian. Compare the intervals with the simulation intervals of Section 7.8.7. Which impact has the most asymmetric simulation interval, and why does the delta method miss that?
 
 ---
 
