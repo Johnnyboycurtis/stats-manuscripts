@@ -344,7 +344,7 @@ for rho_try in (0.9, 0.99, 1.0, 1.05, -1.3, -1.5):
           f"{smallest:8.4f}")
 ```
 
-Negative values of $\rho$, which make neighbors tend to differ, are rarely used. On the 144-county map of the next subsection the range is $-1 < \rho < 1$, because a rectangular grid is bipartite (Exercise 5). In practice, positive $\rho$ near 1 is what applied models need, and Section 8.5.3 shows that $\rho$ must be very close to 1 for strong spatial correlation.
+Negative values of $\rho$ imply negative conditional dependence: given its neighbors, a region tends to deviate in the opposite direction from their average. While rare in public health and epidemiology, negative spatial autocorrelation arises in settings with spatial competition, market substitution, or territorial inhibition, such as competing retail outlets avoiding cannibalization or crops competing for localized soil moisture. On the 144-county map of the next subsection the valid parameter range is $-1 < \rho < 1$, because a rectangular grid is bipartite (Exercise 5). In regional epidemiology and disease mapping, however, positive spatial clustering with $\rho$ near 1 is overwhelmingly the norm, and Section 8.5.3 shows that $\rho$ must be very close to 1 to produce strong spatial correlation.
 
 ### 8.2.4 Why $\sigma^2$ Is Not the Marginal Variance
 
@@ -905,7 +905,7 @@ At the same $\rho$ the models imply very different dependence. At $\rho = 0.9$, 
 
 ### 8.6.1 Simulating a CAR Field and Recovering Its Parameters
 
-Simulate unexplained variation in a county health outcome. On the county map, let $y_i = \beta_0 + \beta_1x_i + u_i$, with $x_i$ the standardized deprivation index of the shared data set, $\beta_0 = 1$, $\beta_1 = 0.5$, and $\mathbf{u}$ a proper CAR field with $\sigma^2 = 2$ and $\rho = 0.95$. The data are simulated, so the truth is known. We fit the model by profile maximum likelihood (Section 8.4.1), test $\rho = 0$ (independent regions with variances $\sigma^2/d_i$) by a likelihood ratio, and compare the slope from OLS with the slope from the CAR model.
+Simulate unexplained variation in a county health outcome, such as the age-adjusted rate of chronic respiratory hospitalizations per 1,000 residents. On the county map, let $y_i = \beta_0 + \beta_1x_i + u_i$, where $x_i$ is the standardized socioeconomic deprivation index from the shared data set, $\beta_0 = 1.0$ is the baseline hospitalization rate in an average county, $\beta_1 = 0.5$ represents an expected increase of 0.5 hospitalizations per 1,000 residents per standard-deviation increase in deprivation, and $\mathbf{u}$ is a proper CAR spatial random effect with $\sigma^2 = 2$ and $\rho = 0.95$. The data are simulated, so the truth is known. We fit the model by profile maximum likelihood (Section 8.4.1), test $\rho = 0$ (independent regions with variances $\sigma^2/d_i$) by a likelihood ratio, and compare the slope from OLS with the slope from the CAR model.
 
 ```python
 X = np.column_stack([np.ones(n), x])
@@ -947,7 +947,11 @@ print(f"intercept: CAR-GLS {beta_hat[0]:.3f} "
       f"(SE {np.sqrt(cov_gls[0, 0]):.3f}),  true 1.0")
 ```
 
-The fit recovers the dependence: $\hat{\rho} = 0.971$ (true 0.95) and $\hat{\sigma}^2 = 1.832$ (true 2). The likelihood ratio statistic against $\rho = 0$ is 75.3 on one parameter, overwhelming evidence of spatial dependence. The slope is 0.456 under the CAR model and 0.354 under OLS, against a true 0.5. The standard errors are close (0.087 and 0.090). The intercept is the poorly determined quantity: its standard error is 0.349, four times the slope's 0.087, and the estimate $\hat{\beta}_0 = 1.444$ is 1.3 standard errors above the true value of 1. This is the identifiability problem of Section 8.3.4 in a nearly intrinsic model, where $\rho$ is close to 1: when the spatial effect can absorb almost any overall level, the intercept is only weakly pinned down by the data.
+The fit recovers the dependence: $\hat{\rho} = 0.971$ (true 0.95) and $\hat{\sigma}^2 = 1.832$ (true 2). The likelihood ratio statistic against $\rho = 0$ is 75.3 on one degree of freedom, overwhelming evidence of spatial structure in the unexplained health variation ($p < 10^{-16}$).
+
+The estimated slope is $\hat{\beta}_1 = 0.456$ under the CAR-GLS model (SE 0.087) compared to $0.354$ under OLS (SE 0.090), against the true value of $0.5$. In substantive terms, each standard deviation increase in county deprivation increases the expected hospitalization rate by roughly $0.46$ cases per 1,000 residents. Because the random effect $\mathbf{u}$ is mean-zero Gaussian, the regression coefficient $\boldsymbol{\beta}$ has a dual interpretation: it is the **conditional effect** of deprivation within a county given its neighbors' random effects, and it is also the **marginal population-averaged effect** $\operatorname{E}[\mathbf{y}] = \mathbf{X}\boldsymbol{\beta}$. As Chapter 9 will show, this convenient agreement breaks down once we move to non-linear link functions for discrete count data.
+
+The intercept is the poorly determined quantity: its standard error is 0.349, four times the slope's 0.087, and the estimate $\hat{\beta}_0 = 1.444$ is 1.3 standard errors above the true baseline of 1. This is the identifiability problem of Section 8.3.4 in a nearly intrinsic model ($\rho = 0.95 \approx 1$): when the spatial effect can absorb almost any regional level shift, the global intercept is only weakly pinned down by the data.
 
 ### 8.6.2 How Well Are the Parameters Recovered?
 
@@ -973,7 +977,9 @@ print(f"share of rho_hat above 0.99: {(rho_hats > 0.99).mean():.3f};  "
 print(f"slope: mean {slopes.mean():.3f}, sd {slopes.std():.3f}")
 ```
 
-The slope and $\sigma^2$ are estimated without noticeable bias: the average of $\hat{\sigma}^2$ is 2.028 (true 2) and the average slope is 0.500 (true 0.5). The parameter $\rho$ is not. Its median estimate is 0.918 against a true 0.95, with a long tail to the left: the middle 50% of the estimates run from 0.862 to 0.953, and the 5th percentile is 0.743. The distribution is also capped by the boundary at 1; only 0.4% of the estimates exceed 0.99. So with 144 regions, $\rho$ is estimated with a bias toward smaller values and with a wide spread, and values of 0.9 and 0.98 would be hard to tell apart. Figure 8.4 draws both the profile for the data set of Section 8.6.1 and the distribution of the 500 estimates.
+The slope and $\sigma^2$ are estimated without noticeable bias: the average of $\hat{\sigma}^2$ is 2.028 (true 2) and the average slope is 0.500 (true 0.5). The parameter $\rho$ is not. Its median estimate is 0.918 against a true 0.95, with a long tail to the left: the middle 50% of the estimates run from 0.862 to 0.953, and the 5th percentile is 0.743. The distribution is also capped by the boundary at 1; only 0.4% of the estimates exceed 0.99. So with 144 regions, $\rho$ is estimated with a bias toward smaller values and with a wide spread, and values of 0.9 and 0.98 would be hard to tell apart.
+
+This finite-sample behavior explains why applied disease mapping and spatial epidemiology often bypass the proper CAR altogether. Estimating a parameter $\rho$ that piles up against an artificial boundary at 1 is numerically fragile. In applied practice (particularly Bayesian disease mapping via INLA or Stan), modelers frequently fix $\rho = 1$ unconditionally (the intrinsic CAR of Section 8.3) and delegate the degree of smoothing entirely to the variance parameter $\sigma^2$, or adopt the Leroux formulation (Exercise 13 and Chapter 9) where the spatial and independent components are identified more cleanly. Figure 8.4 draws both the profile for the data set of Section 8.6.1 and the distribution of the 500 estimates.
 
 ### 8.6.3 Figures
 

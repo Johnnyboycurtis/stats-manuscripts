@@ -62,7 +62,7 @@ As of 2026-10-28. Chapters 0 to 13 are drafted; the appendices are not. The auth
 | 5 | `chapters/ch05_likelihood_reml.md` | 11,376 | 2 |
 | 6 | `chapters/ch06_areal_units_moran.md` | 16,847 | 4 |
 | 7 | `chapters/ch07_sar_models.md` | 14,083 | 3 |
-| 8 | `chapters/ch08_car_models.md` | 12,785 | 4 |
+| 8 | `chapters/ch08_car_models.md` | 13,068 | 4 |
 | 9 | `chapters/ch09_spatial_glmms.md` | 14,242 | 3 |
 | 10 | `chapters/ch10_exploring_point_patterns.md` | 16,010 | 5 |
 | 11 | `chapters/ch11_point_processes_glms.md` | 15,903 | 5 |
