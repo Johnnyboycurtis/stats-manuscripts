@@ -305,7 +305,7 @@ All notation, the typographic conventions, the model used throughout, and the co
 
 ### Chapter 7: Simultaneous Autoregressive Models: Spatial Regression with Feedback
 
-*Running stories:* property tax rates of neighboring cities (lag model); minimum-wage spillovers across county lines (error model); R&D spillovers between regions (impacts).
+*Running stories:* property tax rates and school funding of neighboring counties (lag model and impacts); minimum-wage spillovers across county lines (error model).
 
 * 7.1 The simultaneous idea: each region's value regressed on its neighbors', all at once; a two-region example; the lag and error models side by side
 * 7.2 The spatial error model

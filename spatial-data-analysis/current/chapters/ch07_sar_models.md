@@ -466,7 +466,7 @@ The lab shows the rule at work: on data simulated from a lag model, $\text{LM}_{
 
 ### 7.6.3 Likelihood Ratio Tests and AIC
 
-Once both models are fit by ML, they can be compared directly. Each reduces to OLS at $\rho = 0$, so each can be tested against OLS with the likelihood ratio test of Section 7.5.3. The two models are not nested in each other: neither is a special case of the other, so a likelihood ratio test between them is not available. Both have the same number of parameters ($p + 2$: the $p$ coefficients, $\rho$, and $\sigma^2$), so AIC, which equals $-2\hat{\ell}$ plus twice the number of parameters (Section 5.5.1), reduces to comparing the maximized log-likelihoods. The model with the larger maximized log-likelihood is preferred. In the lab, on lag-model data, the lag model has log-likelihood $-200.06$ and the error model $-215.34$, a difference of about 15 log-likelihood units.
+Once both models are fit by ML, they can be compared directly. Each reduces to OLS at $\rho = 0$, so each can be tested against OLS with the likelihood ratio test of Section 7.5.3. The two models are not nested in each other: neither is a special case of the other, so a likelihood ratio test between them is not available. Both have the same number of parameters ($p + 2$: the $p$ coefficients, $\rho$, and $\sigma^2$), so AIC, which equals $-2\hat{\ell}$ plus twice the number of parameters (Section 5.5.1), reduces to comparing the maximized log-likelihoods. The model with the larger maximized log-likelihood is preferred. In the lab, on lag-model data, the lag model has log-likelihood $-256.70$ and the error model $-267.40$, a difference of about $10.7$ log-likelihood units.
 
 A model that contains both as special cases adds the neighbors' covariates $\mathbf{W}\mathbf{X}$ to the lag model. It is known as the spatial Durbin model, and it can be tested against each of the two simpler ones with likelihood ratio tests. We do not develop it here: Exercise 11 shows how it reduces to the error model under one restriction on its coefficients, and Appendix D points to its estimation.
 
@@ -512,7 +512,7 @@ To test the lag parameter while allowing for the error parameter, subtract from 
 
 ### 7.7.1 Why $\beta_k$ Is Not the Marginal Effect
 
-Return to the story of regional research and development. Suppose the response is patents granted in region $i$, and one covariate is the region's R&D spending. In a lag model, a region with more R&D produces more patents. Its neighbors, drawing on its findings, also produce more. And the neighbors' extra patents spill back. A researcher who reports $\beta_k$ as "the effect of one more dollar of R&D" has reported only the first of these.
+Return to the property tax story. Suppose the response is a county's property tax rate in mills, and one covariate is its school-funding need index. A county with higher need raises its own property tax rate to fund its schools. Its neighbors, watching the higher rate across the border, face less competitive pressure and raise their own tax rates in response. And the neighbors' higher rates spill back. A researcher who reports $\beta_k$ as "the effect of a one-unit change in school need" has reported only the first of these.
 
 Make this precise. In the lag model $\operatorname{E}[\mathbf{Y}] = \boldsymbol{\Phi}\mathbf{X}\boldsymbol{\beta}$, so the expected response in region $i$ is $\sum_j\Phi_{ij}\,(\mathbf{X}\boldsymbol{\beta})_j$. Raise covariate $k$ in region $j$ by one unit. The expected response in region $i$ changes by
 
