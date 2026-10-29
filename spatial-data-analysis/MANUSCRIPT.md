@@ -8255,7 +8255,7 @@ which is Chapter 4's formula with $\boldsymbol{\Pi} = \mathbf{Q}$. The last line
 
 ### 8.1.3 Reconstructing the Joint Distribution: Brook's Lemma by Hand
 
-Now the other direction. Start from the conditionals of Section 8.1.1 and ask for the joint density. The tool is **Brook's lemma**: a joint density can be rebuilt from its full conditionals, up to a constant, by changing one coordinate at a time. We show it for three regions, with a reference point at which all values are zero.
+Now the other direction. Start from the conditionals of Section 8.1.1 and ask for the joint density. The tool is **Brook's lemma** [@brook1964]: a joint density can be rebuilt from its full conditionals, up to a constant, by changing one coordinate at a time. We show it for three regions, with a reference point at which all values are zero.
 
 Write the conditional means as $m_i = \sum_j c_{ij}u_j$. Comparing the conditional density at a value $u_i$ with the density at 0, with the other regions held fixed, the normalizing constants cancel and
 
@@ -8342,7 +8342,7 @@ $$
 
 where $s_i$ and $s_j$ collect the terms with the fixed regions. If $Q_{ij} = 0$ the conditional density, proportional to $\exp$ of minus half this, is a product of a function of $u_i$ and a function of $u_j$, which is the definition of independence. If $Q_{ij} \ne 0$ the cross term couples them.
 
-A normal vector whose precision matrix has $Q_{ij} \ne 0$ only for neighboring regions, so that each region depends on the rest only through its neighbors, is a **Gaussian Markov random field** (GMRF). The CAR models are GMRFs by construction, since $c_{ij} = 0$ for non-neighbors.
+A normal vector whose precision matrix has $Q_{ij} \ne 0$ only for neighboring regions, so that each region depends on the rest only through its neighbors, is a **Gaussian Markov random field** (GMRF) [@rue2005]. The CAR models are GMRFs by construction, since $c_{ij} = 0$ for non-neighbors.
 
 Conditional independence is not independence. In the four-region model of Section 8.2.2, regions 1 and 3 are not neighbors, so $Q_{13} = 0$, yet their covariance $\Sigma_{13}$ is not zero: regions 1 and 3 are both tied to region 2, and through it they are related. This gap between zeros in $\mathbf{Q}$ and zeros in $\boldsymbol{\Sigma}$ drives the rest of the chapter. The precision matrix is sparse and cheap to store and work with. The covariance matrix is dense.
 
@@ -8354,7 +8354,7 @@ Conditional independence is not independence. In the four-region model of Sectio
 
 ### 8.2.1 Equal Weights for Neighbors
 
-The general framework leaves the $c_{ij}$ and $\sigma_i^2$ free. The standard **proper CAR** model makes two simple choices.
+The general framework leaves the $c_{ij}$ and $\sigma_i^2$ free. The standard **proper CAR** model [@besag1974] makes two simple choices.
 
 - **Equal weights.** A region's conditional mean is $\rho$ times the average of its neighbors:
 
@@ -8555,7 +8555,7 @@ using $\sum_jA_{ij} = d_i$ and, by symmetry, $\sum_iA_{ij} = d_j$. So $\lvert\ma
 
 ### 8.3.1 Setting $\rho = 1$
 
-At $\rho = 1$ the precision matrix becomes $\mathbf{Q}_{\text{ICAR}} = \sigma^{-2}(\mathbf{D} - \mathbf{A})$. The conditional distributions are still perfectly well defined:
+At $\rho = 1$ the precision matrix becomes $\mathbf{Q}_{\text{ICAR}} = \sigma^{-2}(\mathbf{D} - \mathbf{A})$, the **intrinsic CAR** (ICAR) model [@besag1974]. The conditional distributions are still perfectly well defined:
 
 $$
 u_i \mid \mathbf{u}_{-i} \sim N\!\left(\frac{1}{d_i}\sum_{j \sim i}u_j,\ \frac{\sigma^2}{d_i}\right)
@@ -9240,19 +9240,54 @@ Figure 8.4 summarizes Sections 8.6.1 and 8.6.2. The profile peaks near 0.97 and 
 
 11. With the county map numbered row by row, the matrix $\mathbf{Q}_{\text{CAR}}$ has bandwidth 12: every nonzero entry satisfies $\lvert i - j\rvert \le 12$. Cholesky factors of banded matrices stay inside the band. Count the largest possible number of nonzero entries in the lower-triangular factor $\mathbf{L}$ and compare with the $n(n+1)/2$ entries of a dense lower-triangular factor of $\boldsymbol{\Sigma}$.
 
+12. Apply Brook's lemma of Section 8.1.3 to four regions arranged in a cycle $1 - 2 - 3 - 4 - 1$ with reference point $\mathbf{0}$.
+(a) Evaluate the density ratio $\log[p(\mathbf{u})/p(\mathbf{0})]$ along the coordinate path $(0,0,0,0) \to (u_1,0,0,0) \to (u_1,u_2,0,0) \to (u_1,u_2,u_3,0) \to (u_1,u_2,u_3,u_4)$, showing that it produces cross terms $u_1u_2$, $u_2u_3$, $u_3u_4$, and $u_4u_1$.
+(b) Repeat along the reverse path $(u_1, u_2, u_3, u_4) \to \dots \to (0,0,0,0)$ and equate the cross terms to verify the pairwise symmetry condition $c_{ij}\sigma_j^2 = c_{ji}\sigma_i^2$.
+(c) Explain why Brook's lemma requires the **positivity condition** ($p(\mathbf{u}) > 0$ for all $\mathbf{u}$ in the product space of supports). What goes wrong if certain neighbor combinations are forbidden (for example, in a hard-core spatial process where adjacent binary sites cannot both take value 1)?
+
+13. In Section 8.2.4 we saw that the proper CAR model makes marginal variances heteroscedastic across the map because the conditional variance shrinks with degree $d_i$. The **Leroux model** [@leroux2000], which Chapter 9 uses for spatial count data, replaces the degree-weighted ridge penalty with an unweighted ridge penalty:
+$$
+\mathbf{Q}_{\text{Leroux}} = \sigma^{-2}\left[(1 - \lambda)\mathbf{I}_n + \lambda(\mathbf{D} - \mathbf{A})\right], \qquad 0 \le \lambda < 1
+$$
+(a) Using the eigenvalues of the graph Laplacian $\mathbf{D} - \mathbf{A}$, show that $\mathbf{Q}_{\text{Leroux}}$ is positive definite for every $\lambda \in [0, 1)$ without requiring any map-dependent lower bound on $\lambda$.
+(b) Derive the full conditional mean $\operatorname{E}[u_i \mid \mathbf{u}_{-i}]$ and conditional variance $\operatorname{Var}(u_i \mid \mathbf{u}_{-i})$ for region $i$. Show that as $\lambda \to 0$ the model reduces to independent noise with constant variance $\sigma^2$, and as $\lambda \to 1$ it reduces to the intrinsic CAR.
+(c) Contrast the conditional variance of region $i$ in the Leroux model with that in the proper CAR model. Does the Leroux conditional variance shrink as quickly with $d_i$?
+
+14. Section 8.1.2 showed that the CAR conditional expectation is the simple kriging prediction of $u_i$ from all other regions.
+(a) For a region $i$ on a rook grid, let $\partial i$ be its set of immediate neighbors and let $\mathcal{S}$ be any subset of regions disjoint from $\partial i \cup \{i\}$. Using the precision matrix $\mathbf{Q}$, prove that the simple kriging prediction of $u_i$ from $\mathbf{u}_{\partial i} \cup \mathbf{u}_{\mathcal{S}}$ places exactly zero weight on all regions in $\mathcal{S}$ (**exact screening**).
+(b) Suppose instead that $\mathbf{u}$ is generated by a continuous Gaussian process with an exponential covariance function $C(h) = \sigma^2\exp(-h/\phi)$, observed at the centroids of the grid. Explain why the inverse covariance matrix $\boldsymbol{\Sigma}^{-1}$ is dense, and why simple kriging weights on second-order neighbors do not vanish in general.
+
+15. In Section 8.2.4 we observed that marginal variances $\Sigma_{ii} = [(\mathbf{D} - \rho\mathbf{A})^{-1}]_{ii}$ vary across the map even at $\rho = 0$.
+(a) Write $\mathbf{D} - \rho\mathbf{A} = \mathbf{D}^{1/2}(\mathbf{I}_n - \rho\tilde{\mathbf{A}})\mathbf{D}^{1/2}$ and use the Neumann series to expand $(\mathbf{D} - \rho\mathbf{A})^{-1} = \mathbf{D}^{-1/2}(\mathbf{I}_n + \rho\tilde{\mathbf{A}} + \rho^2\tilde{\mathbf{A}}^2 + \dots)\mathbf{D}^{-1/2}$.
+(b) Show that the zero-order term in the marginal variance $\Sigma_{ii}$ is $1/d_i$, and that the first-order term in $\rho$ is zero on the diagonal.
+(c) Show that the second-order term on the diagonal is $\rho^2 \sum_{j \sim i} (d_i d_j)^{-1}$.
+(d) Explain why corner regions (with $d_i = 2$) have larger marginal variances than interior regions (with $d_i = 4$) at both zero and higher orders of $\rho$.
+
 **Computational and simulation**
 
-12. Repeat the experiment of Section 8.6.2 with true $\rho = 0.5$ and with $\rho = 0.8$. Plot the distribution of $\hat{\rho}$ for each. How does the bias and the spread change as $\rho$ moves away from 1?
+16. Repeat the experiment of Section 8.6.2 with true $\rho = 0.5$ and with $\rho = 0.8$. Plot the distribution of $\hat{\rho}$ for each. How does the bias and the spread change as $\rho$ moves away from 1?
 
-13. Implement the REML version from Exercise 10 and compare ML and REML estimates of $\sigma^2$ on a $6 \times 6$ map with 200 simulated data sets and $\rho = 0.9$, $\sigma^2 = 2$. How large is the downward bias of ML?
+17. Implement the REML version from Exercise 10 and compare ML and REML estimates of $\sigma^2$ on a $6 \times 6$ map with 200 simulated data sets and $\rho = 0.9$, $\sigma^2 = 2$. How large is the downward bias of ML?
 
-14. On the hexagonal spot grid of Section 8.4.3, draw 200 fields from the proper CAR with $\rho = 0.9$ using the sparse sampler. Estimate the average correlation between neighboring spots and between spots two steps apart, and compare with the same quantities on the square grid.
+18. On the hexagonal spot grid of Section 8.4.3, draw 200 fields from the proper CAR with $\rho = 0.9$ using the sparse sampler. Estimate the average correlation between neighboring spots and between spots two steps apart, and compare with the same quantities on the square grid.
 
-15. Build a map with two connected components by removing a row of regions from the $12 \times 12$ grid. Simulate the intrinsic CAR on it by the spectral method with sum-to-zero constraints within each component, and check that both component sums are zero. What happens to the sum of all regions if you impose only a single global constraint?
+19. Build a map with two connected components by removing a row of regions from the $12 \times 12$ grid. Simulate the intrinsic CAR on it by the spectral method with sum-to-zero constraints within each component, and check that both component sums are zero. What happens to the sum of all regions if you impose only a single global constraint?
 
-16. For the hexagonal grid, compare the neighbor correlations of CAR and SAR at $\rho = 0.5, 0.9, 0.99$, and find the SAR $\rho$ that matches CAR at 0.9. Is the answer close to the 0.608 found on the square grid?
+20. For the hexagonal grid, compare the neighbor correlations of CAR and SAR at $\rho = 0.5, 0.9, 0.99$, and find the SAR $\rho$ that matches CAR at 0.9. Is the answer close to the 0.608 found on the square grid?
 
-17. Solve $\mathbf{Q}\mathbf{x} = \mathbf{b}$ on a $100 \times 100$ grid for $\rho = 0.9$, $0.99$, and $0.9999$ using `splu` and using the conjugate gradient method `scipy.sparse.linalg.cg`. Count the iterations of conjugate gradient and explain, using the smallest eigenvalue of $\mathbf{Q}$, why they grow as $\rho \to 1$.
+21. Solve $\mathbf{Q}\mathbf{x} = \mathbf{b}$ on a $100 \times 100$ grid for $\rho = 0.9$, $0.99$, and $0.9999$ using `splu` and using the conjugate gradient method `scipy.sparse.linalg.cg`. Count the iterations of conjugate gradient and explain, using the smallest eigenvalue of $\mathbf{Q}$, why they grow as $\rho \to 1$.
+
+22. Section 8.4.2 simulated CAR fields by solving a triangular system from the Cholesky factor of $\mathbf{Q}$. An alternative is the **Gibbs sampler**, which updates each region in turn from its full conditional distribution:
+$$
+u_i^{(t+1)} \sim N\!\left(\rho\,\frac{1}{d_i}\sum_{j \sim i}u_j^{(t)},\ \frac{\sigma^2}{d_i}\right)
+$$
+(a) Implement single-site Gibbs sampling on the four-region map with $\rho = 0.5$ and $\sigma^2 = 1$. Run 20,000 iterations and compare the sample covariance of the draws with the exact covariance matrix $\boldsymbol{\Sigma}_4$ of Section 8.2.2.
+(b) Run the sampler on the $12 \times 12$ county map for $\rho = 0.5$ and for $\rho = 0.95$. For an interior county, plot the autocorrelation function of the chain up to lag 50. Why does the Gibbs sampler mix rapidly at $\rho = 0.5$ but exhibit slow mixing at $\rho = 0.95$?
+
+23. The performance of sparse linear solvers depends on the ordering of regions.
+(a) For a $30 \times 30$ grid of square counties ($n = 900$), construct the CAR precision matrix $\mathbf{Q}$ with $\rho = 0.9$ under the default row-by-row numbering, and under a randomly permuted numbering.
+(b) For both matrices, compute the symbolic LU factorization with `scipy.sparse.linalg.splu` without automatic column permutation (`permc_spec='NATURAL'`), and compare the number of nonzeros in the factors (the fill-in).
+(c) Time the solution of $\mathbf{Q}\mathbf{x} = \mathbf{b}$ for both orderings and explain why graph ordering is essential when scaling GMRFs to tens of thousands of regions.
 
 ---
 

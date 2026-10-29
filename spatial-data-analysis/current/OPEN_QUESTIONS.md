@@ -56,13 +56,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 8: CAR Models
 
-1. **Only one proper-CAR variant** ($c_{ij} = \rho A_{ij}/d_i$, $\sigma_i^2 = \sigma^2/d_i$) is covered. General weights and per-region variances are not. Enough?
-2. **Unverified factual claim.** §8.4.3 says a standard spatial-transcriptomics capture area has about 5,000 spots (softened in Chapter 8 to "a few thousand spots"; the common 10x Visium array has 4,992). Cite, soften to "a few thousand," or drop?
-3. **The incidence-matrix sampler** ($\mathbf{N}'\mathbf{N} = \mathbf{D} - \rho\mathbf{A}$) is a teaching device because SciPy has no sparse Cholesky. Production software uses CHOLMOD-style factorization. Keep, or shorten?
-4. **ML, not REML, in the lab;** REML is Exercise 10. The lab truth $\rho = 0.95$ gives a downward-biased $\hat{\rho}$ (median 0.918); a truth of 0.9 or a larger map would look better. Keep both?
-5. **Timings are machine-dependent;** the text reports ratios (about 5, 30, 80 times faster) with a caveat.
-6. **Optional marking.** §8.2.5 and §8.3.5 are Optional. Should the Brook's-lemma subsection (§8.1.3) also be Optional?
-7. **Length:** about 11,900 words. Candidates: the two Optional proofs, the hexagonal timing table, the "every SAR is a CAR" paragraph in §8.5.1.
+1. **Trim candidates:** The Optional derivations (§8.2.5 and §8.3.5) could move to Appendix A if trimming is desired later. (Items 1-7 settled on 2026-10-28: covered proper CAR variant with explicit bridge to Leroux model in analytical Exercise 13; kept Brook's lemma in main flow (§8.1.3) and added dedicated analytical Exercise 12 on cycles and positivity; added standard citations [@brook1964; @besag1974; @rue2005; @leroux2000]; documented universal citation rule in `MARKDOWNSTYLE.md`; kept incidence-matrix sampler teaching device and added Exercise 23 on sparse Cholesky fill-in and Cuthill-McKee ordering; kept honest lab truth $\rho = 0.95$ and finite-sample downward ML bias / boundary mass lesson; kept timing ratios with caveats; expanded exercise bank from 17 to 23 exercises).
 
 ## Chapter 9: Spatial GLMMs
 
