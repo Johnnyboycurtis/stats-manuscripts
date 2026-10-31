@@ -77,7 +77,8 @@ def fix_typst_compatibility(
         r"(?<!\\)\$(.*?)(?<!\\)\$", fix_math_block, content, flags=re.DOTALL
     )
 
-    # 4. Handle citation keys like @key when no .bib bibliography is mounted
+    # 4. Handle citation keys like @key and #cite(...) when no .bib bibliography is mounted
+    content = re.sub(r"\(?#cite\(<([^>]+)>[^)]*\);?\)?", r"[\1]", content)
     content = re.sub(r"@([a-zA-Z][a-zA-Z0-9_-]*)", r"[\1]", content)
 
     return content

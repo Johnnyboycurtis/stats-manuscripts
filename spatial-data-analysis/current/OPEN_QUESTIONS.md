@@ -77,11 +77,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 10: Exploring Point Patterns
 
-1. **No section is marked Optional.** Candidates: the exact naive-$K$ mean in §10.8.1 and the inclusion-exclusion argument in §10.8.3.
-2. **Basketball story** appears only in the opening of §10.7 and in Exercise 21. Enough, or should the lab use a shot chart?
-3. **The variance formula for $\hat{K}$** in §10.6.3 ignores edge effects and pair dependence, and understates the standard deviation by up to 17% at $r = 0.2$. The text says so. Fine?
-4. **Hanisch estimator** uses the eroded area $(1 - 2d)^2$, valid for the unit square only.
-5. **Trim candidates:** the bias table and ten-times-data comparison in §10.7.3, §10.9.3, exercises 15 to 21.
+1. **Trim candidates:** The Optional derivations in §10.8.1 and §10.8.3 could move to Appendix A if trimming is desired later. (Items 1-5 settled on 2026-10-31: marked §10.8.1 and §10.8.3 as Optional with introductory guidance; replaced basketball shot chart with retail co-location and spatial cannibalization per Option 1 in §10.1, §10.7, and Exercises 23-24; kept honest case-control power lesson with forward cross-references to §11.5.4 in §10.7.3 and §10.10.2; added notation note in §10.6.2 distinguishing Ripley isotropic weights from Chapter 11 translation weights; added standard citations [@lewis1979; @scott1992; @clark1954; @lieshout1996; @ripley1976; @ripley1977; @besag1977; @diggle1983; @kelsall1995; @baddeley1997; @hanisch1984]; expanded exercise bank from 21 to 25 exercises).
 
 ## Chapter 11: Point Processes as GLMs
 

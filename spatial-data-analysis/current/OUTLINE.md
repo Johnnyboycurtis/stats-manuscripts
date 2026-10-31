@@ -429,7 +429,7 @@ All notation, the typographic conventions, the model used throughout, and the co
 
 ### Chapter 10: Exploring Point Patterns: Intensity, Randomness, and Interaction
 
-*Running stories:* immune cells on a tumor slide; traffic crashes; basketball shot charts with made and missed shots.
+*Running stories:* immune cells on a tumor slide; traffic crashes; retail store openings (specialty cafés vs. corporate franchises); case-control disease mapping.
 
 * 10.1 What changes in a point pattern: the coordinate matrix $\mathbf{S} \in \mathbb{R}^{n \times 2}$ is now the random outcome; first-order, second-order, and multitype questions; intensity versus density; the window
 * 10.2 The homogeneous Poisson process (complete spatial randomness, CSR)
@@ -442,7 +442,7 @@ All notation, the typographic conventions, the model used throughout, and the co
     * 10.3.3 Why simulation comes first: Monte Carlo tests and exchangeability
     * 10.3.4 Two patterns that are not random (a Thomas-type clustered pattern and a Matérn type II inhibited pattern, simulated inline), and the quadrat test's blind spot for small-scale regularity
 * 10.4 First-order exploration: kernel intensity estimation
-    * 10.4.1 The estimator $\hat{\lambda}(\mathbf{s}) = \sum_{i=1}^n \mathcal{K}_\psi(\mathbf{s} - \mathbf{s}_i)$ on a grid through the grid-to-event distance matrix; bias $\approx (\psi^2/2)\nabla^2\lambda$ and variance $\approx \lambda/(4\pi\psi^2)$, checked by simulation
+    * 10.4.1 The estimator $\hat{\lambda}(\mathbf{s}) = \sum_{i=1}^n \mathcal{K}_\psi(\mathbf{s} - \mathbf{s}_i)$ on a grid through the grid-to-event distance matrix; bias $\approx (\psi^2/2)\nabla^2\lambda$ and variance $\approx \lambda/(4\pi\psi^2), checked by simulation
     * 10.4.2 Edge correction: dividing by the kernel mass $\mathcal{E}_\psi(\mathbf{s})$ inside the window, checked at a point 0.02 from the boundary
     * 10.4.3 Choosing the bandwidth: the normal-reference rule, integrated squared error, and likelihood cross-validation; the crash example (Figure 10.2)
 * 10.5 Distance methods
@@ -460,9 +460,9 @@ All notation, the typographic conventions, the model used throughout, and the co
     * 10.7.2 Cross-type summaries $K_{12}(r)$ and $G_{12}(r)$; independence, attraction, and segregation compared
     * 10.7.3 The spatial relative risk $\operatorname{RR}(\mathbf{s}) = \lambda_1(\mathbf{s})/\lambda_0(\mathbf{s})$, why the two kernel estimates should share a bandwidth (a bias calculation with no noise), and how much data a relative risk map needs (shared size versus ten times the data)
 * 10.8 Boundary truncation
-    * 10.8.1 The exact mean of the naive $\hat{K}$, $\pi r^2 - \tfrac{8}{3}r^3 + \tfrac{1}{2}r^4$, derived, and the guard-area estimator
+    * 10.8.1 The exact mean of the naive $\hat{K}$, $\pi r^2 - \tfrac{8}{3}r^3 + \tfrac{1}{2}r^4$, derived, and the guard-area estimator (Optional)
     * 10.8.2 Reduced-sample estimators for $G$ and $F$: censoring at the boundary distance, Kaplan-Meier, and Hanisch; the four-event example in which every distance is censored
-    * 10.8.3 Ripley's weight on a rectangle: the single-edge arc, corner overlaps by inclusion and exclusion, and why the weighted estimator is unbiased
+    * 10.8.3 Ripley's weight on a rectangle: the single-edge arc, corner overlaps by inclusion and exclusion, and why the weighted estimator is unbiased (Optional)
     * 10.8.4 Comparing the fixes on 300 CSR patterns
 * 10.9 Monte Carlo envelopes and tests
     * 10.9.1 The pointwise envelope and its level $2/(m + 1)$ at one distance

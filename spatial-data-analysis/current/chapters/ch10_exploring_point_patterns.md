@@ -29,7 +29,7 @@ Three kinds of question follow, and they organize the chapter.
 
 - **Where are events dense?** This is the **first-order** question, about the expected number of events per unit area. Are crashes more frequent near the highway? Is there a hot spot of immune cells in one corner of the slide? The answer is a map of an intensity, and Section 10.4 estimates it.
 - **Do events attract or repel each other?** This is the **second-order** question, about pairs of events. Given that an immune cell is here, is another one more or less likely to be nearby than a random scattering would suggest? Sections 10.5 and 10.6 answer it with distances between events.
-- **Do two kinds of event differ?** This is the **multitype** question. Cases and controls, made shots and missed shots, two species of tree. Section 10.7 compares their arrangements.
+- **Do two kinds of event differ?** This is the **multitype** question. Cases and controls, independent specialty cafés and corporate coffee shops, two species of tree. Section 10.7 compares their arrangements.
 
 First- and second-order questions are hard to separate. A pattern can look clustered because events are dense in one region (a first-order effect) or because events gather in small groups wherever they appear (a second-order effect), and the exploratory tools in this chapter mostly assume the first kind is absent. Chapter 11 returns to the problem with models that handle both.
 
@@ -106,7 +106,7 @@ $$
 
 which is approximately $\chi^2_{n_q - 1}$ when $\bar{n}$ is not small. The degrees of freedom are $n_q - 1$, not $n_q$, because the counts are constrained to sum to $n$. In fact its mean is exactly $n_q - 1$: each count has variance $n(1/n_q)(1 - 1/n_q)$, so $\sum_k \operatorname{Var}(n_k) = n(1 - 1/n_q)$, and dividing by $\bar{n} = n/n_q$ gives $n_q - 1$.
 
-A closely related number is the **index of dispersion** $s_n^2/\bar{n}$, the variance of the quadrat counts divided by their mean. Since $s_n^2 = \sum_k(n_k - \bar{n})^2/(n_q - 1)$, the index equals $X^2/(n_q - 1)$. For a Poisson count the variance equals the mean, so under CSR the index is near 1. Clustering makes some quadrats much fuller than others and pushes the index above 1. Regular spacing makes the counts too even and pushes it below 1.
+A closely related number is the **index of dispersion** $s_n^2/\bar{n}$, the variance of the quadrat counts divided by their mean. Since $s_n^2 = \sum_k(n_k - \bar{n})^2/(n_q - 1)$, the index equals $X^2/(n_q - 1)$. For a Poisson count the variance equals the mean, so under CSR the index is near 1. Clustering makes some quadrats much fuller than others and pushes the index above 1. Regular spacing makes the counts too even and pushes it below 1. Like any grid-based statistic, the index of dispersion depends fundamentally on the scale of the quadrats (the Modifiable Areal Unit Problem, MAUP): an inhibited pattern with tight spacing will appear completely random if the quadrats are too coarse, an issue we demonstrate in Section 10.3.4.
 
 **A hand-sized example.** Four events at $(0.1, 0.1)$, $(0.4, 0.5)$, $(0.9, 0.2)$, and $(0.6, 0.9)$ fall one in each quadrant of the unit square. With $n_q = 4$ and $\bar{n} = 1$, every term of $X^2$ is zero, so $X^2 = 0$ and the index of dispersion is 0: perfectly even, as far as this coarse grid can tell. The same four points reappear in Sections 10.5, 10.6, and 10.8.
 
@@ -118,6 +118,8 @@ def quadrat_x2(P, m=5):
     cell = np.minimum((P * m).astype(int), m - 1)
     counts = np.bincount(cell[:, 0] * m + cell[:, 1], minlength=m * m)
     nbar = counts.mean()
+    if nbar == 0:
+        return 0.0, counts
     return ((counts - nbar)**2).sum() / nbar, counts
 
 
@@ -170,7 +172,7 @@ The counts have mean 199.9 and variance 201.4. In the single pattern drawn after
 
 ### 10.3.2 Lewis-Shedler Thinning
 
-Real intensities are not constant. Crashes pile up along a highway, and more people live downtown. To simulate a process with a varying intensity $\lambda(\mathbf{s})$, start with a homogeneous process that is denser everywhere than the target, and then delete events with a probability that depends on location.
+Real intensities are not constant. Crashes pile up along a highway, and more people live downtown. To simulate a process with a varying intensity $\lambda(\mathbf{s})$, start with a homogeneous process that is denser everywhere than the target, and then delete events with a probability that depends on location. This thinning algorithm [@lewis1979] adapts rejection sampling to spatial point processes.
 
 **The algorithm.** Choose $\lambda_{\max}$ with $\lambda(\mathbf{s}) \le \lambda_{\max}$ everywhere. Simulate a homogeneous pattern with intensity $\lambda_{\max}$. For each candidate $\mathbf{s}_i$ draw $U_i \sim \text{Uniform}(0, 1)$ and keep the candidate if $U_i < \lambda(\mathbf{s}_i)/\lambda_{\max}$. The retained points are an inhomogeneous Poisson process with intensity $\lambda(\mathbf{s})$.
 
@@ -402,7 +404,7 @@ For varying $\lambda$ it is still biased, as the smoothing argument above says, 
 
 How should $\psi$ be chosen? Three approaches are in common use.
 
-- **Rules of thumb.** A normal-reference rule for two dimensions sets $\psi = \hat{\sigma}n^{-1/6}$, with $\hat{\sigma}$ a typical standard deviation of the coordinates. It is quick, and it assumes the intensity is not much more complicated than a single Gaussian bump.
+- **Rules of thumb.** A normal-reference rule for two dimensions (Scott's rule [@scott1992]) sets $\psi = \hat{\sigma}n^{-1/6}$, with $\hat{\sigma}$ a typical standard deviation of the coordinates. It is quick, and it assumes the intensity is not much more complicated than a single Gaussian bump.
 - **Minimizing a mean squared error.** Adding the squared bias and the variance above, the integrated mean squared error is large for small $\psi$ (variance) and for large $\psi$ (bias), and has a minimum between. It needs the unknown $\lambda$, so it can only be used when the truth is known, as in simulations.
 - **Likelihood cross-validation.** Chapter 11 derives the log-likelihood of an inhomogeneous Poisson process with intensity $\lambda$: $\sum_i\log\lambda(\mathbf{s}_i) - \int_{\mathcal{D}}\lambda(\mathbf{s})\,d\mathbf{s}$. Evaluate it at $\hat{\lambda}_\psi$, but compute each event's term from the estimate with that event left out, so that the estimate does not reward itself for following the event:
 
@@ -532,7 +534,7 @@ $$
 1 - G(r) = \Pr\left(N(b(\mathbf{s}, r)) = 0\right) = \exp\left\{-\lambda\pi r^2\right\}, \qquad G(r) = 1 - e^{-\lambda\pi r^2}
 $$
 
-As a by-product, the expected nearest-neighbor distance is $\int_0^\infty e^{-\lambda\pi r^2}\,dr = 1/(2\sqrt{\lambda})$. With 200 events per unit area that is 0.035, about the size of the minimum spacing of 0.03 used for the inhibited pattern in Section 10.3.4.
+As a by-product, the expected nearest-neighbor distance is $\int_0^\infty e^{-\lambda\pi r^2}\,dr = 1/(2\sqrt{\lambda})$ [@clark1954]. With 200 events per unit area that is 0.035, about the size of the minimum spacing of 0.03 used for the inhibited pattern in Section 10.3.4.
 
 Clustered patterns have more short distances than this and inhibited patterns fewer, so $\hat{G}$ above the CSR curve signals clustering, and $\hat{G}$ below it signals inhibition.
 
@@ -550,7 +552,7 @@ The two functions differ for patterns with structure, and in opposite directions
 
 ### 10.5.4 The J-Function
 
-The two distances can be combined into one summary, the $J$-function:
+The two distances can be combined into one summary, the $J$-function [@lieshout1996]:
 
 $$
 J(r) = \frac{1 - G(r)}{1 - F(r)}
@@ -611,7 +613,7 @@ Distances to the nearest neighbor look at only one other event per event. A full
 
 ### 10.6.1 Ripley's K-Function
 
-Let $\lambda$ be the intensity of a pattern whose intensity is constant. The **$K$-function** is defined by
+Let $\lambda$ be the intensity of a pattern whose intensity is constant. The **$K$-function** [@ripley1976; @ripley1977] is defined by
 
 $$
 \lambda K(r) = \operatorname{E}\left[\text{number of additional events within distance } r \text{ of a typical event}\right]
@@ -641,7 +643,7 @@ $$
 \omega_{ij} = \frac{2\pi h_{ij}}{\text{length of the part of the circle } \partial b(\mathbf{s}_i, h_{ij}) \text{ inside } \mathcal{D}}
 $$
 
-Section 10.8.3 derives the arc length for a rectangle. The code below implements it exactly (the function `arc_inside`) and builds the estimator from the weights.
+Section 10.8.3 derives the arc length for a rectangle. *(Notation note: Here $\omega_{ij}$ denotes Ripley's isotropic edge weight based on circle arcs, which assumes that conditional on distance, directions are uniformly distributed around the circle. In Chapters 11 and 12, the symbol $\omega_{ij}$ denotes the Ohser-Stoyan translation edge weight $1/[(1 - \lvert\Delta x_{ij}\rvert)(1 - \lvert\Delta y_{ij}\rvert)]$, which operates by shifting the rectangular window and requires no isotropy assumption. Both serve to correct for window boundaries, but through different geometric devices.)* The code below implements it exactly (the function `arc_inside`) and builds the estimator from the weights.
 
 **A hand-sized example.** With the four events and $r = 0.55$, the ordered pairs within $0.55$ are $(1,2)$, $(2,1)$, $(2,4)$, and $(4,2)$. Event 1 sits at $(0.1, 0.1)$, near a corner, so the circle of radius $0.5$ around it has only 31.4% of its length inside the window and the weight is $1/0.3141 = 3.184$. The circle of the same radius around event 2 at $(0.4, 0.5)$ is cut only by the left edge, leaving 79.5% inside, and the weight is 1.258. The pair $(2,4)$ has radius $0.447$ around event 2, and $(4,2)$ the same radius around event 4, which sits close to the top edge. The four weights are 3.184, 1.258, 1.173, and 2.164, and they sum to 7.779. Then
 
@@ -725,13 +727,13 @@ The code reproduces $\hat{K}(0.55) = 0.6482$ from the vectorized function. The s
 
 ### 10.6.3 Besag's L and the Variance of K
 
-The $K$-function is a cumulative count, and its variance under CSR grows with $r$, so deviations from $\pi r^2$ at large $r$ look bigger than they are. Besag's **$L$-function**
+The $K$-function is a cumulative count, and its variance under CSR grows with $r$, so deviations from $\pi r^2$ at large $r$ look bigger than they are. Besag's **$L$-function** [@besag1977]
 
 $$
 L(r) = \sqrt{\frac{K(r)}{\pi}}
 $$
 
-equals $r$ under CSR, and is customarily plotted as $L(r) - r$, so that CSR is the horizontal line at zero. It also stabilizes the variance. Under CSR, the number of ordered pairs within $r$ is roughly $2\times$ a count of unordered pairs, each of which is within $r$ with probability $\pi r^2/\operatorname{area}(\mathcal{D})$. Counting that as approximately Poisson with variance equal to its mean, and ignoring edge effects and the dependence among pairs, the variance of $\hat{K}$ is
+equals $r$ under CSR, and is customarily plotted as $L(r) - r$, so that CSR is the horizontal line at zero. (Many spatial software packages, including R's `spatstat`, define the centered transformation $\tilde{L}(r) = \sqrt{K(r)/\pi} - r$ directly so that the CSR expectation is identically zero.) It also stabilizes the variance. Under CSR, the number of ordered pairs within $r$ is roughly $2\times$ a count of unordered pairs, each of which is within $r$ with probability $\pi r^2/\operatorname{area}(\mathcal{D})$. Counting that as approximately Poisson with variance equal to its mean, and ignoring edge effects and the dependence among pairs, the variance of $\hat{K}$ is
 
 $$
 \operatorname{Var}\left(\hat{K}(r)\right) \approx \frac{2\operatorname{area}(\mathcal{D})\pi r^2}{n^2}
@@ -747,7 +749,7 @@ which does not depend on $r$. In the simulation of the previous block, with $n =
 
 ### 10.6.4 The Pair Correlation Function
 
-The $K$-function is cumulative: $K(r)$ counts everything up to $r$, so a cluster at small distances shows up in $K$ at all larger distances too, which makes it hard to say at which scale the interaction happens. The **pair correlation function** is the non-cumulative version.
+The $K$-function is cumulative: $K(r)$ counts everything up to $r$, so a cluster at small distances shows up in $K$ at all larger distances too, which makes it hard to say at which scale the interaction happens. The **pair correlation function** [@diggle1983] is the non-cumulative version.
 
 Consider the expected number of additional events in a thin ring of radii $r$ and $r + dr$ around a typical event. Under CSR it is $\lambda\cdot2\pi r\,dr$, the intensity times the area of the ring. Write the corresponding number for a general pattern as $\lambda g(r)\cdot2\pi r\,dr$; then $g(r)$ is the ratio of the actual neighbor density at distance $r$ to what CSR would give, and $g = 1$ means no interaction at that distance. Adding up the rings gives $\lambda K(r) = \int_0^r\lambda g(s)2\pi s\,ds$, so
 
@@ -795,7 +797,7 @@ For CSR the average $\hat{g}$ is 1.00 at every distance. For the Thomas pattern 
 
 ## 10.7 Multitype Patterns
 
-Many point patterns carry a label for each event. The labels may be a species, a disease status, or a result: a shot in basketball is made or missed, and a shot chart is a point pattern with a label for each shot. The multitype questions are whether the types occupy different places, and whether they attract or repel each other.
+Many point patterns carry a label for each event. The labels may be a species, a disease status, or a commercial category: retail openings can be independent specialty cafés or corporate chain coffee franchises. The multitype questions are whether the types occupy different places, and whether they attract or repel each other.
 
 ### 10.7.1 Marks, and Two Kinds of Question
 
@@ -814,9 +816,14 @@ $$
 \hat{K}_{12}(r) = \frac{\operatorname{area}(\mathcal{D})}{n_1n_2}\sum_{i \in \text{type 1}}\sum_{j \in \text{type 2}}\omega_{ij}\,\mathbb{1}\left(h_{ij} \le r\right)
 $$
 
-If the two patterns are independent and the type-2 pattern has constant intensity, a typical type-1 event learns nothing about type 2, so $K_{12}(r) = \pi r^2$. Values above that mean that type-2 events gather around type-1 events (attraction); values below mean that they avoid them (segregation). The matching nearest-neighbor version is $G_{12}(r)$, the probability that the nearest type-2 event to a typical type-1 event lies within $r$.
+If the two patterns are independent and the type-2 pattern has constant intensity, a typical type-1 event learns nothing about type 2, so $K_{12}(r) = \pi r^2$. Values above that mean that type-2 events gather around type-1 events (attraction or agglomeration); values below mean that they avoid them (segregation or territorial exclusion). The matching nearest-neighbor version is $G_{12}(r)$, the probability that the nearest type-2 event to a typical type-1 event lies within $r$.
 
-To see all three behaviors, the code generates 150 type-1 events and three different type-2 patterns: an independent random pattern; an attracted pattern, in which events are drawn from the neighborhoods of type-1 events with a spread of 0.03; and a segregated pattern, a random pattern with 250 events per unit area from which every event within 0.05 of a type-1 event is deleted. It reports $\hat{K}_{12}(0.1)/(\pi 0.1^2)$ for each.
+To see all three behaviors, consider commercial retail openings. Let type 1 be 150 established corporate chain coffee franchises (such as Starbucks), which act as commercial anchors. We examine three scenarios for independent specialty coffee shops (type 2):
+1. **Independent placement:** Specialty cafés open independently of corporate chains, responding only to baseline foot traffic.
+2. **Agglomeration (attraction):** Specialty cafés deliberately co-locate in the immediate neighborhood of corporate anchors (spread 0.03) to capitalize on established pedestrian traffic and coffee-buying habits.
+3. **Territorial avoidance (segregation):** Specialty cafés seek underserved neighborhood niches, avoiding any corporate location within distance 0.05.
+
+The code below computes the cross-type summary $\hat{K}_{12}(0.1)/(\pi 0.1^2)$ for each scenario.
 
 ```python
 def k12_ripley(P1, P2, r):
@@ -826,32 +833,40 @@ def k12_ripley(P1, P2, r):
 
 
 rng = np.random.default_rng(2087)
-type1 = sim_poisson(150, rng)
-independent = sim_poisson(150, rng)
-attract = type1[rng.integers(0, len(type1), 150)]
-attract = attract + 0.03 * rng.standard_normal(attract.shape)
-attract = attract[np.all((attract >= 0) & (attract <= 1), axis=1)]
+corporate = sim_poisson(150, rng)
+indep_random = sim_poisson(150, rng)
+agglomerate = corporate[rng.integers(0, len(corporate), 150)]
+agglomerate = agglomerate + 0.03 * rng.standard_normal(agglomerate.shape)
+agglomerate = agglomerate[np.all((agglomerate >= 0) & (agglomerate <= 1), axis=1)]
 cand = sim_poisson(250, rng)
-segregate = cand[dist(cand, type1).min(axis=1) > 0.05]
+avoid_corp = cand[dist(cand, corporate).min(axis=1) > 0.05]
 r12 = np.array([0.10])
 print("scenario        n2   K12(0.1) / (pi r^2)")
-for name, P2 in (("independent", independent), ("attraction", attract),
-                 ("segregation", segregate)):
-    k12 = k12_ripley(type1, P2, r12)[0] / (np.pi * 0.1**2)
-    print(f"{name:12s} {len(P2):4d} {k12:18.2f}")
+for name, P2 in (("independent", indep_random), ("agglomeration", agglomerate),
+                 ("avoidance", avoid_corp)):
+    k12 = k12_ripley(corporate, P2, r12)[0] / (np.pi * 0.1**2)
+    print(f"{name:13s} {len(P2):4d} {k12:17.2f}")
 ```
 
-The independent pattern gives a ratio of 1.00, the attracted pattern 1.23, and the segregated pattern 0.81, as expected.
+The independent pattern gives a ratio of 1.00, the agglomerated pattern 1.23 (a 23% excess of boutique cafés within 0.1 of a corporate chain), and the avoidance pattern 0.81 (a 19% deficit), matching the economic intuition.
 
 ### 10.7.3 The Spatial Relative Risk
 
-The second question compares intensities. The **spatial relative risk** is
+The second question compares intensities. The **spatial relative risk** [@kelsall1995] is
 
 $$
 \operatorname{RR}(\mathbf{s}) = \frac{\lambda_1(\mathbf{s})}{\lambda_0(\mathbf{s})}
 $$
 
 the ratio of the case and control intensities. Because it is a ratio, the factor that makes both intensities large where people live cancels, and what remains is the extra risk that cases carry compared with the population. A natural estimate is the ratio of two kernel estimates, $\widehat{\operatorname{RR}}(\mathbf{s}) = \hat{\lambda}_1(\mathbf{s})/\hat{\lambda}_0(\mathbf{s})$.
+
+When an event at location $\mathbf{s}$ is independently assigned a binary category with probability $p(\mathbf{s}) = \Pr(\text{type 1} \mid \mathbf{s})$, the ratio of underlying intensities is identically the **spatial odds**:
+
+$$
+\frac{\lambda_1(\mathbf{s})}{\lambda_0(\mathbf{s})} = \frac{\lambda(\mathbf{s})p(\mathbf{s})}{\lambda(\mathbf{s})(1 - p(\mathbf{s}))} = \frac{p(\mathbf{s})}{1 - p(\mathbf{s})}
+$$
+
+In case-control studies where cases and controls are sampled at different overall rates, the ratio $\hat{\lambda}_1(\mathbf{s})/\hat{\lambda}_0(\mathbf{s})$ estimates this odds up to a constant scalar multiple (the ratio of sampling fractions). In categorical data analysis, the odds ratio is the fundamental invariant measure of association. Taking logarithms yields a spatial log-odds surface, $\log\widehat{\operatorname{RR}}(\mathbf{s})$, directly linking exploratory intensity smoothing to the spatial logistic regressions developed in Section 11.5.
 
 **The shared setting.** The code uses a case-control setting that the next two chapters also use. Controls form an inhomogeneous Poisson process with intensity $800\,\text{pop}(\mathbf{s})$, where $\text{pop}$ is the population density with a downtown bump. Cases have intensity $120\,\text{pop}(\mathbf{s})\,\text{ex}(\mathbf{s})$, where $\text{ex}$ is an excess risk that rises to $e \approx 2.72$ at an industrial plant at $(0.3, 0.6)$ and falls to 1 away from it. The true relative risk is therefore $0.15\,\text{ex}(\mathbf{s})$: population density cancels, and the baseline ratio 0.15 is 120/800.
 
@@ -940,7 +955,7 @@ The data set has 349 controls (363 expected) and 46 cases (58 expected). The mor
 
 The true relative risk at the plant is 0.404, and the likelihood cross-validation bandwidth for the pooled events is 0.136. With 46 cases, no bandwidth recovers the plant: the estimates at the plant are between 0.02 and 0.15, and the best overall RMSE comes from the largest bandwidths, which smooth the bump away and report the baseline ratio of 0.15 almost everywhere. With ten times as much data the picture changes. A small bandwidth of 0.03 estimates $0.399$ at the plant, close to the truth, but gives a noisy map elsewhere (an RMSE of 0.556), and the RMSE over the whole map still prefers larger $\psi$ because most of the map has a constant relative risk. This is the usual bias-variance trade-off with a twist: a single bandwidth cannot be best both for the plant and for the rest of the map, and the average error over the map is a poor yardstick for a local feature.
 
-The lesson goes beyond the example. A kernel relative risk map is an exploratory display, and how much it can show is set by the number of cases. Chapter 11 turns the question into a model for the case-control labels and a scan statistic aimed at local excess, which use the data far more efficiently. It also pools five years of cases, because one year of data is too thin to say much about a local excess, and it uses a new simulated draw of the same setting, not the sample of this chapter.
+The lesson goes beyond the example. A kernel relative risk map is an exploratory display, and how much it can show is set by the number of cases. Chapter 11 turns the question into a model for the case-control labels and a scan statistic aimed at local excess, which use the data far more efficiently. In particular, Section 11.5.4 demonstrates that parametric logistic and Poisson models with five years of pooled case data isolate the industrial source, whereas the non-parametric kernel ratio on a single year of sparse data is overwhelmed by sampling noise. It also pools five years of cases, because one year of data is too thin to say much about a local excess, and it uses a new simulated draw of the same setting, not the sample of this chapter.
 
 ---
 
@@ -948,7 +963,9 @@ The lesson goes beyond the example. A kernel relative risk map is an exploratory
 
 Every estimator so far has a weakness near the edge of the window. Events just outside it are invisible, so events inside have fewer observed neighbors than they would in the infinite plane, and every distance-based summary is biased. This section shows how large the bias is and how to remove it.
 
-### 10.8.1 The Size of the Problem, and the Guard Area
+### 10.8.1 The Size of the Problem, and the Guard Area (Optional)
+
+*This subsection derives the exact edge bias of the uncorrected K-estimator on the unit square. It can be skipped on a first reading.*
 
 For the $K$-function the bias can be computed exactly. The naive estimator, with all weights equal to 1, has expectation equal to the probability that two independent uniform points in the unit square are within distance $r$. The difference of two independent uniform coordinates on $[0, 1]$ has density $1 - |\Delta|$ on $[-1, 1]$, so the two components $(\Delta_1, \Delta_2)$ of the difference of two points have joint density $(1 - |\Delta_1|)(1 - |\Delta_2|)$. Integrating over the disc of radius $r$ in polar coordinates, with $\Delta_1 = v\cos\theta$ and $\Delta_2 = v\sin\theta$, and using the symmetry of the four quadrants,
 
@@ -976,12 +993,12 @@ The same idea applies to the distance distributions. For event $i$ at distance $
 
 Two estimators follow.
 
-- **The Kaplan-Meier estimator** treats the pairs $(t_i, \delta_i)$, with $t_i = \min(d_i^{\text{nn}}, b_i)$ and $\delta_i = \mathbb{1}(d_i^{\text{nn}} \le b_i)$, as censored survival data. Sort the times $t_{(1)} \le \dots \le t_{(n)}$, and let $\delta_{(k)}$ be the indicator at the $k$th time. Then
+- **The Kaplan-Meier estimator** [@baddeley1997] treats the pairs $(t_i, \delta_i)$, with $t_i = \min(d_i^{\text{nn}}, b_i)$ and $\delta_i = \mathbb{1}(d_i^{\text{nn}} \le b_i)$, as censored survival data. Sort the times $t_{(1)} \le \dots \le t_{(n)}$, and let $\delta_{(k)}$ be the indicator at the $k$th time. Then
   $$
   1 - \hat{G}_{\text{KM}}(r) = \prod_{k:\,t_{(k)} \le r}\left(1 - \frac{\delta_{(k)}}{n - k + 1}\right)
   $$
   where $n - k + 1$ is the number of events still "at risk" at that time.
-- **The Hanisch estimator** weights each uncensored distance by the inverse of the area of the window eroded by that distance, $\mathcal{D}_{\ominus d}$, the set of points at least $d$ from the boundary, which for the unit square has area $(1 - 2d)^2$:
+- **The Hanisch estimator** [@hanisch1984] weights each uncensored distance by the inverse of the area of the window eroded by that distance, $\mathcal{D}_{\ominus d}$, the set of points at least $d$ from the boundary, which for the unit square has area $(1 - 2d)^2$:
   $$
   \hat{G}_{\text{H}}(r) = \frac{\sum_i\mathbb{1}(d_i^{\text{nn}} \le r)\,\mathbb{1}(d_i^{\text{nn}} \le b_i)/\operatorname{area}(\mathcal{D}_{\ominus d_i^{\text{nn}}})}{\sum_i\mathbb{1}(d_i^{\text{nn}} \le b_i)/\operatorname{area}(\mathcal{D}_{\ominus d_i^{\text{nn}}})}
   $$
@@ -990,7 +1007,9 @@ For $\hat{F}$, apply the same formulas with the grid test points as centers and 
 
 **The four-point example, again.** The events at $(0.1, 0.1)$, $(0.4, 0.5)$, $(0.9, 0.2)$, and $(0.6, 0.9)$ are at distances 0.1, 0.4, 0.1, and 0.1 from the boundary, and their nearest-neighbor distances are 0.5, 0.447, 0.583, and 0.447. Every nearest-neighbor distance exceeds the corresponding boundary distance, so all four are censored and the Kaplan-Meier estimate of $G$ is 0 at every $r$ in range. The reduced-sample estimators throw away information from events near the edge, and a pattern of four events has nothing but edge events. They need patterns with many events.
 
-### 10.8.3 Ripley's Weight on a Rectangle
+### 10.8.3 Ripley's Weight on a Rectangle (Optional)
+
+*This subsection details the trigonometric inclusion-exclusion derivation of Ripley's isotropic edge weights [@ripley1976] on rectangular windows. It can be skipped on a first reading.*
 
 The fix with the best use of the data is Ripley's weight, $\omega_{ij} = 1/f_{ij}$, where $f_{ij}$ is the fraction of the circle of radius $h_{ij}$ around $\mathbf{s}_i$ that lies inside the window. For the unit square this fraction has an exact formula.
 
@@ -1241,7 +1260,9 @@ for name in patterns:
 
 The test results separate the three patterns decisively. For the random pattern, $\max|\hat{L} - r| = 0.0058$, below the 95th percentile of CSR values (0.0070), and the Monte Carlo p-value is 0.17. For the clustered pattern the statistic is 0.0743, more than ten times the 95th percentile, and $p = 0.01$ (the smallest value 99 simulations can give). For the inhibited pattern it is 0.0300 against a 95th percentile of 0.0062, again $p = 0.01$. Compare with the quadrat test of Section 10.3.4, which rejected the clustered pattern and failed to reject the inhibited one at $p = 0.065$; the distance-based tests see what quadrat counts could not.
 
-At particular distances the summaries read as follows. For the clustered pattern, $\hat{J}(0.03) = 0.21$ and $\hat{g}(0.02) = 5.54$: neighbors are five times as common at that distance as under CSR, and $\hat{L}(0.10) - 0.10 = +0.072$, so that within 0.1 of a typical event there are more neighbors than CSR gives, as if the radius were 0.17 instead of 0.1. For the inhibited pattern, $\hat{J}(0.03) = 1.98$, $\hat{g}(0.02) = 0.29$, and $\hat{L}(0.10) - 0.10 = -0.006$. For the random pattern the values are close to the references: $\hat{J}(0.03) = 1.08$, $\hat{g}(0.02) = 0.87$, and $\hat{L}(0.10) - 0.10 = +0.004$.
+At particular distances the summaries read as follows. For the clustered pattern, $\hat{J}(0.03) = 0.21$ and $\hat{g}(0.02) = 5.54$: neighbors are more than five times as common at that distance as under CSR, and $\hat{L}(0.10) - 0.10 = +0.072$, so that within 0.1 of a typical event there are more neighbors than CSR gives, as if the radius were 0.17 instead of 0.1. In the histological tumor slide story of Section 10.1, this is the quantitative signature of tumor-infiltrating lymphocytes swarming around antigenic foci: immune cells are tightly gathered within clusters of radius roughly 0.1 ($3\sigma = 0.09$), leaving large expanses of tissue unvisited (hence $\hat{F}(r)$ rises sluggishly).
+
+For the inhibited pattern, $\hat{J}(0.03) = 1.98$, $\hat{g}(0.02) = 0.29$, and $\hat{L}(0.10) - 0.10 = -0.006$. Biologically, this reflects physical cell volume and contact inhibition: two cell bodies cannot occupy the same space on the slide. Below the hard-core exclusion diameter of $r_0 = 0.03$, no neighbor can physically exist ($\hat{G}(0.02) = 0$), forcing the empty-space function $\hat{F}$ to rise faster than under CSR because cells are spread regularly throughout the tissue. For the random pattern the values track the theoretical references: $\hat{J}(0.03) = 1.08$, $\hat{g}(0.02) = 0.87$, and $\hat{L}(0.10) - 0.10 = +0.004$.
 
 ![Figure 10.3. Distance summaries for the random, clustered, and inhibited patterns. Rows: $\hat{G}$, $\hat{F}$, and $\hat{J}$, all edge-corrected by Kaplan-Meier. Gray bands: the pointwise envelope from 99 CSR patterns. Dashed blue: the CSR value.](../figures/ch10/fig_10_3_distance.png)
 
@@ -1416,7 +1437,7 @@ print("figures saved")
 
 In Figure 10.5 the true relative risk is flat at 0.15 with one bump around the plant, rising to about 0.4. The estimate from the shared data (top right) misses the bump entirely: its highest value is in the upper left corner, where a handful of cases happen to sit. The estimate from ten times the data (bottom left) shows a local maximum near $(0.25, 0.55)$, close to the plant, among other lumps of comparable size that are noise. Both envelopes (bottom middle and right) contain the observed curve at every distance.
 
-The chapter ends here with an honest limit. The exploratory tools of this chapter are good at showing broad structure in a pattern, as the three patterns showed, and they are poor at finding a small local excess, as the case-control data showed. The right tool for a known suspect location is a model with the source built in, which the next chapter develops: a Poisson regression for the intensity, an offset for the population, a logistic regression for case-control labels, and a scan statistic for local excess.
+The chapter ends here with an honest limit. The exploratory tools of this chapter are good at showing broad structure in a pattern, as the three patterns showed, and they are poor at finding a small local excess, as the case-control data showed. The right tool for a known suspect location is a model with the source built in, which the next chapter develops: a Poisson regression for the intensity, an offset for the population, a logistic regression for case-control labels (Section 11.5.4), and a scan statistic for local excess.
 
 ---
 
@@ -1436,7 +1457,7 @@ The chapter ends here with an honest limit. The exploratory tools of this chapte
 
 6. **Edge correction when the intensity varies.** For an intensity $\lambda(x, y) = c\,e^{\beta x}$ on the unit square, find the expected value of the edge-corrected estimator at a point on the line $x = 0$, in terms of $\psi$, and compare it with $\lambda(0, y)$. For which sign of $\beta$ is the estimate too high?
 
-7. **Nearest-neighbor distances.** Verify that $\operatorname{E}[d^{\text{nn}}] = 1/(2\sqrt{\lambda})$ under CSR, and find the median. The Clark-Evans ratio is $\bar{d}^{\text{nn}}/(1/(2\sqrt{\hat{\lambda}}))$. Compute its value for the four-point example of Section 10.5.1 and interpret it.
+7. **Nearest-neighbor distances.** Verify that $\operatorname{E}[d^{\text{nn}}] = 1/(2\sqrt{\lambda})$ under CSR, and find the median. The Clark-Evans ratio [@clark1954] is $\bar{d}^{\text{nn}}/(1/(2\sqrt{\hat{\lambda}}))$. Compute its value for the four-point example of Section 10.5.1 and interpret it.
 
 8. **The J-function.** Show that $J(r) = 1$ for every $r$ under CSR. Then use the definition as a ratio of survival functions to explain why $J(r) < 1$ whenever $G(r) > F(r)$, and why a pattern with $G(r) < F(r)$ at every $r$ has $J(r) > 1$.
 
@@ -1452,21 +1473,35 @@ The chapter ends here with an honest limit. The exploratory tools of this chapte
 
 14. **Envelope levels.** Show that if the data are exchangeable with $m$ simulated patterns at a fixed $r$, the probability of falling outside the envelope is $2/(m + 1)$. For $k$ independent distances and $m = 39$, find the probability that the data fall outside the envelope at one or more, and compare with the 32% found in Section 10.9.2 for 15 correlated distances.
 
+15. **Empty-space distribution of a regular lattice.** Consider an infinite regular square lattice of points with spacing $\delta$. Let $\mathbf{u}$ be a test point chosen uniformly at random within a fundamental grid tile $[0, \delta] \times [0, \delta]$. Find the maximum empty-space distance from $\mathbf{u}$ to the nearest lattice vertex. Then compute the exact cumulative distribution function $F(r) = \Pr(\min_i \lVert\mathbf{u} - \mathbf{s}_i\rVert \le r)$ for $0 \le r \le \delta/2$ and for $\delta/2 < r \le \delta/\sqrt{2}$. Explain why $F(r)$ scales as $\pi r^2/\delta^2$ near the origin, matching CSR with intensity $\lambda = 1/\delta^2$, and contrast its behavior at larger $r$ with that of CSR.
+
+16. **Asymptotics of the Clark-Evans statistic.** For a homogeneous Poisson process of intensity $\lambda$ observed in a large window of area $A$ with $n$ events, Clark and Evans [@clark1954] showed that the sample mean nearest-neighbor distance $\bar{d}^{\text{nn}} = \frac{1}{n}\sum_{i=1}^n d_i^{\text{nn}}$ has approximate variance $\operatorname{Var}(\bar{d}^{\text{nn}}) \approx \frac{4 - \pi}{4\pi\lambda n}$. Show that the standardized statistic $Z = (\bar{d}^{\text{nn}} - \frac{1}{2\sqrt{\lambda}})/\sqrt{\frac{4 - \pi}{4\pi\lambda n}}$ is asymptotically standard normal under CSR. Explain why the empirical variance in a bounded window exceeds this formula when edge effects are ignored, and why border corrections or Monte Carlo tests are preferred in practice.
+
 **Computational and simulation**
 
-15. **Quadrat size.** For the three patterns of Section 10.3.4, compute the quadrat test for $m \times m$ grids with $m = 2, 3, \dots, 10$. At which grid size does the test first detect the inhibited pattern? How does this relate to the minimum spacing 0.03?
+17. **Quadrat size.** For the three patterns of Section 10.3.4, compute the quadrat test for $m \times m$ grids with $m = 2, 3, \dots, 10$. At which grid size does the test first detect the inhibited pattern? How does this relate to the minimum spacing 0.03?
 
-16. **Bandwidth rules.** Simulate 100 crash patterns as in Section 10.3.2. For each, choose a bandwidth by the normal-reference rule, by likelihood cross-validation, and by minimizing the integrated squared error, and report the average integrated squared error that each rule achieves. How much does the oracle choice gain?
+18. **Bandwidth rules.** Simulate 100 crash patterns as in Section 10.3.2. For each, choose a bandwidth by the normal-reference rule, by likelihood cross-validation, and by minimizing the integrated squared error, and report the average integrated squared error that each rule achieves. How much does the oracle choice gain?
 
-17. **Edge effects and sample size.** Repeat the comparison of Section 10.8.4 for $n = 30$ and $n = 400$. How do the biases of the naive, guard-area, and Ripley estimators change, and at what $r$ does the guard-area estimator become useless?
+19. **Edge effects and sample size.** Repeat the comparison of Section 10.8.4 for $n = 30$ and $n = 400$. How do the biases of the naive, guard-area, and Ripley estimators change, and at what $r$ does the guard-area estimator become useless?
 
-18. **The pair correlation bandwidth.** Estimate $\hat{g}$ for the Thomas pattern with $b = 0.005$, $0.01$, and $0.02$, averaging over 200 patterns. Plot the average and the standard deviation against $r$. Describe the bias and variance trade-off.
+20. **The pair correlation bandwidth.** Estimate $\hat{g}$ for the Thomas pattern with $b = 0.005$, $0.01$, and $0.02$, averaging over 200 patterns. Plot the average and the standard deviation against $r$. Describe the bias and variance trade-off.
 
-19. **Clark-Evans against L.** Implement the Clark-Evans test of Exercise 7, with an edge correction of your choice, and estimate its power against the clustered and inhibited patterns of Section 10.3.4 at 200 events, by simulation. Compare with the maximum-deviation test for $L$.
+21. **Clark-Evans against L.** Implement the Clark-Evans test of Exercise 7 and 16, with an edge correction of your choice, and estimate its power against the clustered and inhibited patterns of Section 10.3.4 at 200 events, by simulation. Compare with the maximum-deviation test for $L$.
 
-20. **Local excess.** Simulate the case-control data 100 times. For each data set compute the kernel relative risk at the plant with $\psi = 0.05$, $0.10$, and $0.20$, and the random labelling test for $K_{11}$. Report the share of data sets in which each method detects the plant, and the average number of cases within 0.15 of the plant. Repeat for ten times the data.
+22. **Local excess.** Simulate the case-control data 100 times. For each data set compute the kernel relative risk at the plant with $\psi = 0.05$, $0.10$, and $0.20$, and the random labelling test for $K_{11}$. Report the share of data sets in which each method detects the plant, and the average number of cases within 0.15 of the plant. Repeat for ten times the data.
 
-21. **A shot chart.** Simulate shot attempts as an inhomogeneous Poisson process, with intensity highest near the basket and along the three-point line. Label each shot as made with probability $p(\mathbf{s})$ that falls with distance from the basket. Estimate the made and missed intensities by kernel smoothing with a shared bandwidth and plot the ratio $\hat{\lambda}_{\text{made}}/\hat{\lambda}_{\text{missed}}$. How does it relate to $p/(1 - p)$?
+23. **Retail co-location and the spatial odds ratio.** Simulate retail store openings across the unit square as an inhomogeneous Poisson process whose intensity is driven by population density with a downtown commercial core, $\lambda(\mathbf{s}) = 400\,\text{pop}(\mathbf{s})$. Label each opening as an independent specialty café with probability $p(\mathbf{s}) = 1 / (1 + \exp(-3(\text{pop}(\mathbf{s}) - 0.6)))$ that peaks in high-density pedestrian zones, and as a corporate chain franchise with probability $1 - p(\mathbf{s})$.
+(a) Estimate the specialty and corporate intensities using bivariate Gaussian kernel smoothing with a shared bandwidth $\psi$ chosen by likelihood cross-validation on the pooled store locations.
+(b) Compute the estimated relative risk surface $\widehat{\operatorname{RR}}(\mathbf{s}) = \hat{\lambda}_{\text{spec}}(\mathbf{s}) / \hat{\lambda}_{\text{corp}}(\mathbf{s})$. Verify mathematically and empirically that under this independent Bernoulli marking, $\operatorname{E}[\widehat{\operatorname{RR}}(\mathbf{s})] \approx p(\mathbf{s}) / (1 - p(\mathbf{s}))$, the spatial odds ratio.
+
+24. **Spatial cannibalization and territory defense.** Now modify the simulation of Exercise 23 to incorporate corporate territory defense: corporate chain franchises reject any prospective site that falls within distance $r_0 = 0.04$ of an existing sister franchise (a sequential inhibition mechanism), while independent specialty cafés open freely.
+(a) Compute Besag's univariate centered $L$-function $L_{22}(r) - r$ for the corporate franchises. Verify that for $r < r_0 = 0.04$, $L_{22}(r) - r = -r$ exactly. Explain why the curve follows this diagonal deficit line and at what scale it begins to recover.
+(b) Compute Besag's cross-$L$ function $L_{12}(r) - r$ between independent cafés and corporate franchises. Explain how $L_{22}$ isolates internal corporate cannibalization avoidance while $L_{12}$ assesses competitive co-location between the two retail sectors.
+
+25. **Toroidal edge correction versus Ripley weights.** An alternative edge correction wraps the unit square into a torus (periodic boundary conditions), computing Euclidean distances modulo 1.
+(a) Simulate 200 CSR patterns with 100 events each. For each pattern, compute $\hat{K}(r)$ using Ripley's isotropic weights and using the toroidal distance without weights, across $r \in [0.02, 0.25]$. Compare the empirical bias and variance of both estimators.
+(b) Explain why the toroidal assumption is valid under homogeneous CSR but can introduce severe artifacts if the true point pattern has an inhomogeneous intensity gradient across the window.
 
 ---
 
