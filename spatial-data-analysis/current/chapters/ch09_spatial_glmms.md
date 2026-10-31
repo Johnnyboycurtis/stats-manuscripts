@@ -2,7 +2,7 @@
 
 Chapter 0 ended its first tour of spatial pitfalls with a map of county overdose rates that could not be trusted. Counties with few residents filled both ends of the scale, even though every county had the same true risk, because a small count is a noisy count. Chapters 7 and 8 gave us models for lattice data, but they were models for Gaussian responses. Counts of deaths, cases, and events are not Gaussian, and a Gaussian model with constant variance has no way to say that small counts are noisier counts.
 
-This chapter builds the count version of everything in Part III. It has two ingredients, both familiar. The first is the generalized linear model (GLM): the Poisson regression you may have met in Dobson and Barnett or in a regression course, fitted by iteratively reweighted least squares (IRLS). The second is the spatial random effect $u$ of Chapter 2, now given a conditional autoregressive (CAR) distribution from Chapter 8. Put the two together and you have a generalized linear mixed model (GLMM), in which the model equation of this book,
+This chapter builds the count version of everything in Part III. It has two ingredients, both familiar. The first is the generalized linear model (GLM): the Poisson regression you may have met in Dobson and Barnett [@dobson2008] or in a regression course, fitted by iteratively reweighted least squares (IRLS). The second is the spatial random effect $u$ of Chapter 2, now given a conditional autoregressive (CAR) distribution from Chapter 8. Put the two together and you have a generalized linear mixed model (GLMM), in which the model equation of this book,
 
 $$
 Y = \text{mean} + u + \varepsilon,
@@ -35,7 +35,7 @@ $$
 f(y;\vartheta) = f_0(y)\exp\!\left\{y\vartheta - b(\vartheta)\right\}
 $$
 
-for a function $b(\cdot)$ of the **natural parameter** $\vartheta$ and a function $f_0(\cdot)$ that does not involve $\vartheta$. (Dobson and Barnett write the natural parameter as $\theta$; this book keeps $\theta$ for the relative risk below. Families with a free dispersion parameter, such as the Gaussian with unknown variance, add one more function; we do not need it.)
+for a function $b(\cdot)$ of the **natural parameter** $\vartheta$ and a function $f_0(\cdot)$ that does not involve $\vartheta$. (Dobson and Barnett [@dobson2008] write the natural parameter as $\theta$; this book keeps $\theta$ for the relative risk below. Families with a free dispersion parameter, such as the Gaussian with unknown variance, add one more function; we do not need it.)
 
 The mean and variance follow from $b$ alone. Write the log-density as $\ell(\vartheta) = \log f_0(y) + y\vartheta - b(\vartheta)$ and differentiate:
 
@@ -65,7 +65,7 @@ Three examples cover most of what we use.
 | Poisson | $e^{\vartheta}$ | $e^{\vartheta}$ | $\mu$ | $\log\mu$ |
 | Binomial, $m$ trials | $m\log(1 + e^{\vartheta})$ | $m\,\dfrac{e^{\vartheta}}{1 + e^{\vartheta}}$ | $m\,p(1 - p)$ | $\operatorname{logit}(p)$ |
 
-For the Poisson, the probability function $\mu^y e^{-\mu}/y! = \exp\{y\log\mu - \mu - \log y!\}$ has $\vartheta = \log\mu$, $b(\vartheta) = e^{\vartheta}$, and $f_0(y) = 1/y!$, so mean and variance are both $e^{\vartheta} = \mu$. The binomial row is what we would use for vaccination rates by county, where each county has $m$ residents of whom $Y$ are vaccinated; Exercise 12 adapts this chapter's code to it.
+For the Poisson, the probability function $\mu^y e^{-\mu}/y! = \exp\{y\log\mu - \mu - \log y!\}$ has $\vartheta = \log\mu$, $b(\vartheta) = e^{\vartheta}$, and $f_0(y) = 1/y!$, so mean and variance are both $e^{\vartheta} = \mu$. The binomial row is what we would use for vaccination rates by county, where each county has $m$ residents of whom $Y$ are vaccinated; Exercise 16 adapts this chapter's code to it.
 
 ### 9.1.2 The Linear Predictor and the Link
 
@@ -646,7 +646,7 @@ $$
 -\frac{\partial^2\ell_{\text{pen}}}{\partial(\boldsymbol{\beta}, \mathbf{u})\,\partial(\boldsymbol{\beta}, \mathbf{u})'} = \begin{bmatrix} \mathbf{X}'\mathbf{V}\mathbf{X} & \mathbf{X}'\mathbf{V} \\ \mathbf{V}\mathbf{X} & \mathbf{V} + \mathbf{Q} \end{bmatrix}
 $$
 
-(The Poisson part contributes $\mathbf{V}$ through $\boldsymbol{\eta} = \ldots + \mathbf{X}\boldsymbol{\beta} + \mathbf{u}$, and the penalty adds $\mathbf{Q}$ to the $\mathbf{u}$ block.) When $\mathbf{Q}$ is positive definite and $\mathbf{X}$ has full column rank, this matrix is positive definite. The $\mathbf{u}$ block $\mathbf{V} + \mathbf{Q}$ is, and the Schur complement for the $\boldsymbol{\beta}$ block is $\mathbf{X}'\left[\mathbf{V} - \mathbf{V}(\mathbf{V} + \mathbf{Q})^{-1}\mathbf{V}\right]\mathbf{X} = \mathbf{X}'(\mathbf{V}^{-1} + \mathbf{Q}^{-1})^{-1}\mathbf{X}$ (by the Woodbury identity, which follows from the block inversion formula of Appendix A.1 and returns in Chapter 13), which is also positive definite. The same combination $\mathbf{V}^{-1} + \mathbf{Q}^{-1}$ returns in Section 9.4.4.
+(The Poisson part contributes $\mathbf{V}$ through $\boldsymbol{\eta} = \ldots + \mathbf{X}\boldsymbol{\beta} + \mathbf{u}$, and the penalty adds $\mathbf{Q}$ to the $\mathbf{u}$ block.) When $\mathbf{Q}$ is positive definite and $\mathbf{X}$ has full column rank, this matrix is positive definite. The $\mathbf{u}$ block $\mathbf{V} + \mathbf{Q}$ is, and the Schur complement for the $\boldsymbol{\beta}$ block is $\mathbf{X}'\left[\mathbf{V} - \mathbf{V}(\mathbf{V} + \mathbf{Q})^{-1}\mathbf{V}\right]\mathbf{X} = \mathbf{X}'(\mathbf{V}^{-1} + \mathbf{Q}^{-1})^{-1}\mathbf{X}$ (by the Woodbury identity [@woodbury1950], which follows from the block inversion formula of Appendix A.1 and returns in Chapter 13), which is also positive definite. The same combination $\mathbf{V}^{-1} + \mathbf{Q}^{-1}$ returns in Section 9.4.4.
 
 ### 9.4.2 Henderson's Equations
 
@@ -662,7 +662,7 @@ $$
 \mathbf{X}'\mathbf{V}(\mathbf{X}\boldsymbol{\beta} + \mathbf{u}) + \mathbf{X}'(\mathbf{y} - \boldsymbol{\mu}) = \mathbf{X}'\mathbf{V}\mathbf{z}, \qquad \mathbf{V}(\mathbf{X}\boldsymbol{\beta} + \mathbf{u}) + (\mathbf{y} - \boldsymbol{\mu}) = \mathbf{V}\mathbf{z}
 $$
 
-where $\mathbf{z} = \mathbf{X}\boldsymbol{\beta} + \mathbf{u} + \mathbf{V}^{-1}(\mathbf{y} - \boldsymbol{\mu})$ is the working response of Section 9.1.5 **with the offset removed**: it equals $\boldsymbol{\eta} - \mathbf{o} + \mathbf{V}^{-1}(\mathbf{y} - \boldsymbol{\mu})$, the linear predictor without its known part. The Newton step is therefore the solution of **Henderson's mixed-model equations**:
+where $\mathbf{z} = \mathbf{X}\boldsymbol{\beta} + \mathbf{u} + \mathbf{V}^{-1}(\mathbf{y} - \boldsymbol{\mu})$ is the working response of Section 9.1.5 **with the offset removed**: it equals $\boldsymbol{\eta} - \mathbf{o} + \mathbf{V}^{-1}(\mathbf{y} - \boldsymbol{\mu})$, the linear predictor without its known part. The Newton step is therefore the solution of **Henderson's mixed-model equations** [@henderson1953]:
 
 $$
 \begin{bmatrix} \mathbf{X}'\mathbf{V}\mathbf{X} & \mathbf{X}'\mathbf{V} \\ \mathbf{V}\mathbf{X} & \mathbf{V} + \mathbf{Q} \end{bmatrix}\begin{bmatrix} \boldsymbol{\beta}^{\text{new}} \\ \mathbf{u}^{\text{new}} \end{bmatrix} = \begin{bmatrix} \mathbf{X}'\mathbf{V}\mathbf{z} \\ \mathbf{V}\mathbf{z} \end{bmatrix}
@@ -955,7 +955,7 @@ $$
 Y_i \sim \text{Poisson}\!\left(0.001\cdot\text{pop}_i\cdot\exp(0.3\,x_i + u_i)\right), \qquad \mathbf{u} \text{ BYM2 with } \sigma^2 = 0.15,\ \rho = 0.6
 $$
 
-The covariate has coefficient 0.3, so each standard deviation of deprivation raises the risk by a factor of $e^{0.3} = 1.35$. The random effect has standard deviation $\sqrt{0.15} = 0.39$ and 60% of its variance is spatial. It is simulated with the eigenvector expansion of Section 9.3.7, using the scaling constant $c$ of Section 9.3.4. This is the BYM2 model's own prior, a friendly truth for BYM2; Exercise 11 uses a different one. The baseline rate is 0.001 deaths per resident over five years, as in Chapter 0. After the counts are drawn, the analyst's expected counts are $E_i = \hat{r}\cdot\text{pop}_i$ with $\hat{r}$ the overall rate, and the **true relative risk** is $\theta_i = (\text{true mean count})/E_i$.
+The covariate has coefficient 0.3, so each standard deviation of deprivation raises the risk by a factor of $e^{0.3} = 1.35$. The random effect has standard deviation $\sqrt{0.15} = 0.39$ and 60% of its variance is spatial. It is simulated with the eigenvector expansion of Section 9.3.7, using the scaling constant $c$ of Section 9.3.4. This is the BYM2 model's own prior, a friendly truth for BYM2; Exercise 15 uses a different one. The baseline rate is 0.001 deaths per resident over five years, as in Chapter 0. After the counts are drawn, the analyst's expected counts are $E_i = \hat{r}\cdot\text{pop}_i$ with $\hat{r}$ the overall rate, and the **true relative risk** is $\theta_i = (\text{true mean count})/E_i$.
 
 ```python
 def county_map(m=12):
@@ -1193,7 +1193,7 @@ for rho_p in (0.02, 0.1, 0.2, 0.4, 0.6, 0.8, 0.95, 0.999):
           f"{prof.fun - best.fun:5.2f}, sigma2 = {np.exp(prof.x[2]):.3f}")
 ```
 
-The Laplace estimates agree with PQL where it matters. For BYM2 the slope is 0.227 against PQL's 0.226, and the hyperparameters are $(0.1538, 0.2045)$ against $(0.1524, 0.2125)$. For Leroux the slope is 0.209 against 0.210, and $\sigma^2$ is 0.172 against 0.219; the estimates of $\rho$ are 0.064 and 0.220, which say little except that $\rho$ is small and uncertain. BYM again matches BYM2, with the same maximized log-likelihood (negative log-likelihood 355.386) and variances $(0.0465, 0.1224)$. The counts here are not so small that PQL fails.
+The Laplace estimates agree with PQL where it matters. For BYM2 the slope is 0.227 against PQL's 0.226, and the hyperparameters are $(0.1538, 0.2045)$ against $(0.1524, 0.2125)$. For Leroux the slope is 0.209 against 0.210, and $\sigma^2$ is 0.172 against 0.219; the estimates of $\rho$ are 0.064 and 0.220. The difference in $\hat{\rho}$ reflects the flat profile in the spatial share: when the likelihood surface is nearly level across $\rho \in (0, 0.5)$, small differences between PQL's Gaussian working approximation at modest counts ($y_i \approx 5$) and Laplace's direct integration can shift the numerical mode substantially without changing the log-likelihood or the substantive conclusions. BYM again matches BYM2, with the same maximized log-likelihood (negative log-likelihood 355.386) and variances $(0.0465, 0.1224)$. The counts here are not so small that PQL fails.
 
 The Poisson GLM's negative log-likelihood is 413.701, against 355.386 for BYM2, so the likelihood ratio statistic for $\sigma^2 = 0$ is 116.6. Against the mixture reference of Section 9.5.3, the p-value is about $1.7 \times 10^{-27}$. There is overwhelming evidence of variation in risk beyond what the Poisson and the deprivation index explain.
 
@@ -1255,7 +1255,7 @@ print("figures saved")
 
 In the left panel of Figure 9.3 the bright region where the loss is under two units covers 81 of the 625 grid cells, and 161 cells have a loss under four. It is a band, long in the direction of the structured variance and narrow in the direction of the unstructured variance. The unstructured variance is determined to within a factor of about five: the cells with a loss under two have it between 0.034 and 0.184. The structured variance is not: it can be anywhere from the smallest value on the grid, 0.003, to roughly 0.23 with little loss, and setting it to 0.003 costs only 0.40 units of log-likelihood. On this data set, in other words, we cannot prove that there is any spatially structured variation beyond the unstructured part, although there is some. The right panel shows the BYM2 profile in $\rho$: it is flat near its minimum at 0.2 and crosses the dashed 95% line only beyond $\rho = 0.8$.
 
-The reason is the same as in Chapter 5, where only a combination of $\sigma^2$ and $\phi$ was well determined: 144 counties with a median of five deaths each carry little information about how a risk surface is arranged, as opposed to how large it is. More counties or larger counts sharpen it; Exercise 15 tries a map with 576 counties.
+The reason is the same as in Chapter 5, where only a combination of $\sigma^2$ and $\phi$ was well determined: 144 counties with a median of five deaths each carry little information about how a risk surface is arranged, as opposed to how large it is. More counties or larger counts sharpen it; Exercise 19 tries a map with 576 counties.
 
 ### 9.6.5 Does the Standard Error Cover?
 
@@ -1331,19 +1331,57 @@ The BYM2 model's standard error, 0.052, matches the actual spread of 0.048, and 
 
 10. Show that the BYM2 model with $(\sigma^2, \rho)$ and the BYM model with $(\sigma_u^2, \sigma_v^2) = (\sigma^2\rho/c,\ \sigma^2(1 - \rho))$ have the same covariance matrix. Express $\rho$ in terms of $\sigma_u^2$, $\sigma_v^2$, and $c$.
 
+11. When a log-linear model includes a Gaussian spatial random effect, $Y_i \mid u_i \sim \operatorname{Poisson}(E_i\exp(\mathbf{x}_i'\boldsymbol{\beta} + u_i))$ with $\mathbf{u} \sim N(\mathbf{0}, \boldsymbol{\Sigma})$, the marginal distribution of $Y_i$ is a **Poisson-lognormal mixture**.
+(a) Using the moment-generating function of the normal distribution, $\operatorname{E}[e^{tu_i}] = \exp(\tfrac{1}{2}t^2\Sigma_{ii})$, show that the marginal mean of $Y_i$ is $\mu_i = \operatorname{E}[Y_i] = E_i\exp(\mathbf{x}_i'\boldsymbol{\beta} + \tfrac{1}{2}\Sigma_{ii})$.
+(b) Using the law of total variance $\operatorname{Var}(Y_i) = \operatorname{E}[\operatorname{Var}(Y_i \mid u_i)] + \operatorname{Var}(\operatorname{E}[Y_i \mid u_i])$, show that the marginal variance is
+$$
+\operatorname{Var}(Y_i) = \mu_i + \mu_i^2\left(e^{\Sigma_{ii}} - 1\right)
+$$
+(c) Compare this variance with the negative binomial variance $E_i + E_i^2/a$ of Section 9.3.1. Explain why spatial random effects induce overdispersion that scales quadratically with the mean and exponentially with the marginal variance $\Sigma_{ii}$.
+
+12. Consider an $n$-region cycle map (a 1D periodic lattice where region $i$ touches regions $i - 1$ and $i + 1$, with $n$ wrapping around to 1), so that every region has degree $d_i = 2$.
+(a) Write the graph Laplacian $\mathcal{L} = \mathbf{D} - \mathbf{A}$. Explain why $\mathcal{L}$ is a circulant matrix, and verify that its eigenvectors are the discrete Fourier basis vectors with eigenvalues $\xi_k = 2 - 2\cos(2\pi k / n)$ for $k = 0, \dots, n - 1$.
+(b) Using the spectral expansion of the Moore-Penrose pseudo-inverse $\boldsymbol{\Sigma}^{\star} = \sum_{k=1}^{n-1}\xi_k^{-1}\mathbf{v}_k\mathbf{v}_k'$, show that every diagonal entry $\Sigma^{\star}_{ii}$ is strictly identical.
+(c) Conclude that on a cycle map, the scaling constant $c$ of Section 9.3.4 simplifies to $c = \Sigma^{\star}_{11} = \frac{1}{n}\sum_{k=1}^{n-1}\frac{1}{2 - 2\cos(2\pi k / n)}$. Explain why no edge-effect variance inflation occurs on a cycle, in contrast to the path of three regions in Section 9.3.4.
+
+13. In Section 9.6.2 we saw that a non-zero sample correlation between the covariate $\mathbf{x}$ and the random effect $\mathbf{u}$ shifts the estimated slope $\hat{\beta}_1$ away from the true value (**spatial confounding**).
+(a) Let $\mathbf{P}_{\mathbf{X}} = \mathbf{X}(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'$ be the orthogonal projection onto $\operatorname{span}(\mathbf{X})$, and let $\mathbf{P}_{\mathbf{X}}^{\perp} = \mathbf{I}_n - \mathbf{P}_{\mathbf{X}}$. Show that any vector $\mathbf{u}$ can be decomposed uniquely as $\mathbf{u} = \mathbf{u}_{\mathbf{X}} + \mathbf{u}_{\perp}$ where $\mathbf{u}_{\mathbf{X}} \in \operatorname{span}(\mathbf{X})$ and $\mathbf{u}_{\perp} \in \operatorname{span}(\mathbf{X})^{\perp}$.
+(b) Explain why in a Poisson GLMM $Y_i \sim \operatorname{Poisson}(E_i\exp(\mathbf{x}_i'\boldsymbol{\beta} + u_i))$, the component $\mathbf{u}_{\mathbf{X}}$ can be absorbed into $\mathbf{X}\boldsymbol{\beta}$, leading to collinearity between the fixed effect and the spatial random effect.
+(c) In **restricted spatial regression** (RSR), the random effect is constrained to satisfy $\mathbf{X}'\mathbf{u} = \mathbf{0}$, so that $\mathbf{u} = \mathbf{P}_{\mathbf{X}}^{\perp}\mathbf{u}$. Explain how this constraint protects the fixed-effect estimate $\hat{\boldsymbol{\beta}}$ from spatial confounding while allowing $\mathbf{u}_{\perp}$ to model residual spatial dependence.
+
+14. Section 9.3.6 showed that BYM and BYM2 are the same model under two different parameterizations: $\sigma_u^2 = \sigma^2\rho/c$ and $\sigma_v^2 = \sigma^2(1 - \rho)$.
+(a) Compute the Jacobian determinant of the transformation $(\sigma^2, \rho) \to (\sigma_u^2, \sigma_v^2)$, where $\sigma^2 > 0$ and $\rho \in (0, 1)$.
+(b) In Bayesian disease mapping, penalizing complexity (PC) priors are often placed on the BYM2 parameters: an exponential prior on the marginal standard deviation $\sigma \sim \operatorname{Exp}(\lambda_\sigma)$ and a prior on $\rho$ that penalizes departure from the unstructured base model $\rho = 0$. Using the change-of-variables formula, show that independent priors on $(\sigma^2, \rho)$ imply strongly dependent, coupled priors on the original BYM variances $(\sigma_u^2, \sigma_v^2)$.
+(c) Explain why specifying independent, unscaled inverse-gamma priors on $(\sigma_u^2, \sigma_v^2)$ in the original BYM model (a common historical practice in WinBUGS) makes the implied prior on the spatial share $\rho$ heavily dependent on the map's scaling constant $c$.
+
 **Computational and simulation**
 
-11. Replace the truth of Section 9.6.1 by a smooth Gaussian field with exponential correlation (range 0.25) of variance 0.10 plus independent noise of variance 0.05. Refit the models and compare the RMSE table and the estimate of $\rho$. Which model, if any, is hurt by the change of truth?
+15. Replace the truth of Section 9.6.1 by a smooth Gaussian field with exponential correlation (range 0.25) of variance 0.10 plus independent noise of variance 0.05. Refit the models and compare the RMSE table and the estimate of $\rho$. Which model, if any, is hurt by the change of truth?
 
-12. Simulate vaccination counts: county $i$ has $m_i = \text{pop}_i$ residents of whom $Y_i \sim \text{Binomial}(m_i, p_i)$ are vaccinated, with $\operatorname{logit}(p_i) = 0.8 - 0.4\,x_i + u_i$ and $\mathbf{u}$ drawn from BYM2. Modify `poisson_irls` and `pirls_mixed` for the logit link, using the weights and working response of Exercise 1, and fit the model.
+16. Simulate vaccination counts: county $i$ has $m_i = \text{pop}_i$ residents of whom $Y_i \sim \text{Binomial}(m_i, p_i)$ are vaccinated, with $\operatorname{logit}(p_i) = 0.8 - 0.4\,x_i + u_i$ and $\mathbf{u}$ drawn from BYM2. Modify `poisson_irls` and `pirls_mixed` for the logit link, using the weights and working response of Exercise 1, and fit the model.
 
-13. Repeat the Laplace and PQL fits of the BYM2 model on 50 simulated data sets for baseline rates of 0.00025, 0.001, and 0.004 (expected counts one quarter, one, and four times as large). How do the two estimates of $\sigma^2$ compare with the truth as the counts change? Do you see the PQL bias that Section 9.4.5 describes?
+17. Repeat the Laplace and PQL fits of the BYM2 model on 50 simulated data sets for baseline rates of 0.00025, 0.001, and 0.004 (expected counts one quarter, one, and four times as large). How do the two estimates of $\sigma^2$ compare with the truth as the counts change? Do you see the PQL bias that Section 9.4.5 describes?
 
-14. Add an isolated county to the map (a row and column of zeros appended to $\mathbf{A}$). Compute the scaling constant with `scaling_constant` and with a naive pseudo-inverse of the whole Laplacian (`np.linalg.pinv`), and compare. Fit the BYM2 model to simulated data and explain what the isolated county's estimated effect is.
+18. Add an isolated county to the map (a row and column of zeros appended to $\mathbf{A}$). Compute the scaling constant with `scaling_constant` and with a naive pseudo-inverse of the whole Laplacian (`np.linalg.pinv`), and compare. Fit the BYM2 model to simulated data and explain what the isolated county's estimated effect is.
 
-15. Rerun the profile of $\rho$ (Section 9.6.4) on a map of $24 \times 24$ counties, generated with `county_map(24)` and with simulated responses from the same BYM2 truth. How does the width of the 95% region for $\rho$ change relative to the 144-county map?
+19. Rerun the profile of $\rho$ (Section 9.6.4) on a map of $24 \times 24$ counties, generated with `county_map(24)` and with simulated responses from the same BYM2 truth. How does the width of the 95% region for $\rho$ change relative to the 144-county map?
 
-16. Modify `eb_gamma_poisson` so that each county shrinks toward $\exp(\mathbf{x}_i'\hat{\boldsymbol{\beta}})$ from the Poisson GLM (Exercise 5) and estimate $a$ from the negative binomial with the corresponding means. Compare its RMSE with the table of Section 9.6.3.
+20. Modify `eb_gamma_poisson` so that each county shrinks toward $\exp(\mathbf{x}_i'\hat{\boldsymbol{\beta}})$ from the Poisson GLM (Exercise 5) and estimate $a$ from the negative binomial with the corresponding means. Compare its RMSE with the table of Section 9.6.3.
+
+21. Extend Exercise 16 into a full simulation study of binomial spatial GLMMs for county vaccination rates.
+(a) On the 144-county map, simulate $Y_i \sim \operatorname{Binomial}(m_i, p_i)$ with $m_i = \text{pop}_i$ and $\operatorname{logit}(p_i) = 0.5 - 0.3\,x_i + u_i$, where $\mathbf{u}$ is drawn from BYM2 with $\sigma^2 = 0.20$ and $\rho = 0.70$.
+(b) Fit the data with a standard logistic regression (GLM without random effects) and with the binomial BYM2 spatial GLMM using PQL. Compare the estimated odds ratio $\exp(\hat{\beta}_1)$ and its 95% confidence interval across both methods.
+(c) Repeat over 50 simulated data sets and compare the coverage of the 95% confidence intervals for $\beta_1$. Does naive logistic regression exhibit severe undercoverage, as Poisson regression did in Section 9.6.5?
+
+22. Section 9.5.2 checked the Laplace approximation against adaptive numerical integration (`scipy.integrate.quad`). An alternative numerical method is **Gauss-Hermite quadrature**, which approximates $\int e^{-u^2}g(u)\,du \approx \sum_{k=1}^K w_k g(x_k)$.
+(a) Implement adaptive Gauss-Hermite quadrature for the one-region Poisson-normal integral with $K = 5$ and $K = 10$ nodes, centering and scaling the nodes around the posterior mode $\hat{u}$ and curvature $\hat{v} + 1/\sigma^2$.
+(b) Compare the relative errors of 1-node (Laplace), 5-node, and 10-node quadrature against the exact integral from `scipy.integrate.quad` across the grid of counts $y \in \{0, 1, 2, 5, 20\}$ and variances $\sigma^2 \in \{0.5, 2.0, 8.0\}$.
+(c) How many quadrature nodes are needed to keep the relative error below 0.1% when $\sigma^2 = 8$ and $y = 1$?
+
+23. In Section 9.6.4 and Figure 9.3 we visualized the weak identifiability of the BYM variance split through the profile log-likelihood surface.
+(a) For the data set of Section 9.6.1, implement a random-walk Metropolis-Hastings sampler for the log-hyperparameters $(\log\sigma_u^2, \log\sigma_v^2)$ using the Laplace-approximated marginal likelihood as the target posterior density under flat priors.
+(b) Run the chain for 10,000 iterations and discard the first 2,000 as burn-in. Plot the bivariate scatter of the posterior draws of $(\sigma_u^2, \sigma_v^2)$.
+(c) Verify that the posterior draws trace out the same hyperbolic band of near-constant total variance observed in the left panel of Figure 9.3. Compute the posterior correlation between $\sigma_u^2$ and $\sigma_v^2$.
 
 ---
 

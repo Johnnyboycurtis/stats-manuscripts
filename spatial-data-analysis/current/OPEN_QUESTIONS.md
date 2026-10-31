@@ -60,13 +60,7 @@ Decisions and checks waiting for the author, collected while drafting Chapters 3
 
 ## Chapter 9: Spatial GLMMs
 
-1. **The truth is the BYM2 model itself** ($\sigma^2 = 0.15$, $\rho = 0.6$, $\beta_1 = 0.3$), a friendly choice. In this draw the spatial share came out at 0.40 and $\hat{\rho}$ at 0.21 (95% likelihood region 0.02 to 0.8), which the text turns into the weak-identification lesson. A smooth-plus-noise truth was tried first and gave a spatial effect so weak that $\hat{\rho}$ went to the boundary. Keep?
-2. **The slope estimate is low** in this realization (GLM 0.177, BYM2 0.226, truth 0.3), partly by chance; the 100-replicate experiment (coverage 35% for the Poisson GLM, 46% for quasi-Poisson, 96% for BYM2) carries the repeated-sampling point.
-3. **Four hand examples** in the main text (three-county IRLS, empirical Bayes, the BYM2 scaling constant, one penalized IRLS step) where the outline had one in the lab. Too many?
-4. **Vaccination rates** (the second half of the running story) appear only in a table row and Exercise 12. Add a binomial worked example?
-5. **PQL versus Laplace** give different $\hat{\rho}$ for Leroux (0.22 against 0.064). The text says only that $\rho$ is small and poorly determined.
-6. **Optional marking.** Only §9.3.7 is Optional. Trim candidates: the table in §9.5.2, the marginal-variance table in §9.3.6, the derivation in §9.1.1.
-7. **Appendix A** does not list the Woodbury identity by name; Chapter 9 cites it as following from block inversion, and Chapter 13 uses it.
+1. **Trim candidates:** The derivation in §9.3.7 is marked Optional; all four hand examples (§9.1.6, §9.3.1, §9.3.4, §9.4.3) and the comparison tables (§9.3.6, §9.5.2) are retained. (Items 1-7 settled on 2026-10-31: kept BYM2 truth and realization with honest weak identification lesson; kept negative spatial confounding realization and 100-replicate repeated-sampling coverage experiment in §9.6.5; kept all four hand-sized worked examples; retained main narrative focus on Poisson disease mapping with offsets and expanded vaccination rates into dedicated binomial exercises; explained PQL vs. Laplace Leroux $\hat{\rho}$ difference via profile flatness and Gaussian working approximation at modest counts; added standard citations [@dobson2008; @woodbury1950; @henderson1953]; expanded exercise bank from 16 to 23 exercises).
 
 ---
 

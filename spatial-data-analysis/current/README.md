@@ -50,7 +50,7 @@ Read these files in this order:
 
 ## Current Status
 
-As of 2026-10-28. Chapters 0 to 13 are drafted; the appendices are not. The author has read Chapters 0, 1, 2, 3, 4, 5, 6, and 7 and approved them; Chapters 8 to 13 are unreviewed. The drafts lean long on derivations so they can be trimmed in review.
+As of 2026-10-31. Chapters 0 to 13 are drafted; the appendices are not. The author has read Chapters 0, 1, 2, 3, 4, 5, 6, 7, and 8 and approved them; Chapters 9 to 13 are unreviewed. The drafts lean long on derivations so they can be trimmed in review.
 
 | Chapter | File | Words (including code and equations) | Figures |
 | :--- | :--- | :--- | :--- |
@@ -63,7 +63,7 @@ As of 2026-10-28. Chapters 0 to 13 are drafted; the appendices are not. The auth
 | 6 | `chapters/ch06_areal_units_moran.md` | 16,847 | 4 |
 | 7 | `chapters/ch07_sar_models.md` | 14,083 | 3 |
 | 8 | `chapters/ch08_car_models.md` | 13,068 | 4 |
-| 9 | `chapters/ch09_spatial_glmms.md` | 14,242 | 3 |
+| 9 | `chapters/ch09_spatial_glmms.md` | 15,216 | 3 |
 | 10 | `chapters/ch10_exploring_point_patterns.md` | 16,010 | 5 |
 | 11 | `chapters/ch11_point_processes_glms.md` | 15,903 | 5 |
 | 12 | `chapters/ch12_clustering_inhibition.md` | 18,799 | 7 |
