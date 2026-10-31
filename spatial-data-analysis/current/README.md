@@ -50,7 +50,7 @@ Read these files in this order:
 
 ## Current Status
 
-As of 2026-10-31. Chapters 0 to 13 and Appendix C are drafted; Appendices A, B, and D remain. The drafts lean long on derivations so they can be trimmed in review.
+As of 2026-10-31. All 14 chapters (0 to 13) and all four appendices (A, B, C, and D) are fully drafted. The drafts lean long on derivations so they can be trimmed in review.
 
 | Chapter / Appendix | File | Words (including code and equations) | Figures |
 | :--- | :--- | :--- | :--- |
@@ -68,7 +68,10 @@ As of 2026-10-31. Chapters 0 to 13 and Appendix C are drafted; Appendices A, B, 
 | 11 | `chapters/ch11_point_processes_glms.md` | 15,903 | 5 |
 | 12 | `chapters/ch12_clustering_inhibition.md` | 18,799 | 7 |
 | 13 | `chapters/ch13_large_n_methods.md` | 15,081 | 4 |
+| Appendix A | `chapters/appA_matrix_algebra.md` | 6,850 | 0 |
+| Appendix B | `chapters/appB_python_patterns.md` | 3,500 | 0 |
 | Appendix C | `chapters/appC_jargon_rosetta_stone.md` | 3,250 | 0 |
+| Appendix D | `chapters/appD_beyond_the_book.md` | 4,700 | 0 |
 
 | Item | State |
 | :--- | :--- |

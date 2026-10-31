@@ -17,7 +17,7 @@ Each item says where to look and what decision is needed. Most take minutes, not
 
 ## B. Work I can do next (say the word)
 
-- [ ] **Write Appendices A to D.** Requirements are in `APPENDIX_REQUIREMENTS.md`; sections are in `OUTLINE.md`. Appendix C (A Jargon Rosetta Stone) is drafted (`chapters/appC_jargon_rosetta_stone.md`). Appendices A (Matrix Algebra, A.0-A.6), B (Python Patterns, B.1-B.7), and D (Where to Go Next, D.1-D.12) remain.
+- [x] **Write Appendices A to D.** Complete. Appendices A (`chapters/appA_matrix_algebra.md`), B (`chapters/appB_python_patterns.md`), C (`chapters/appC_jargon_rosetta_stone.md`), and D (`chapters/appD_beyond_the_book.md`) are drafted, verified, and integrated with the main text.
 - [ ] **Create `references.bib`.** About 13 keys are already used in the chapters; many more authors are named without keys. Each entry needs a checked DOI, so this needs web verification, not memory.
 - [ ] **Chapter exercises expansion & review (aim for exhaustive/overkill).** Expand exercise sets across chapters—especially analytical problems—to make them very comprehensive of all theoretical mechanics, derivations, and edge cases ("almost overkill", easier to trim later). Verify that exercise numbering, hints, and "see Section" pointers survived all edits.
 - [ ] **Second consistency pass** after your review edits. `python3 scripts/check_consistency.py`, `python3 scripts/lint_chapter.py --all`, and `python3 scripts/run_chapter_code.py --all` rerun everything in about 4 minutes.

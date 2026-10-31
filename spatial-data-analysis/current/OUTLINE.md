@@ -601,22 +601,23 @@ All notation, the typographic conventions, the model used throughout, and the co
 
 ### Appendix A: Matrix Algebra and Multivariate Normal Calculus
 
-* A.0 A review of the five tools of Chapter 0, one subsection each: linear transformations of random vectors, quadratic forms and positive semi-definiteness, the multivariate normal density, maximum likelihood, and the normal equations, keyed to the warm-up exercises of §0.7
-* A.1 Partitioned (block) matrix inversion and the Schur complement, with both forms of the blocks and the block determinant; the Woodbury identity and the matrix determinant lemma, stated by name and derived from block inversion
-* A.2 Vector and matrix derivatives: gradients of linear and quadratic forms, $\dfrac{\partial\log\lvert\boldsymbol{\Sigma}\rvert}{\partial\theta} = \operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dfrac{\partial\boldsymbol{\Sigma}}{\partial\theta}\right)$, $\dfrac{\partial\boldsymbol{\Sigma}^{-1}}{\partial\theta} = -\boldsymbol{\Sigma}^{-1}\dfrac{\partial\boldsymbol{\Sigma}}{\partial\theta}\boldsymbol{\Sigma}^{-1}$, and $\partial\boldsymbol{\Pi}/\partial\theta_j$
-* A.3 Moments of quadratic forms in normal vectors: for symmetric $\mathbf{M}$ and $\mathbf{Y} \sim N(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, $\operatorname{E}[\mathbf{Y}'\mathbf{M}\mathbf{Y}] = \operatorname{tr}(\mathbf{M}\boldsymbol{\Sigma}) + \boldsymbol{\mu}'\mathbf{M}\boldsymbol{\mu}$, the variance, the trace properties, and the Pitman-Koopmans independence statement
-* A.4 Conditional distributions of partitioned multivariate normals, in covariance and precision form (the precision form is derived in §8.1.2, to which this section points)
-* A.5 Kronecker products and the $\operatorname{vec}$ operator
-* A.6 Facts about matrices used in the text: the spectral theorem for symmetric matrices (orthonormal eigenvectors, trace and determinant as sums and products of eigenvalues, symmetric square roots), existence and uniqueness of the Cholesky factor, idempotent projections and their traces, Lagrange multipliers for equality constraints, the Moore-Penrose pseudo-inverse and generalized determinant, the Neumann series, and the Gaussian integral
+* A.0 Review of the five tools of Chapter 0: linear transformations, quadratic forms and positive semi-definiteness, the multivariate normal density, maximum likelihood, and normal equations/GLS, keyed to §0.7
+* A.1 Partitioned (block) matrix inversion and the Schur complement: 4-block multiplication proof, both forms of the upper-left block, block determinant formulas, the Sherman–Morrison–Woodbury identity, the matrix determinant lemma, the Henderson mixed-model Woodbury form, and the LOOCV projection matrix $\boldsymbol{\Pi}$
+* A.2 Vector and matrix derivatives: gradients of linear and quadratic forms, derivative of matrix inverse, derivative of log-determinant (Jacobi's formula), derivative of projection $\boldsymbol{\Pi}$, and Fisher information cancellation in REML
+* A.3 Moments of quadratic forms in normal vectors: expectation and variance for symmetric and non-symmetric matrices, covariance between quadratic forms, cyclic trace properties, and the Pitman–Koopmans independence theorem
+* A.4 Conditional distributions of partitioned multivariate normals: covariance form and simple kriging, precision form via completing the square, Markov random fields, and Vecchia's approximation as a Gaussian DAG with moral graph precision
+* A.5 Kronecker products and the vec operator: mixed-product rule, inverses, determinant exponents, the vec identity, and fast space-time linear algebra
+* A.6 Supporting matrix theorems and algebraic identities: spectral theorem, symmetric square roots, Cholesky factorization existence and uniqueness, idempotent projections, Lagrange multipliers, Moore–Penrose pseudo-inverses and generalized determinants, Neumann series, multivariate Gaussian integrals, Cauchy–Schwarz inequality, and the Schur product theorem
 
 ### Appendix B: Scientific Python Reference Patterns
 
-* B.1 Symbolic verification of matrix identities and gradients with `sympy.matrices`
-* B.2 Stable solvers: `scipy.linalg.cho_factor` and `cho_solve` instead of `numpy.linalg.inv`
-* B.3 Sparse matrices (`scipy.sparse.csc_matrix`) and sparse solvers (`spsolve`, `splu`, conjugate gradient)
-* B.4 Constrained optimization of profile and REML log-likelihoods with `scipy.optimize.minimize` (L-BFGS-B)
-* B.5 The Matérn function with `scipy.special.kv`
-* B.6 Plotting with `matplotlib`: point maps, kriged surfaces, variograms, and simulation envelopes
+* B.1 Analytical verification with SymPy: matrix derivatives, symbolic log-likelihoods, score equations, and block matrix inverses
+* B.2 Stable numerical linear algebra: why `np.linalg.inv` is an anti-pattern, `cho_factor` and `cho_solve`, `solve_triangular`, log-determinants via `slogdet` and Cholesky diagonals, and symmetric eigensystems with `eigh`/`eigvalsh`
+* B.3 Sparse matrices and solvers: CSC vs. CSR representations (`data`, `indices`, `indptr`), sparse factorization with SuperLU (`splu`), compiled CHOLMOD / SuiteSparse AMD ordering, and iterative conjugate gradients (`cg`)
+* B.4 Optimization and root finding: profile and REML log-likelihood optimization with `scipy.optimize.minimize` (L-BFGS-B, log-parameterizations), derivative-free search (`Nelder-Mead`), 1D root-finding with `brentq`, and nonlinear least squares with `least_squares`
+* B.5 Special functions and distributions: the modified Bessel function $K_\nu$ and gamma function via `scipy.special` with $h=0$ handling, `xlogy` for safe Poisson quadrature logs, and `scipy.stats` distributions
+* B.6 Spatial visualization with Matplotlib: publication-ready point maps, kriged surfaces with `imshow(origin="lower")`, contour lines, discrete colorbars, and simulation envelopes
+* B.7 Core numerical idioms and canonical helper patterns: modern NumPy random generators (`default_rng`), vectorized Euclidean distance matrices via quadratic expansion, $k$-d trees with `cKDTree`, thread control (`OMP_NUM_THREADS=1`), and canonical helper reconciliation (`sim_thomas`, `kernel_intensity`)
 
 ### Appendix C: A Jargon Rosetta Stone
 
@@ -631,18 +632,18 @@ The reader-facing notation guide and the concordance with Schabenberger and Gotw
 
 ### Appendix D: Where to Go Next
 
-* Spatial sampling design: choosing locations to minimize kriging variance, which does not depend on the data (§4.2.2)
-* Point patterns with continuous marks and mark correlation functions
-* Space-time point processes
-* Cokriging and multivariate fields; general (non-separable) space-time covariance models
-* Non-Gaussian geostatistics and trans-Gaussian kriging beyond the log scale
-* Covariance models on the sphere for global data
-* Bayesian computation (MCMC, INLA), and alternatives to plug-in prediction that average over uncertainty in the covariance parameters
-* The full SPDE approach, including the finite-element mesh for irregular locations
-* The Spatial Durbin model (a spatial lag of the covariates in the lag model of Chapter 7)
-* The deeper theory behind the validity of covariance functions: Bochner's theorem and the spectral representation of random fields
-* Spatial confounding and causal inference
-* Geographically weighted regression and spatial machine learning
+* D.1 Optimal spatial sampling design: prediction variance criteria (A-optimality, minimax G-optimality) vs. parameter identification (D-optimality) (§4.2.2)
+* D.2 Beyond plug-in prediction: accounting for covariance parameter uncertainty via parametric bootstrap, restricted likelihood corrections, and fully Bayesian MCMC posterior predictive averaging (§5.4.5)
+* D.3 Spatial confounding, Restricted Spatial Regression (RSR), and modern spatial causal inference under network interference (§5.6.2, §9.6.5)
+* D.4 Finite-element SPDEs, triangulated buffer meshes, and Bayesian computation with Integrated Nested Laplace Approximations (INLA) (§13.5.2, §13.7)
+* D.5 Nonseparable space-time covariances (Gneiting's class) and multivariate geostatistics (Linear Model of Coregionalization and cokriging) (§13.6)
+* D.6 Non-Gaussian geostatistics, trans-Gaussian kriging, copulas, and spatial extreme-value analysis (§4.5.4)
+* D.7 Deeper harmonic analysis: Bochner's theorem for positive definiteness, Schoenberg's theorem for isotropic mixtures, and spectral representations (§0.5.1, §2.4.4)
+* D.8 Geostatistics on spheres and manifolds: chordal vs. great-circle distance pitfalls, and Schoenberg's Legendre polynomial characterization (§1.6.4)
+* D.9 The Spatial Durbin Model (SDM), testing the Common Factor Hypothesis against spatial error models, and higher-order spatial econometrics (§7.6.3)
+* D.10 Marked point patterns with continuous marks (Stoyan's mark correlation function $k_{mm}(r)$) and spatio-temporal Hawkes self-exciting point processes (§10.7)
+* D.11 Generalized Method of Moments (GMM) and composite likelihood estimation for intractable spatial point processes (§11.8, §12.2.5)
+* D.12 Spatial machine learning, Geographically Weighted Regression (GWR), spatial block cross-validation, and physics-informed neural operators (§4.5.3, §13.7)
 
 ---
 
