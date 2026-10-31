@@ -10843,7 +10843,7 @@ $$
 
 which is approximately $\chi^2_{n_q - 1}$ when $\bar{n}$ is not small. The degrees of freedom are $n_q - 1$, not $n_q$, because the counts are constrained to sum to $n$. In fact its mean is exactly $n_q - 1$: each count has variance $n(1/n_q)(1 - 1/n_q)$, so $\sum_k \operatorname{Var}(n_k) = n(1 - 1/n_q)$, and dividing by $\bar{n} = n/n_q$ gives $n_q - 1$.
 
-A closely related number is the **index of dispersion** $s_n^2/\bar{n}$, the variance of the quadrat counts divided by their mean. Since $s_n^2 = \sum_k(n_k - \bar{n})^2/(n_q - 1)$, the index equals $X^2/(n_q - 1)$. For a Poisson count the variance equals the mean, so under CSR the index is near 1. Clustering makes some quadrats much fuller than others and pushes the index above 1. Regular spacing makes the counts too even and pushes it below 1.
+A closely related number is the **index of dispersion** $s_n^2/\bar{n}$, the variance of the quadrat counts divided by their mean. Since $s_n^2 = \sum_k(n_k - \bar{n})^2/(n_q - 1)$, the index equals $X^2/(n_q - 1)$. For a Poisson count the variance equals the mean, so under CSR the index is near 1. Clustering makes some quadrats much fuller than others and pushes the index above 1. Regular spacing makes the counts too even and pushes it below 1. Like any grid-based statistic, the index of dispersion depends fundamentally on the scale of the quadrats (the Modifiable Areal Unit Problem, MAUP): an inhibited pattern with tight spacing will appear completely random if the quadrats are too coarse, an issue we demonstrate in Section 10.3.4.
 
 **A hand-sized example.** Four events at $(0.1, 0.1)$, $(0.4, 0.5)$, $(0.9, 0.2)$, and $(0.6, 0.9)$ fall one in each quadrant of the unit square. With $n_q = 4$ and $\bar{n} = 1$, every term of $X^2$ is zero, so $X^2 = 0$ and the index of dispersion is 0: perfectly even, as far as this coarse grid can tell. The same four points reappear in Sections 10.5, 10.6, and 10.8.
 
@@ -10855,6 +10855,8 @@ def quadrat_x2(P, m=5):
     cell = np.minimum((P * m).astype(int), m - 1)
     counts = np.bincount(cell[:, 0] * m + cell[:, 1], minlength=m * m)
     nbar = counts.mean()
+    if nbar == 0:
+        return 0.0, counts
     return ((counts - nbar)**2).sum() / nbar, counts
 
 
@@ -11386,7 +11388,7 @@ $$
 \omega_{ij} = \frac{2\pi h_{ij}}{\text{length of the part of the circle } \partial b(\mathbf{s}_i, h_{ij}) \text{ inside } \mathcal{D}}
 $$
 
-Section 10.8.3 derives the arc length for a rectangle. *(Notation note: Here $\omega_{ij}$ denotes Ripley's isotropic edge weight based on circle arcs. In Chapters 11 and 12, the symbol $\omega_{ij}$ denotes the Ohser-Stoyan translation edge weight $1/[(1 - \lvert\Delta x_{ij}\rvert)(1 - \lvert\Delta y_{ij}\rvert)]$. Both serve to correct for window boundaries, but through different geometric devices.)* The code below implements it exactly (the function `arc_inside`) and builds the estimator from the weights.
+Section 10.8.3 derives the arc length for a rectangle. *(Notation note: Here $\omega_{ij}$ denotes Ripley's isotropic edge weight based on circle arcs, which assumes that conditional on distance, directions are uniformly distributed around the circle. In Chapters 11 and 12, the symbol $\omega_{ij}$ denotes the Ohser-Stoyan translation edge weight $1/[(1 - \lvert\Delta x_{ij}\rvert)(1 - \lvert\Delta y_{ij}\rvert)]$, which operates by shifting the rectangular window and requires no isotropy assumption. Both serve to correct for window boundaries, but through different geometric devices.)* The code below implements it exactly (the function `arc_inside`) and builds the estimator from the weights.
 
 **A hand-sized example.** With the four events and $r = 0.55$, the ordered pairs within $0.55$ are $(1,2)$, $(2,1)$, $(2,4)$, and $(4,2)$. Event 1 sits at $(0.1, 0.1)$, near a corner, so the circle of radius $0.5$ around it has only 31.4% of its length inside the window and the weight is $1/0.3141 = 3.184$. The circle of the same radius around event 2 at $(0.4, 0.5)$ is cut only by the left edge, leaving 79.5% inside, and the weight is 1.258. The pair $(2,4)$ has radius $0.447$ around event 2, and $(4,2)$ the same radius around event 4, which sits close to the top edge. The four weights are 3.184, 1.258, 1.173, and 2.164, and they sum to 7.779. Then
 
@@ -11476,7 +11478,7 @@ $$
 L(r) = \sqrt{\frac{K(r)}{\pi}}
 $$
 
-equals $r$ under CSR, and is customarily plotted as $L(r) - r$, so that CSR is the horizontal line at zero. It also stabilizes the variance. Under CSR, the number of ordered pairs within $r$ is roughly $2\times$ a count of unordered pairs, each of which is within $r$ with probability $\pi r^2/\operatorname{area}(\mathcal{D})$. Counting that as approximately Poisson with variance equal to its mean, and ignoring edge effects and the dependence among pairs, the variance of $\hat{K}$ is
+equals $r$ under CSR, and is customarily plotted as $L(r) - r$, so that CSR is the horizontal line at zero. (Many spatial software packages, including R's `spatstat`, define the centered transformation $\tilde{L}(r) = \sqrt{K(r)/\pi} - r$ directly so that the CSR expectation is identically zero.) It also stabilizes the variance. Under CSR, the number of ordered pairs within $r$ is roughly $2\times$ a count of unordered pairs, each of which is within $r$ with probability $\pi r^2/\operatorname{area}(\mathcal{D})$. Counting that as approximately Poisson with variance equal to its mean, and ignoring edge effects and the dependence among pairs, the variance of $\hat{K}$ is
 
 $$
 \operatorname{Var}\left(\hat{K}(r)\right) \approx \frac{2\operatorname{area}(\mathcal{D})\pi r^2}{n^2}
@@ -11561,9 +11563,14 @@ $$
 \hat{K}_{12}(r) = \frac{\operatorname{area}(\mathcal{D})}{n_1n_2}\sum_{i \in \text{type 1}}\sum_{j \in \text{type 2}}\omega_{ij}\,\mathbb{1}\left(h_{ij} \le r\right)
 $$
 
-If the two patterns are independent and the type-2 pattern has constant intensity, a typical type-1 event learns nothing about type 2, so $K_{12}(r) = \pi r^2$. Values above that mean that type-2 events gather around type-1 events (attraction); values below mean that they avoid them (segregation). The matching nearest-neighbor version is $G_{12}(r)$, the probability that the nearest type-2 event to a typical type-1 event lies within $r$.
+If the two patterns are independent and the type-2 pattern has constant intensity, a typical type-1 event learns nothing about type 2, so $K_{12}(r) = \pi r^2$. Values above that mean that type-2 events gather around type-1 events (attraction or agglomeration); values below mean that they avoid them (segregation or territorial exclusion). The matching nearest-neighbor version is $G_{12}(r)$, the probability that the nearest type-2 event to a typical type-1 event lies within $r$.
 
-To see all three behaviors, the code generates 150 type-1 events and three different type-2 patterns: an independent random pattern; an attracted pattern, in which events are drawn from the neighborhoods of type-1 events with a spread of 0.03; and a segregated pattern, a random pattern with 250 events per unit area from which every event within 0.05 of a type-1 event is deleted. It reports $\hat{K}_{12}(0.1)/(\pi 0.1^2)$ for each.
+To see all three behaviors, consider commercial retail openings. Let type 1 be 150 established corporate chain coffee franchises (such as Starbucks), which act as commercial anchors. We examine three scenarios for independent specialty coffee shops (type 2):
+1. **Independent placement:** Specialty cafés open independently of corporate chains, responding only to baseline foot traffic.
+2. **Agglomeration (attraction):** Specialty cafés deliberately co-locate in the immediate neighborhood of corporate anchors (spread 0.03) to capitalize on established pedestrian traffic and coffee-buying habits.
+3. **Territorial avoidance (segregation):** Specialty cafés seek underserved neighborhood niches, avoiding any corporate location within distance 0.05.
+
+The code below computes the cross-type summary $\hat{K}_{12}(0.1)/(\pi 0.1^2)$ for each scenario.
 
 ```python
 def k12_ripley(P1, P2, r):
@@ -11573,22 +11580,22 @@ def k12_ripley(P1, P2, r):
 
 
 rng = np.random.default_rng(2087)
-type1 = sim_poisson(150, rng)
-independent = sim_poisson(150, rng)
-attract = type1[rng.integers(0, len(type1), 150)]
-attract = attract + 0.03 * rng.standard_normal(attract.shape)
-attract = attract[np.all((attract >= 0) & (attract <= 1), axis=1)]
+corporate = sim_poisson(150, rng)
+indep_random = sim_poisson(150, rng)
+agglomerate = corporate[rng.integers(0, len(corporate), 150)]
+agglomerate = agglomerate + 0.03 * rng.standard_normal(agglomerate.shape)
+agglomerate = agglomerate[np.all((agglomerate >= 0) & (agglomerate <= 1), axis=1)]
 cand = sim_poisson(250, rng)
-segregate = cand[dist(cand, type1).min(axis=1) > 0.05]
+avoid_corp = cand[dist(cand, corporate).min(axis=1) > 0.05]
 r12 = np.array([0.10])
 print("scenario        n2   K12(0.1) / (pi r^2)")
-for name, P2 in (("independent", independent), ("attraction", attract),
-                 ("segregation", segregate)):
-    k12 = k12_ripley(type1, P2, r12)[0] / (np.pi * 0.1**2)
-    print(f"{name:12s} {len(P2):4d} {k12:18.2f}")
+for name, P2 in (("independent", indep_random), ("agglomeration", agglomerate),
+                 ("avoidance", avoid_corp)):
+    k12 = k12_ripley(corporate, P2, r12)[0] / (np.pi * 0.1**2)
+    print(f"{name:13s} {len(P2):4d} {k12:17.2f}")
 ```
 
-The independent pattern gives a ratio of 1.00, the attracted pattern 1.23, and the segregated pattern 0.81, as expected.
+The independent pattern gives a ratio of 1.00, the agglomerated pattern 1.23 (a 23% excess of boutique cafés within 0.1 of a corporate chain), and the avoidance pattern 0.81 (a 19% deficit), matching the economic intuition.
 
 ### 10.7.3 The Spatial Relative Risk
 
@@ -11599,6 +11606,14 @@ $$
 $$
 
 the ratio of the case and control intensities. Because it is a ratio, the factor that makes both intensities large where people live cancels, and what remains is the extra risk that cases carry compared with the population. A natural estimate is the ratio of two kernel estimates, $\widehat{\operatorname{RR}}(\mathbf{s}) = \hat{\lambda}_1(\mathbf{s})/\hat{\lambda}_0(\mathbf{s})$.
+
+When an event at location $\mathbf{s}$ is independently assigned a binary category with probability $p(\mathbf{s}) = \Pr(\text{type 1} \mid \mathbf{s})$, the ratio of underlying intensities is identically the **spatial odds**:
+
+$$
+\frac{\lambda_1(\mathbf{s})}{\lambda_0(\mathbf{s})} = \frac{\lambda(\mathbf{s})p(\mathbf{s})}{\lambda(\mathbf{s})(1 - p(\mathbf{s}))} = \frac{p(\mathbf{s})}{1 - p(\mathbf{s})}
+$$
+
+In case-control studies where cases and controls are sampled at different overall rates, the ratio $\hat{\lambda}_1(\mathbf{s})/\hat{\lambda}_0(\mathbf{s})$ estimates this odds up to a constant scalar multiple (the ratio of sampling fractions). In categorical data analysis, the odds ratio is the fundamental invariant measure of association. Taking logarithms yields a spatial log-odds surface, $\log\widehat{\operatorname{RR}}(\mathbf{s})$, directly linking exploratory intensity smoothing to the spatial logistic regressions developed in Section 11.5.
 
 **The shared setting.** The code uses a case-control setting that the next two chapters also use. Controls form an inhomogeneous Poisson process with intensity $800\,\text{pop}(\mathbf{s})$, where $\text{pop}$ is the population density with a downtown bump. Cases have intensity $120\,\text{pop}(\mathbf{s})\,\text{ex}(\mathbf{s})$, where $\text{ex}$ is an excess risk that rises to $e \approx 2.72$ at an industrial plant at $(0.3, 0.6)$ and falls to 1 away from it. The true relative risk is therefore $0.15\,\text{ex}(\mathbf{s})$: population density cancels, and the baseline ratio 0.15 is 120/800.
 
@@ -11998,7 +12013,9 @@ for name in patterns:
 
 The test results separate the three patterns decisively. For the random pattern, $\max|\hat{L} - r| = 0.0058$, below the 95th percentile of CSR values (0.0070), and the Monte Carlo p-value is 0.17. For the clustered pattern the statistic is 0.0743, more than ten times the 95th percentile, and $p = 0.01$ (the smallest value 99 simulations can give). For the inhibited pattern it is 0.0300 against a 95th percentile of 0.0062, again $p = 0.01$. Compare with the quadrat test of Section 10.3.4, which rejected the clustered pattern and failed to reject the inhibited one at $p = 0.065$; the distance-based tests see what quadrat counts could not.
 
-At particular distances the summaries read as follows. For the clustered pattern, $\hat{J}(0.03) = 0.21$ and $\hat{g}(0.02) = 5.54$: neighbors are five times as common at that distance as under CSR, and $\hat{L}(0.10) - 0.10 = +0.072$, so that within 0.1 of a typical event there are more neighbors than CSR gives, as if the radius were 0.17 instead of 0.1. For the inhibited pattern, $\hat{J}(0.03) = 1.98$, $\hat{g}(0.02) = 0.29$, and $\hat{L}(0.10) - 0.10 = -0.006$. For the random pattern the values are close to the references: $\hat{J}(0.03) = 1.08$, $\hat{g}(0.02) = 0.87$, and $\hat{L}(0.10) - 0.10 = +0.004$.
+At particular distances the summaries read as follows. For the clustered pattern, $\hat{J}(0.03) = 0.21$ and $\hat{g}(0.02) = 5.54$: neighbors are more than five times as common at that distance as under CSR, and $\hat{L}(0.10) - 0.10 = +0.072$, so that within 0.1 of a typical event there are more neighbors than CSR gives, as if the radius were 0.17 instead of 0.1. In the histological tumor slide story of Section 10.1, this is the quantitative signature of tumor-infiltrating lymphocytes swarming around antigenic foci: immune cells are tightly gathered within clusters of radius roughly 0.1 ($3\sigma = 0.09$), leaving large expanses of tissue unvisited (hence $\hat{F}(r)$ rises sluggishly).
+
+For the inhibited pattern, $\hat{J}(0.03) = 1.98$, $\hat{g}(0.02) = 0.29$, and $\hat{L}(0.10) - 0.10 = -0.006$. Biologically, this reflects physical cell volume and contact inhibition: two cell bodies cannot occupy the same space on the slide. Below the hard-core exclusion diameter of $r_0 = 0.03$, no neighbor can physically exist ($\hat{G}(0.02) = 0$), forcing the empty-space function $\hat{F}$ to rise faster than under CSR because cells are spread regularly throughout the tissue. For the random pattern the values track the theoretical references: $\hat{J}(0.03) = 1.08$, $\hat{g}(0.02) = 0.87$, and $\hat{L}(0.10) - 0.10 = +0.004$.
 
 ![Figure 10.3. Distance summaries for the random, clustered, and inhibited patterns. Rows: $\hat{G}$, $\hat{F}$, and $\hat{J}$, all edge-corrected by Kaplan-Meier. Gray bands: the pointwise envelope from 99 CSR patterns. Dashed blue: the CSR value.](current/figures/ch10/fig_10_3_distance.png)
 
@@ -12234,7 +12251,7 @@ The chapter ends here with an honest limit. The exploratory tools of this chapte
 (b) Compute the estimated relative risk surface $\widehat{\operatorname{RR}}(\mathbf{s}) = \hat{\lambda}_{\text{spec}}(\mathbf{s}) / \hat{\lambda}_{\text{corp}}(\mathbf{s})$. Verify mathematically and empirically that under this independent Bernoulli marking, $\operatorname{E}[\widehat{\operatorname{RR}}(\mathbf{s})] \approx p(\mathbf{s}) / (1 - p(\mathbf{s}))$, the spatial odds ratio.
 
 24. **Spatial cannibalization and territory defense.** Now modify the simulation of Exercise 23 to incorporate corporate territory defense: corporate chain franchises reject any prospective site that falls within distance $r_0 = 0.04$ of an existing sister franchise (a sequential inhibition mechanism), while independent specialty cafés open freely.
-(a) Compute Besag's univariate centered $L$-function $L_{22}(r) - r$ for the corporate franchises. At what distance does it dip below zero, and how does this distance relate to the exclusion radius $r_0$?
+(a) Compute Besag's univariate centered $L$-function $L_{22}(r) - r$ for the corporate franchises. Verify that for $r < r_0 = 0.04$, $L_{22}(r) - r = -r$ exactly. Explain why the curve follows this diagonal deficit line and at what scale it begins to recover.
 (b) Compute Besag's cross-$L$ function $L_{12}(r) - r$ between independent cafés and corporate franchises. Explain how $L_{22}$ isolates internal corporate cannibalization avoidance while $L_{12}$ assesses competitive co-location between the two retail sectors.
 
 25. **Toroidal edge correction versus Ripley weights.** An alternative edge correction wraps the unit square into a torus (periodic boundary conditions), computing Euclidean distances modulo 1.
@@ -12270,7 +12287,7 @@ Three running stories carry the chapter. A traffic safety office has the locatio
 >
 > - **Intensity as a Regression Function (§11.1):** The log-linear model $\lambda(\mathbf{s}) = \exp(\mathbf{x}(\mathbf{s})'\boldsymbol{\beta})$, its link to the count regressions of Chapter 9, and the crash data.
 > - **The Exact Likelihood (§11.2):** The point process log-likelihood derived as the limit of Bernoulli trials on a finer and finer grid, with its score equations and information.
-> - **The Berman-Turner Device (§11.3):** Replacing the integral by quadrature turns the likelihood into a weighted Poisson regression. A three-event example is worked by hand, and the crash pattern is fitted.
+> - **The Berman-Turner Device (§11.3):** Replacing the integral by quadrature turns the likelihood into a weighted Poisson regression. A three-event example is worked by hand, the crash pattern is fitted, and point process residuals are smoothed.
 > - **Offsets (§11.4):** Modeling the excess over a known baseline, with the plant story.
 > - **Case-Control Data (§11.5):** Why the log-odds of being a case is the log relative risk, so that logistic regression fits the problem and the unknown baseline drops out.
 > - **Scan Statistics (§11.6):** A likelihood ratio for every circular window, and why the p-value of the best window must come from simulation.
@@ -12711,6 +12728,8 @@ The last two lines of the block show something that links this chapter to the la
 
 Figure 11.1 shows the 403 crashes, the true intensity, and the fitted intensity on the same color scale. The fit recovers the main features of the truth: the ridge along the highway, and the peak where the highway passes through the populated downtown.
 
+Substantively, moving $0.1$ units farther from the highway multiplies the estimated crash rate by $\exp(-2.267 \times 0.1) = 0.797$—a $20.3\%$ reduction in crash intensity, with a $95\%$ confidence interval of $[\exp((-2.267 - 1.96 \times 0.412) \times 0.1), \exp((-2.267 + 1.96 \times 0.412) \times 0.1)] = [0.735, 0.864]$ ($13.6\%$ to $26.5\%$ reduction). Similarly, an increase of $0.1$ in relative population density multiplies crash intensity by $\exp(1.758 \times 0.1) = 1.192$, a $19.2\%$ increase ($95\%$ CI: $[1.138, 1.250]$, or $13.8\%$ to $25.0\%$). In GLM terminology, these are multiplicative effects on the intensity surface, exactly analogous to rate ratios in epidemiological Poisson regression.
+
 ![Figure 11.1. Left: the 403 simulated crashes and the highway. Middle: the true crash intensity. Right: the intensity fitted by Berman-Turner IRLS. The fit recovers the ridge along the highway and the downtown peak.](current/figures/ch11/fig_11_1_crash_fit.png)
 
 ```python
@@ -12742,6 +12761,86 @@ fig.colorbar(im, ax=axes[1:], label="crashes per unit area")
 fig.savefig("figures/ch11/fig_11_1_crash_fit.png", dpi=120,
             bbox_inches="tight")
 ```
+
+### 11.3.7 Point Process Residuals (Optional)
+
+*This subsection introduces continuous point process residuals [@baddeley2005] and their smoothed spatial diagnostics. It can be skipped on a first reading.*
+
+In classical linear regression, the residual vector $\mathbf{e} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$ measures the gap between observation and model, and the normal equations $\mathbf{X}'\mathbf{e} = \mathbf{0}$ force the residuals to sum to zero and to be orthogonal to every fitted covariate.
+
+For a spatial point process, the data are not numbers on a fixed grid, but an observed counting measure $N(B) = \sum_{i=1}^n \mathbb{1}(\mathbf{s}_i \in B)$, and the fitted model is the intensity measure $\hat{\Lambda}(B) = \int_B \hat{\lambda}(\mathbf{s})\,d\mathbf{s}$. For any region $B$, the **raw residual measure** [@baddeley2005] is
+$$
+R(B) = N(B) - \int_B \hat{\lambda}(\mathbf{s})\,d\mathbf{s}
+$$
+which in differential notation is written $d R(\mathbf{s}) = d N(\mathbf{s}) - \hat{\lambda}(\mathbf{s})\,d\mathbf{s}$.
+
+Now integrate $d R(\mathbf{s})$ against the covariate vector $\mathbf{x}(\mathbf{s})$ over the study window $\mathcal{D}$:
+$$
+\int_{\mathcal{D}} \mathbf{x}(\mathbf{s})\,d R(\mathbf{s}) = \sum_{i=1}^n \mathbf{x}(\mathbf{s}_i) - \int_{\mathcal{D}} \mathbf{x}(\mathbf{s})\hat{\lambda}(\mathbf{s})\,d\mathbf{s} = \mathbf{U}(\hat{\boldsymbol{\beta}}) = \mathbf{0}
+$$
+This is precisely the likelihood score equation of Section 11.2.2! Because the model includes an intercept ($\mathbf{x}_1(\mathbf{s}) \equiv 1$), the first component says that the total raw residual over the entire study window is identically zero:
+$$
+R(\mathcal{D}) = n - \int_{\mathcal{D}}\hat{\lambda}(\mathbf{s})\,d\mathbf{s} = 0
+$$
+The fitted model accounts for the exact total count of events. The remaining diagnostic question is whether it accounts for their spatial arrangement.
+
+**Smoothed spatial residuals.** Because $d N(\mathbf{s})$ places a discrete point mass at each event while $\hat{\lambda}(\mathbf{s})\,d\mathbf{s}$ is smooth, the raw residual measure $d R$ cannot be plotted directly. To create an interpretable diagnostic surface, convolve the residual measure with a smoothing kernel $\mathcal{K}_\psi$:
+$$
+r(\mathbf{s}) = \int_{\mathcal{D}}\mathcal{K}_\psi(\mathbf{s} - \mathbf{u})\,d R(\mathbf{u}) = \sum_{i=1}^n \mathcal{K}_\psi(\mathbf{s} - \mathbf{s}_i) - \int_{\mathcal{D}}\mathcal{K}_\psi(\mathbf{s} - \mathbf{u})\hat{\lambda}(\mathbf{u})\,d\mathbf{u}
+$$
+The first term is the kernel intensity estimate $\hat{\lambda}_{\text{data}}(\mathbf{s})$ from Chapter 10, and the second term is the fitted model intensity $\hat{\lambda}$ smoothed with the same kernel. If the model is correctly specified, $\operatorname{E}[r(\mathbf{s})] = 0$ everywhere. Persistent positive peaks reveal local hot spots where events exceed what the covariates predict, while negative troughs indicate unmodeled deficits.
+
+Similarly, dividing by the standard deviation $\sqrt{\hat{\lambda}}$ yields the **smoothed Pearson residual**:
+$$
+r_{\text{Pearson}}(\mathbf{s}) = \sum_{i=1}^n \frac{\mathcal{K}_\psi(\mathbf{s} - \mathbf{s}_i)}{\sqrt{\hat{\lambda}(\mathbf{s}_i)}} - \int_{\mathcal{D}}\mathcal{K}_\psi(\mathbf{s} - \mathbf{u})\sqrt{\hat{\lambda}(\mathbf{u})}\,d\mathbf{u}
+$$
+standardizing the local Poisson variance across dense and sparse regions.
+
+The code below computes both smoothed residual surfaces for the fitted crash model on a $50 \times 50$ grid with bandwidth $\psi = 0.08$.
+
+```python
+def smoothed_residuals(P_data, b, grid, psi=0.08):
+    """Smoothed raw and Pearson residuals on a grid (Baddeley et al., 2005)."""
+    lam_pts = np.exp(design(P_data) @ b)
+    lam_grid = np.exp(design(grid) @ b)
+    d2_pts = ((grid[:, None, :] - P_data[None, :, :])**2).sum(axis=2)
+    K_pts = np.exp(-d2_pts / (2 * psi**2)) / (2 * np.pi * psi**2)
+    d2_grid = ((grid[:, None, :] - grid[None, :, :])**2).sum(axis=2)
+    K_grid = np.exp(-d2_grid / (2 * psi**2)) / (2 * np.pi * psi**2)
+    cell_a = 1.0 / len(grid)
+    raw = K_pts.sum(axis=1) - (K_grid @ lam_grid) * cell_a
+    pearson = ((K_pts / np.sqrt(lam_pts)[None, :]).sum(axis=1)
+               - (K_grid @ np.sqrt(lam_grid)) * cell_a)
+    return raw, pearson
+
+
+G50_res = grid_points(50)
+r_raw, r_pearson = smoothed_residuals(P_crash, b_hat, G50_res, psi=0.08)
+print(f"smoothed raw residual: mean={r_raw.mean():.4f}, "
+      f"std={r_raw.std():.3f}, range=[{r_raw.min():.2f}, {r_raw.max():.2f}]")
+print(f"smoothed Pearson res:  mean={r_pearson.mean():.4f}, "
+      f"std={r_pearson.std():.3f}, range=[{r_pearson.min():.2f}, {r_pearson.max():.2f}]")
+
+fig, axes = plt.subplots(1, 2, figsize=(9.5, 4))
+lim_raw = max(abs(r_raw.min()), abs(r_raw.max()))
+im0 = axes[0].imshow(r_raw.reshape(50, 50), origin="lower", extent=(0, 1, 0, 1),
+                     cmap="coolwarm", vmin=-lim_raw, vmax=lim_raw)
+axes[0].plot(P_crash[:, 0], P_crash[:, 1], "k.", ms=2, alpha=0.3)
+axes[0].set_title("Smoothed raw residual r(s)")
+axes[0].set_aspect("equal")
+fig.colorbar(im0, ax=axes[0], label="excess crashes / unit area")
+
+lim_p = max(abs(r_pearson.min()), abs(r_pearson.max()))
+im1 = axes[1].imshow(r_pearson.reshape(50, 50), origin="lower", extent=(0, 1, 0, 1),
+                     cmap="coolwarm", vmin=-lim_p, vmax=lim_p)
+axes[1].set_title("Smoothed Pearson residual")
+axes[1].set_aspect("equal")
+fig.colorbar(im1, ax=axes[1], label="standardized excess")
+fig.tight_layout()
+fig.savefig("figures/ch11/fig_11_1b_residuals.png", dpi=120)
+```
+
+In Figure 11.1b, the smoothed residual map is centered at zero with no coherent spatial patterns or localized red/blue hot spots. The residuals fluctuate symmetrically within sampling variability across the window, confirming that the road distance and population density covariates adequately capture the spatial trend of the crashes.
 
 ---
 
@@ -12864,6 +12963,8 @@ $$
 $$
 
 If we model the log relative risk as $\beta_0 + \mathbf{x}(\mathbf{s})'\boldsymbol{\beta}$, we have an ordinary logistic regression of the label on the covariates. We never need to estimate or even know $\lambda_{\text{pop}}$. The population density, the thing that made cases cluster downtown in the first place, drops out.
+
+This directly fulfills the connection anticipated in Section 10.7.3. There, we showed that the ratio of intensities equals the spatial odds up to the sampling ratio $\kappa_1 / \kappa_0$, and that taking logarithms produces a spatial logit surface $\log\widehat{\operatorname{RR}}(\mathbf{s})$. What Chapter 10 explored non-parametrically through smoothed kernel ratios is here estimated parametrically through a generalized linear model. The kernel map was a descriptive first look; the logistic regression is the formal inferential tool, allowing hypothesis tests on excess risk without knowing the population at risk.
 
 In our simulation, $\lambda_1/\lambda_0 = (120/800)\exp(\text{bump}_{0.1}(\mathbf{s}))$, so the true logit is $\log 0.15 + \text{bump}_{0.1}(\mathbf{s})$, with intercept $-1.897$ and slope 1.
 
@@ -14071,7 +14172,9 @@ $$
 D(\kappa, \sigma_c) = \sum_{k}\left[\hat{K}(r_k)^{c} - K(r_k;\kappa,\sigma_c)^{c}\right]^2\Delta r
 $$
 
-where $r_1 < \dots < r_M$ is a grid of radii with spacing $\Delta r$. The power $c$ is the same kind of power transformation as the fourth root in the Cressie-Hawkins estimator of Chapter 3, although the motivation here is different: $\hat{K}(r)$ is far more variable at large $r$ than at small $r$, because it counts more pairs, and raising to a power below one pulls the large values in, so that the contrast is not dominated by the largest radii. The usual choice is $c = 1/4$.
+where $r_1 < \dots < r_M$ is a grid of radii with spacing $\Delta r$. 
+
+The power $c$ plays an essential variance-stabilizing role. Under Poisson and cluster processes, the variance of empirical cumulative pair counts $\hat{K}(r)$ grows approximately quadratically with the expectation, $\operatorname{Var}(\hat{K}(r)) \propto K(r)^2$, meaning that unweighted squared differences at large radii $r$ would completely dominate the contrast sum. By the delta method, $\operatorname{Var}(\hat{K}(r)^c) \approx c^2 K(r)^{2c-2}\operatorname{Var}(\hat{K}(r)) \propto K(r)^{2c}$, so choosing $c = 1/4$ (or $c \in [0.2, 0.5]$) drastically stabilizes the sampling variance across the fitting range. This is the exact conceptual analogue of the Cressie–Hawkins fourth-root estimator of Chapter 3 ($\sqrt[4]{|Z(\mathbf{s}) - Z(\mathbf{s}+\mathbf{h})|}$): both techniques recognize that raw second-order distance summaries carry pronounced heteroscedasticity that distorts ordinary least squares unless tamed by a fourth-root power transformation. Following Diggle (2003), the standard choice for spatial point process minimum contrast estimation is $c = 1/4$ and $q = 2$.
 
 Two choices have to be made before fitting.
 
@@ -14129,7 +14232,7 @@ for start in ((3.0, 0.2), (50.0, 0.01), (100.0, 0.1)):
 
 The fitted parameters are $\hat\kappa = 33.5$, $\hat\sigma_c = 0.0248$, and $\hat\mu_c = 137/33.5 = 4.09$, against the truth of $25$, $0.03$, and $8$. The minimum contrast is $1.76 \times 10^{-6}$, an order of magnitude below the value at the true parameters, $2.15 \times 10^{-5}$: on this slide the fitted curve is closer to $\hat{K}$ than the truth is, which is what minimization should do. Three very different starting values all converge to the same answer, so the objective has a single basin here.
 
-The estimates look poor, and the reason is not the method. A slide of this process has about $25$ clusters. Estimating a cluster intensity from $25$ clusters, and a cluster size from the ratio of two noisy quantities, is inherently imprecise, and the particular slide has fewer points than average. Figure 12.2 in Section 12.6 shows how little the curves differ even though the parameters do: many parameter pairs give nearly the same $K^{1/4}$.
+The estimates look poor, and the reason is not the method. This exposes a fundamental **identifiability trade-off** in cluster processes: $K(r)$ primarily constrains the overall product $\kappa\mu_c = \lambda$ and the cluster spread $\sigma_c$. Because $\kappa$ and $\mu_c$ trade off inversely, modest sampling fluctuations in cluster counts cause large compensatory shifts between $\hat\kappa$ and $\hat\mu_c$. A slide of this process has about $25$ clusters, and estimating cluster intensity from $25$ clusters while deriving cluster size from the ratio of two noisy quantities is inherently imprecise. Figure 12.2 in Section 12.6 shows how little the curves differ even though the parameters do: many parameter pairs give nearly the same $K^{1/4}$.
 
 **How good is the method?** The honest answer needs many slides, not one. The next block simulates $200$ slides from the true model, fits each with $c = 1/4$, $1/2$, and $1$, and summarizes the estimates by their median and by the root-mean-square error of the logarithm of each estimate (a relative error: $0.3$ means typically about 30% off).
 
@@ -14162,7 +14265,7 @@ The medians are close to the truth: $25.9$, $0.0296$, and $7.6$ against $25$, $0
 
 The power $c = 1/4$ gives the smallest errors for all three parameters, but not by much; $c = 1$, which is plain least squares on $\hat{K}$, is about $35\%$ worse for $\sigma_c$. The gain is real but small: transforming the summary function before fitting helps a little.
 
-Minimum contrast gives point estimates and no standard errors. The contrast is a descriptive criterion, not a likelihood, and the values $\hat{K}(r_k)$ at neighboring radii are strongly dependent, so the Hessian of $D$ says nothing reliable about uncertainty. Uncertainty comes from simulation: simulate from the fitted model, refit each pattern, and read the spread of the refitted estimates (Exercise 18). This is the same parametric bootstrap that Chapter 11 recommends for the Poisson GLM under clustering.
+Minimum contrast is a classical **generalized method of moments (GMM)** or M-estimator: it matches empirical second-order summary moments $\hat{K}(r)^c$ to theoretical moments $K(r; \boldsymbol{\theta})^c$. Because $\hat{K}(r)$ is a cumulative function, observations at adjacent radii $r_k$ and $r_{k+1}$ are strongly correlated, meaning that the inverse Hessian of the contrast sum $D(\boldsymbol{\theta})$ does not represent a valid covariance matrix. As in Chapter 3's variogram fitting, valid standard errors require a parametric bootstrap or sandwich variance formula based on the score of the contrast criterion. Uncertainty comes from simulation: simulate from the fitted model, refit each pattern, and read the spread of the refitted estimates (Exercise 18). This is the same parametric bootstrap that Chapter 11 recommends for the Poisson GLM under clustering.
 
 ### 12.2.6 Inhomogeneous Cluster Models
 
@@ -14603,7 +14706,7 @@ The simplest inhibition model starts with a Poisson pattern and *deletes* points
 - **Type I.** Delete *every* point that has another point within distance $r_0$. If two points are close, both go.
 - **Type II.** Give each point an independent random mark $t$ uniform on $(0, 1)$, think of it as an arrival time. Delete a point when another point lies within $r_0$ *and has an earlier mark*. Of a close pair, only the later arrival is deleted, and a point survives if no earlier point is within $r_0$ of it.
 
-Both leave a pattern in which no two points are closer than $r_0$: a hard core. They differ in how many points survive, and we can compute it.
+Both leave a pattern in which no two points are closer than $r_0$: a hard core. In histology, this represents physical volume exclusion—two cell nuclei cannot occupy the same volume. In urban economics and commercial retail strategy, this corresponds to contractual territorial exclusivity: a corporate franchise agreement may forbid opening a second branded branch within a non-compete radius $r_0$ of an existing store to avoid severe revenue cannibalization. They differ in how many points survive, and we can compute it.
 
 **The intensity of Type I.** A parent point survives if no other parent is within $r_0$. The other parents form a Poisson process, so the number of them in a disc of area $\pi r_0^2$ is Poisson with mean $\lambda_{\text{par}}\pi r_0^2$, and the chance of none is $e^{-\lambda_{\text{par}}\pi r_0^2}$. The intensity of survivors is therefore
 
@@ -14683,7 +14786,7 @@ The simulated mean counts follow the formulas. The two types then go in opposite
 
 A third process fills space more efficiently. **Simple sequential inhibition** (SSI) proposes points one at a time, uniformly in the window, and *accepts* a proposal only if it is at least $r_0$ from every point accepted so far. Rejected proposals are discarded. It continues for a fixed number of proposals, or until nothing more can be added.
 
-The intensity depends on how long we keep trying. Early proposals are nearly always accepted. As the window fills, gaps that are big enough for a new disc get scarcer, and acceptance falls toward zero. The pattern saturates at the **jamming limit**, a famous constant of random sequential packing: for discs of diameter $r_0$ placed at random, the covered fraction approaches $0.5472$ in the plane, so the intensity approaches $0.5472/(\pi r_0^2/4) = 0.6967/r_0^2$. (This is a result from the literature, which we quote and check by simulation.) In a finite window, points near the edge have fewer neighbors to avoid, and a few more points fit; the count at the limit is a little higher than the planar formula.
+The intensity depends on how long we keep trying. Early proposals are nearly always accepted. As the window fills, gaps that are big enough for a new disc get scarcer, and acceptance falls toward zero. The pattern saturates at the **jamming limit**, a famous constant of random sequential packing: for discs of diameter $r_0$ placed at random, the covered fraction approaches $0.5472$ in the plane, so the intensity approaches $0.5472/(\pi r_0^2/4) = 0.6967/r_0^2$. For our exclusion radius $r_0 = 0.05\text{ mm}$ ($50\,\mu\text{m}$), this theoretical saturation density evaluates to $0.6967 / (0.05)^2 = 278.7\text{ points/mm}^2$ (or about $279\text{ cells}$ on the $1\text{ mm} \times 1\text{ mm}$ slide). (This is a result from the literature, which we quote and check by simulation.) In a finite window, points near the edge have fewer neighbors to avoid, and a few more points fit; the count at the limit is a little higher than the planar formula.
 
 The code below counts the points kept after $500$ up to $100{,}000$ proposals.
 
@@ -14700,7 +14803,7 @@ print(f"random sequential adsorption limit 0.5472/(pi r0^2/4) = "
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | Points kept (mean of 5) | 171.4 | 230.4 | 266.8 | 278.8 | 287.0 |
 
-The count grows quickly at first and then flattens. The planar jamming limit is $278.7$. The finite window lets the count creep a few percent above it ($287.0$ is $3\%$ over) because points near an edge have fewer neighbors to avoid. At about $280$ to $290$ points, sequential inhibition packs more than twice as many points as Matérn Type II can reach ($127$), and still less than two thirds of the hexagonal $461.9$.
+The count grows quickly at first and then flattens. The planar jamming limit is $278.7\text{ points/mm}^2$. The finite window lets the count creep a few percent above it ($287.0$ is $3\%$ over) because points near an edge have fewer neighbors to avoid. At about $280$ to $290$ points, sequential inhibition packs more than twice as many points as Matérn Type II can reach ($127$), and still less than two thirds of the hexagonal $461.9$.
 
 ### 12.4.3 Gibbs Processes and the Strauss Model
 
@@ -14722,7 +14825,7 @@ where $b > 0$ controls the overall number of points and $\gamma$ is the penalty 
 
 Three special cases show what $\gamma$ does. With $\gamma = 1$ the density is $b^n/Z$ and the process is Poisson with intensity $b$. With $0 < \gamma < 1$ each close pair multiplies the density by $\gamma$, so patterns with many close pairs are rarer. With $\gamma = 0$ any pattern with a close pair has density zero: a hard core. Letting $\zeta \to -\infty$ approaches the hard-core process.
 
-**Why $\gamma \le 1$.** Suppose $\gamma > 1$. Consider configurations with all $n$ points inside one disc of diameter $r_0$ (which fits in $\mathcal{D}$). Every pair is close, so $\operatorname{pairs}(\mathbf{S}) = n(n-1)/2$ and these configurations contribute at least $\dfrac{b^n}{n!}\gamma^{n(n-1)/2}(\pi r_0^2/4)^n$ to $Z$. For large $n$, $\gamma^{n(n-1)/2}$, which grows like $\gamma^{n^2/2}$, overwhelms the factorial $n!$, so the series for $Z$ diverges and no probability distribution exists. A model that rewards close pairs would run away into one giant clump. That is why $\zeta \le 0$ is a requirement of the model, not just a convention, and why the Strauss model describes inhibition only. (Clustering needs the models of Sections 12.2 and 12.3.)
+**Why $\gamma \le 1$ and Ruelle stability.** Suppose $\gamma > 1$. Consider configurations with all $n$ points inside one disc of diameter $r_0$ (which fits in $\mathcal{D}$). Every pair is close, so $\operatorname{pairs}(\mathbf{S}) = n(n-1)/2$ and these configurations contribute at least $\dfrac{b^n}{n!}\gamma^{n(n-1)/2}(\pi r_0^2/4)^n$ to $Z$. For large $n$, $\gamma^{n(n-1)/2}$, which grows like $\gamma^{n^2/2}$, overwhelms the factorial $n!$, so the series for $Z$ diverges and no probability distribution exists. In statistical mechanics, this divergence is known as a failure of **Ruelle stability**: the quadratic growth in the number of pairs ($\binom{n}{2} \sim n^2/2$) overwhelms the factorial decay of the reference Poisson measure, causing the model to collapse into an explosive singularity where points clump into a single location. Modeling attraction within a Gibbs framework requires capping the interaction, as in the **Geyer saturation process**, where the neighbor count $t(\mathbf{u}, \mathbf{S})$ is replaced by $\min(t, c)$ for a saturation threshold $c$. The uncapped Strauss model is strictly an inhibition model ($\zeta \le 0$).
 
 **Why $Z$ is intractable.** To evaluate $Z$ we would integrate $\gamma^{\operatorname{pairs}(\mathbf{S})}$ over all positions of $n$ points, for every $n$. The close-pair count couples all the points together, so the integral does not separate into $n$ one-dimensional integrals. With $n = 100$ points it is a $200$-dimensional integral of a function that jumps whenever a pair crosses distance $r_0$. There is no closed form, and numerical evaluation is hopeless. Maximizing $\log f(\mathbf{S}) = n\log b + \operatorname{pairs}(\mathbf{S})\zeta - \log Z$ over $(b, \zeta)$ would need $\log Z$ at every trial value.
 
@@ -14738,7 +14841,7 @@ $$
 \lambda(\mathbf{u} \mid \mathbf{S}) = \frac{f(\mathbf{S} \cup \mathbf{u})}{f(\mathbf{S})} = b\,\gamma^{\,t(\mathbf{u}, \mathbf{S})}, \qquad \log\lambda(\mathbf{u} \mid \mathbf{S}) = \log b + \zeta\,t(\mathbf{u}, \mathbf{S})
 $$
 
-This **conditional intensity** is the intensity of a point at $\mathbf{u}$ *given the rest of the pattern*. Read it as a Poisson rule with a penalty: with no neighbors within $r_0$ the intensity is the base value $b$; each neighbor multiplies it by $\gamma$. When $\mathbf{u}$ is itself a point of the pattern we use the rest of the pattern, $\lambda(\mathbf{s}_i \mid \mathbf{S} \setminus \mathbf{s}_i)$, so a point is never its own neighbor.
+This conditional rate $\lambda(\mathbf{u} \mid \mathbf{S})$ (often denoted $\lambda^*(\mathbf{u})$) is formally known in the spatial point process literature as the **Papangelou conditional intensity**. It is essential not to confuse it with the first-order Poisson intensity $\lambda(\mathbf{u}) = \operatorname{E}[dN(\mathbf{u})]/d\mathbf{u}$. The first-order intensity is an unconditional marginal expectation across all realizations of the process; the Papangelou intensity is an active, configuration-dependent rate of event nucleation at location $\mathbf{u}$ given the points already in $\mathcal{D}$. For a Poisson process, points do not interact, so the conditioning drops out: $\lambda^*(\mathbf{u}) = \lambda(\mathbf{u})$. For a Gibbs process, $\lambda^*(\mathbf{u})$ fluctuates dynamically across the window as a function of the local neighborhood. Read it as a Poisson rule with a penalty: with no neighbors within $r_0$ the intensity is the base value $b$; each neighbor multiplies it by $\gamma$. When $\mathbf{u}$ is itself a point of the pattern we use the rest of the pattern, $\lambda(\mathbf{s}_i \mid \mathbf{S} \setminus \mathbf{s}_i)$, so a point is never its own neighbor.
 
 To let the base intensity depend on covariates, replace $\log b$ by $\mathbf{x}(\mathbf{u})'\boldsymbol{\beta}$:
 
@@ -14779,6 +14882,8 @@ $$
 $$
 
 Nothing else changes. The interaction is not a new kind of model that needs new software; it is a covariate that happens to be computed from the response. Covariates $\mathbf{x}(\mathbf{u})$ for an inhomogeneous Strauss model would be added as further columns.
+
+This matrix view bridges biological contact inhibition and spatial economic geography. In commercial retail site selection and franchise network planning, corporate chains rarely enforce an absolute "hard-core" prohibition where store placement is completely impossible. Instead, opening a second branded coffee shop within $500\text{ meters}$ of an existing branch cannibalizes sales—imposing a soft penalty $\gamma < 1$ on conditional opening probability. The Strauss model precisely captures this trade-off: base covariates $\mathbf{x}(\mathbf{u})'\boldsymbol{\beta}$ measure market potential (population density, commuter foot traffic), while the neighbor term $\zeta\,t(\mathbf{u}, \mathbf{S})$ captures local market cannibalization and competitive crowding.
 
 **A hand-sized example.** Four points at $(0.20, 0.20)$, $(0.23, 0.22)$, $(0.26, 0.18)$, and $(0.70, 0.60)$, and $r_0 = 0.06$. The distances are $0.036$ between the first two points, $0.050$ between the second and third, and $0.063$ between the first and third, which is just over $r_0$; the fourth point is far from the others. So the first and second points are neighbors, and so are the second and third. Add two dummy points, $(0.24, 0.20)$ in the middle of the group and $(0.50, 0.50)$ in empty space. The code builds the indicator matrix, the neighbor counts, and the relative conditional intensities $\gamma^t$ for $\gamma = 0.15$.
 
@@ -14827,7 +14932,7 @@ $$
 \log\text{PL}(\boldsymbol{\beta}, \zeta) = \sum_{i=1}^n\log\lambda\big(\mathbf{s}_i \mid \mathbf{S}\setminus\mathbf{s}_i\big) - \int_{\mathcal{D}}\lambda(\mathbf{u} \mid \mathbf{S})\,d\mathbf{u}
 $$
 
-This is the Poisson log-likelihood of Chapter 11, $\sum_i\log\lambda(\mathbf{s}_i) - \int\lambda$, with the *conditional intensity* $\lambda(\mathbf{u} \mid \mathbf{S})$ in the place of the intensity. When $\zeta = 0$ the conditional intensity does not depend on the pattern and $\log\text{PL}$ is exactly the Poisson log-likelihood. That is the sense in which the pseudolikelihood is "Poisson-type": it treats the conditional intensity as if it were a fixed intensity function.
+This is the Poisson log-likelihood of Chapter 11, $\sum_i\log\lambda(\mathbf{s}_i) - \int\lambda$, with the Papangelou conditional intensity $\lambda^*(\mathbf{u}) = \lambda(\mathbf{u} \mid \mathbf{S})$ in the place of the marginal intensity. When $\zeta = 0$ (no interaction), the Papangelou intensity does not depend on the configuration, $\lambda^*(\mathbf{u}) = \lambda(\mathbf{u})$, and $\log\text{PL}$ reduces identically to the exact Poisson log-likelihood. That is the sense in which the pseudolikelihood is "Poisson-type": it treats the Papangelou conditional intensity as if it were a fixed intensity function.
 
 **Fitting is the Berman-Turner regression with the extra column.** The integral is approximated on the quadrature points exactly as in Section 12.4.4, and the pseudolikelihood is maximized by the same IRLS, with the design matrix $[\mathbf{1}, t]$. No new algorithm is needed. Under standard conditions the maximizer is consistent as the window grows (a result we take from the literature, Exercise 9 gives the estimating equation).
 
@@ -14890,6 +14995,8 @@ print(f"100 fresh slides: median zeta-hat = {np.median(rep[:, 0]):.3f}, "
 ```
 
 The simulated slide has $91$ cells and $12$ pairs within $0.06$ of each other. The fit gives $\hat\gamma = 0.218$ and $\hat\zeta = -1.52$, against the truth $\gamma = 0.15$ and $\zeta = -1.90$. The estimate of the base intensity is $\hat{b} = 205$ against $300$: the two parameters trade off, since a weaker penalty can be partly compensated by a lower base intensity, and one slide with $12$ close pairs cannot pin both down.
+
+**Substantive interpretation of the interaction parameter.** In generalized linear models, we interpret exponentiated coefficients as multiplicative effects on event rates. Because $\hat\gamma = \exp(\hat\zeta) = \exp(-1.524) \approx 0.218$, each additional neighboring cell (or store) within the interaction radius $r_0 = 0.06$ ($60\,\mu\text{m}$) multiplies the conditional intensity by $0.218$. In other words, holding all else constant, having one neighbor within $r_0$ reduces the local occurrence rate by $78.2\%$ ($1 - 0.218 = 0.782$); having two neighbors reduces it by $95.2\%$ ($1 - 0.218^2 = 0.952$). This gives the abstract Gibbs interaction parameter $\zeta$ an immediate, tangible meaning: it is the log rate ratio of conditional intensity per neighboring obstacle.
 
 The key numbers are the three standard deviations. The GLM's own standard error for $\hat\zeta$ is $0.215$. The parametric bootstrap gives $0.266$. And the standard deviation of $\hat\zeta$ over $100$ fresh slides from the true model is $0.327$, while the GLM standard error averages (median) $0.211$ over those slides. So the naive standard error understates the real variability by about a third, the bootstrap recovers most of the gap on this slide, and the lesson of Chapter 1 appears again: a correct point estimate with an uncertainty from a formula that assumes independence. The median $\hat\zeta$ over fresh slides is $-1.76$, a little closer to zero than the truth: the pseudolikelihood slightly understates the strength of inhibition when there are few close pairs, which is what to expect when $\zeta$ is estimated from a dozen pairs. When a slide has *no* pair closer than $r_0$ at all, the estimate of $\zeta$ runs off to $-\infty$, the hard-core limit.
 
@@ -15351,7 +15458,7 @@ In Figure 12.7 the middle panel shows points concentrated in a few places: the u
 
 **Analytical**
 
-1. Show that for any Neyman-Scott process with Poisson offspring counts and any dispersal density, the intensity is $\kappa\mu_c$, and that the number of offspring in a window of area $A$ (ignoring edge effects) has variance $\kappa A\mu_c(1 + \mu_c)$. The ratio of variance to mean is called the Fano factor. What does a Fano factor of $1 + \mu_c$ imply for the index of dispersion of quadrat counts in Chapter 10?
+1. Show that for any Neyman-Scott process with Poisson offspring counts and any dispersal density, the intensity is $\kappa\mu_c$, and that the number of offspring in a window of area $A$ (ignoring edge effects) has variance $\kappa A\mu_c(1 + \mu_c)$. The ratio of variance to mean is called the Fano factor. What does a Fano factor of $1 + \mu_c$ imply for the index of dispersion of quadrat counts in Chapter 10? Explain why the index of dispersion measured on fine quadrats ($A \ll \sigma_c^2$) approaches $1$ (Poisson-like), whereas on coarse quadrats ($A \gg \sigma_c^2$) it approaches the full cluster excess $1 + \mu_c$, connecting point process variance directly to the Modifiable Areal Unit Problem (MAUP).
 
 2. Using the difference of two independent $N(\mathbf{0}, \sigma_c^2\mathbf{I}_2)$ displacements, derive the pair correlation function of the Thomas process and confirm that integrating $2\pi s\,g(s)$ from $0$ to $r$ gives the $K$-function of Section 12.2.4. Evaluate $g(0)$ for $\kappa = 25$ and $\sigma_c = 0.03$ and explain what the number means in terms of pairs.
 
@@ -15614,7 +15721,7 @@ $$
 \mathbf{N} = \begin{bmatrix} \boldsymbol{\Omega} & \mathbf{B} \\ -\mathbf{B}' & \boldsymbol{\Sigma}_\alpha^{-1} \end{bmatrix}
 $$
 
-with $\mathbf{N}_{11} = \boldsymbol{\Omega}$, $\mathbf{N}_{12} = \mathbf{B}$, $\mathbf{N}_{21} = -\mathbf{B}'$, and $\mathbf{N}_{22} = \boldsymbol{\Sigma}_\alpha^{-1}$. The first form gives $(\boldsymbol{\Omega} + \mathbf{B}\boldsymbol{\Sigma}_\alpha\mathbf{B}')^{-1} = \boldsymbol{\Sigma}^{-1}$. The second gives $\boldsymbol{\Omega}^{-1} - \boldsymbol{\Omega}^{-1}\mathbf{B}\left(\boldsymbol{\Sigma}_\alpha^{-1} + \mathbf{B}'\boldsymbol{\Omega}^{-1}\mathbf{B}\right)^{-1}\mathbf{B}'\boldsymbol{\Omega}^{-1}$. Equating them is the **Sherman-Morrison-Woodbury identity**:
+with $\mathbf{N}_{11} = \boldsymbol{\Omega}$, $\mathbf{N}_{12} = \mathbf{B}$, $\mathbf{N}_{21} = -\mathbf{B}'$, and $\mathbf{N}_{22} = \boldsymbol{\Sigma}_\alpha^{-1}$. (The negative sign in the lower-left block is a neat algebraic device: it turns the minus sign in the Schur complement formula $\mathbf{N}_{11} - \mathbf{N}_{12}\mathbf{N}_{22}^{-1}\mathbf{N}_{21}$ into the desired plus sign $\boldsymbol{\Omega} + \mathbf{B}\boldsymbol{\Sigma}_\alpha\mathbf{B}'$ without modifying the diagonal blocks.) The first form gives $(\boldsymbol{\Omega} + \mathbf{B}\boldsymbol{\Sigma}_\alpha\mathbf{B}')^{-1} = \boldsymbol{\Sigma}^{-1}$. The second gives $\boldsymbol{\Omega}^{-1} - \boldsymbol{\Omega}^{-1}\mathbf{B}\left(\boldsymbol{\Sigma}_\alpha^{-1} + \mathbf{B}'\boldsymbol{\Omega}^{-1}\mathbf{B}\right)^{-1}\mathbf{B}'\boldsymbol{\Omega}^{-1}$. Equating them is the **Sherman-Morrison-Woodbury identity**:
 
 $$
 \boldsymbol{\Sigma}^{-1} = \boldsymbol{\Omega}^{-1} - \boldsymbol{\Omega}^{-1}\mathbf{B}\,\mathbf{M}^{-1}\mathbf{B}'\boldsymbol{\Omega}^{-1}, \qquad \mathbf{M} = \boldsymbol{\Sigma}_\alpha^{-1} + \mathbf{B}'\boldsymbol{\Omega}^{-1}\mathbf{B}
@@ -15803,9 +15910,9 @@ $$
 \sigma^2\left(1 - \mathbf{r}(\mathbf{s})'\mathbf{R}_K^{-1}\mathbf{r}(\mathbf{s})\right) \ge 0
 $$
 
-and the low-rank model puts none of it in $\boldsymbol{\Sigma}$. The deficit is zero at a knot, where $\mathbf{r}(\mathbf{s})$ is a column of $\mathbf{R}_K$ and the expression is $\sigma^2(1 - 1) = 0$, and it is largest in the gaps between knots and at the edges of the region. Figure 13.2 (left) shows it for 64 knots: the colors run from about 0.1 for listings next to a knot, through about 0.4 for listings in the gaps between knots, to about 0.6 for listings in the corners of the unit square. The average deficit in the table is the average of this quantity as a fraction of $\sigma^2$: 0.359 for 64 knots, falling to 0.118 for 625.
+and the low-rank model puts none of it in $\boldsymbol{\Sigma}$. The deficit is zero at a knot, where $\mathbf{r}(\mathbf{s})$ is a column of $\mathbf{R}_K$ and the expression is $\sigma^2(1 - 1) = 0$, and it is largest in the gaps between knots and at the edges of the region. Substantively, the $q$ knots act like regional anchor appraisal stations across the metropolitan region. For rental listings located far from any knot, projecting onto the knot subspace severely damps local variation: the plain predictive process treats the unobserved local field as having near-zero variance, producing artificially tight predictive intervals and oversmoothing local neighborhood price premiums. In commercial Automated Valuation Models (AVMs) and automated mortgage underwriting, this creates a dangerous illusion of certainty: properties in knot-sparse suburban fringes receive unrealistically narrow uncertainty bounds, blinding decision-makers to valuation risk where spatial data are thinnest. Figure 13.2 (left) shows it for 64 knots: the colors run from about 0.1 for listings next to a knot, through about 0.4 for listings in the gaps between knots, to about 0.6 for listings in the corners of the unit square. The average deficit in the table is the average of this quantity as a fraction of $\sigma^2$: 0.359 for 64 knots, falling to 0.118 for 625.
 
-**What the likelihood does about it.** In the plain model the missing variance is absent. The data show it as extra scatter that the model attributes to nothing, and the likelihood suffers. The common remedy is the **modified predictive process**: add the deficit back on the diagonal, which is the reason for the general diagonal matrix $\boldsymbol{\Omega} = \tau^2\mathbf{I}_n + \sigma^2\operatorname{diag}(\text{deficit})$ in Section 13.2.2. The modified process has the correct variance at every listing, and only the correlations between listings are approximated. The table shows how much that matters: for the exponential model the modified likelihood is closer to the exact one than the plain one at every number of knots, by a factor of about $2.5$ with 16 knots and $6.5$ with 625.
+**What the likelihood does about it.** In the plain model the missing variance is absent. The data show it as extra scatter that the model attributes to nothing, and the likelihood suffers. The remedy of Banerjee et al. (2008) [@banerjee2008] is the **modified predictive process**: add the deficit back on the diagonal, which is the reason for the general diagonal matrix $\boldsymbol{\Omega} = \tau^2\mathbf{I}_n + \sigma^2\operatorname{diag}(\text{deficit})$ in Section 13.2.2. The modified process restores the correct total variance $\sigma^2 + \tau^2$ at every listing by capturing the lost fine-scale variation as an independent site-specific adjustment, and only the correlations between listings are approximated. The table shows how much that matters: for the exponential model the modified likelihood is closer to the exact one than the plain one at every number of knots, by a factor of about $2.5$ with 16 knots and $6.5$ with 625.
 
 **Why smoothness matters.** The exponential model is rough (Section 2.5.3): the variance of $u(\mathbf{s}) - u(\mathbf{s}')$ grows linearly with the distance between the two locations. Nearby listings that are far from every knot differ from their kriged values by an amount that shrinks only slowly as knots are added. The Matérn model with smoothness $5/2$ is smooth, and a handful of knots determines the surface in between them, so the deficit vanishes quickly (0.007 at 144 knots against 0.245 for the exponential). That is the general rule: low-rank models are good at the smooth, large-scale part of a spatial effect and poor at its small-scale roughness. In rent terms, they capture the broad pattern of neighborhoods and lose the block-to-block variation.
 
@@ -15862,7 +15969,7 @@ The tapered correlations are $0.0478$ for the first two listings, $0.003$ for th
 
 The number of nonzero entries per row stays bounded only if the density of listings per unit area is fixed while the region grows. In the unit square with $n$ listings, a listing has about $n\pi\theta^2$ neighbors within $\theta$, so the fraction of nonzero entries is about $\pi\theta^2$ (less near the boundary).
 
-SciPy has sparse storage and sparse solvers, but it has no sparse Cholesky factorization. It has a sparse LU factorization (`scipy.sparse.linalg.splu`), which for a symmetric positive definite matrix needs no pivoting and does roughly twice the work of a Cholesky factorization. The log-determinant is the sum of the logarithms of the absolute diagonal entries of the triangular factor $\mathbf{U}$, because the factor $\mathbf{L}$ has a unit diagonal. The code finds the pairs within distance $\theta$ with a k-d tree (SciPy's `cKDTree`), builds the sparse matrix, factors it, and evaluates the likelihood and kriging. It reports the **fill-in**: the number of nonzero entries in $\mathbf{L}$ and $\mathbf{U}$ relative to the number in $\boldsymbol{\Sigma}$. Factoring a sparse matrix creates new nonzeros, and the quality of the fill-reducing ordering decides how many. For the kriging weights, the cross-covariances between held-out and data listings are tapered in the same way.
+SciPy has sparse storage and sparse solvers, but it has no sparse Cholesky factorization. It has a sparse LU factorization (`scipy.sparse.linalg.splu`), which for a symmetric positive definite matrix needs no pivoting and does roughly twice the work of a Cholesky factorization. In production spatial statistics packages and high-performance GIS platforms, practitioners rely on dedicated compiled sparse Cholesky libraries such as **CHOLMOD** (part of SuiteSparse) paired with approximate minimum degree (AMD) reordering, which exploit symmetry and sparsity patterns far more aggressively. Within the pure SciPy toolkit used in this book, `splu` illustrates the sparse matrix mechanics with zero external C dependencies. The log-determinant is the sum of the logarithms of the absolute diagonal entries of the triangular factor $\mathbf{U}$, because the factor $\mathbf{L}$ has a unit diagonal. The code finds the pairs within distance $\theta$ with a k-d tree (SciPy's `cKDTree`), builds the sparse matrix, factors it, and evaluates the likelihood and kriging. It reports the **fill-in**: the number of nonzero entries in $\mathbf{L}$ and $\mathbf{U}$ relative to the number in $\boldsymbol{\Sigma}$. Factoring a sparse matrix creates new nonzeros, and the quality of the fill-reducing ordering decides how many. For the kriging weights, the cross-covariances between held-out and data listings are tapered in the same way.
 
 We compare with exact computations on three data sets. The first two have $n = 2{,}000$: one simulated at $\phi = 0.15$, the model of Chapters 3 to 5, and one simulated at the shorter range $\phi = 0.03$, where listings are correlated only within a small neighborhood. The third has $n = 5{,}000$ at $\phi = 0.15$.
 
@@ -15962,7 +16069,17 @@ Each conditional is again a regression, now on at most $k$ values, with weights 
 
 The cost drops sharply. Each $i$ needs one $k \times k$ solve, $O(k^3)$ operations, so the likelihood costs $O(nk^3)$, linear in $n$.
 
-**The connection to Chapter 8.** In a precision matrix a zero entry means conditional independence (Section 8.1.4). The approximation imposes conditional independence: given its $k$ neighbors in $\mathcal{C}_i$, the value $y_i$ is independent of every other earlier value. The precision matrix $\widetilde{\mathbf{Q}}$ is sparse. Entry $(j, l)$ can be nonzero only if $j$ and $l$ are both parents of the same observation, or one is a parent of the other, so the part of $\widetilde{\mathbf{Q}}$ contributed by observation $i$ has at most $(k + 1)^2$ nonzeros, and the whole matrix has at most $n(k + 1)^2$. An individual row can be longer, because one point can be a neighbor of many later points, and in a maximin ordering a few early points can be neighbors of many later ones (Exercise 9 asks you to count the nonzeros per row and in total for 1,000 random locations and $k = 3$). The weights $\mathbf{b}_i$ are the same kind of weights as $-Q_{ij}/Q_{ii}$ in Section 8.1.2, a regression of a value on its neighbors, but they are sequential: only earlier points enter, so they differ from the full-conditional weights of Section 8.1.2, and the neighborhood is chosen from the data locations instead of fixed by a map.
+**Why conditioning on a few neighbors works: The screening effect.** Why does conditioning on merely $k \approx 10$ to $20$ neighbors approximate a joint distribution of 20,000 listings so accurately? The answer lies in the **screening effect** established in Section 4.2.3: when predicting an attribute at location $\mathbf{s}_i$, immediate geometric neighbors receive large positive kriging weights, while points located behind them receive near-zero or slightly negative weights. Distant points are essentially "screened off" by the ring of intervening observations. Vecchia's approximation turns this empirical property into an explicit probabilistic design: it treats the conditional independence suggested by screening as exact.
+
+**Vecchia as a Directed Acyclic Graph (DAG).** In modern spatial statistics and probabilistic machine learning, Vecchia's approximation is recognized as a **Gaussian Directed Acyclic Graph (DAG)** or Bayesian network [@datta2016]. Each observation $y_i$ is a node in a directed network, and its conditioning set $\mathcal{C}_i$ is precisely its set of directed parents. The joint distribution is generated by a recursive linear structural equation:
+
+$$
+\mathbf{y} = \boldsymbol{\mu} + \boldsymbol{\Gamma}(\mathbf{y} - \boldsymbol{\mu}) + \boldsymbol{\varepsilon}, \qquad \boldsymbol{\varepsilon} \sim N(\mathbf{0}, \mathbf{F})
+$$
+
+where $\boldsymbol{\Gamma}$ is strictly lower triangular with at most $k$ nonzeros per row, and $\boldsymbol{\varepsilon}$ is a vector of independent Gaussian innovations. Because the graph is acyclic, evaluating the filtered residuals $(\mathbf{I} - \boldsymbol{\Gamma})(\mathbf{y} - \boldsymbol{\mu})$ requires only a single forward sweep down the topological ordering of the DAG in $O(nk)$ operations.
+
+**The connection to Chapter 8 and Moral Graphs.** In a precision matrix a zero entry means conditional independence (Section 8.1.4). The approximation imposes conditional independence: given its $k$ parents in $\mathcal{C}_i$, the value $y_i$ is conditionally independent of all other predecessors. In graphical-model terms, the undirected precision matrix $\widetilde{\mathbf{Q}} = (\mathbf{I} - \boldsymbol{\Gamma})'\mathbf{F}^{-1}(\mathbf{I} - \boldsymbol{\Gamma})$ is the **moral graph** of the DAG: entry $(j, l)$ can be nonzero only if $j$ and $l$ are directly connected (one is a parent of the other) or "married" because they share a common child. Thus, the contribution from observation $i$ has at most $(k + 1)^2$ nonzeros, and the whole precision matrix has at most $n(k + 1)^2$ nonzeros. An individual row can be longer, because one point can be a parent of many later points, and in a maximin ordering a few early points become parents to many later ones (Exercise 9 asks you to count the nonzeros per row and in total for 1,000 random locations and $k = 3$). The weights $\mathbf{b}_i$ are the same kind of weights as $-Q_{ij}/Q_{ii}$ in Section 8.1.2, a regression of a value on its neighbors, but they are sequential: only earlier points enter, so they differ from the full-conditional weights of Section 8.1.2, and the neighborhood is chosen from the data locations instead of fixed by a map.
 
 **Estimating $\boldsymbol{\beta}$.** With a mean $\mathbf{X}\boldsymbol{\beta}$, the filter $(\mathbf{I} - \boldsymbol{\Gamma})$ is applied to $\mathbf{y}$ and to the columns of $\mathbf{X}$ alike, and the profile GLS estimate is the ordinary least squares fit of the filtered response on the filtered design, scaled by $F_i^{-1/2}$. This is the decorrelation argument of Section 1.3.5 with $\mathbf{L}^{-1}$ replaced by the sparse filter, at a cost of $O(nkp)$.
 
@@ -16201,7 +16318,7 @@ $$
 
 This matrix has nonzero entries only between cells at most two steps apart in the grid: at most 13 per row, and the field is a Gaussian Markov random field. A precision matrix of that sparsity is what Chapter 8 computed with.
 
-The case $\alpha = 1$ gives $\mathbf{Q} = \kappa^2\mathbf{I} + \mathcal{L}$, which is the proper CAR model of Section 8.2 and the Leroux model of Section 9.3.5 in disguise: on a regular grid $\mathbf{D} = 4\mathbf{I}$ in the interior, and $\mathbf{D} - \rho\mathbf{A} = 4(1 - \rho)\mathbf{I} + \rho\mathcal{L}$ is proportional to $\kappa^2\mathbf{I} + \mathcal{L}$ with $\kappa^2 = 4(1 - \rho)/\rho$. The smoothness is $\nu = 1 - 1 = 0$, which is not a Matérn field with finite variance: its variance grows without bound as the grid is refined (a known result that we do not prove). This is a second reason, beyond the one in Section 8.2.4 (marginal variances differ by region, with an edge effect), why the CAR parameter $\sigma^2$ is not a marginal variance: the variance of the $\alpha = 1$ field is not even defined in the continuum limit, so $\sigma^2$ cannot be compared across maps of different resolution. The square $\alpha = 2$ has $\nu = 1$ and a finite limit.
+The case $\alpha = 1$ gives $\mathbf{Q} = \kappa^2\mathbf{I} + \mathcal{L}$, which is the proper CAR model of Section 8.2 and the Leroux model of Section 9.3.5 in disguise: on a regular grid $\mathbf{D} = 4\mathbf{I}$ in the interior, and $\mathbf{D} - \rho\mathbf{A} = 4(1 - \rho)\mathbf{I} + \rho\mathcal{L}$ is proportional to $\kappa^2\mathbf{I} + \mathcal{L}$ with $\kappa^2 = 4(1 - \rho)/\rho$. The smoothness is $\nu = 1 - 1 = 0$, which is not a Matérn field with finite variance: its variance diverges logarithmically without bound as the grid cell spacing shrinks to zero ($h \to 0$). This is a second reason, beyond the one in Section 8.2.4 (marginal variances differ by region, with an edge effect), why the CAR parameter $\sigma^2$ is not a marginal variance: the variance of the $\alpha = 1$ field is not even defined in the continuum limit, so CAR variance parameters cannot be meaningfully compared across maps of different spatial resolutions. The square $\alpha = 2$ has $\nu = 1$ and a well-defined finite continuum limit.
 
 **It is a SAR model.** In the interior of the grid, $\mathcal{L} = 4\mathbf{I} - \mathbf{A}$, so $\kappa^2\mathbf{I} + \mathcal{L} = (\kappa^2 + 4)(\mathbf{I} - \rho\mathbf{W})$ with $\mathbf{W} = \mathbf{A}/4$ and $\rho = 4/(\kappa^2 + 4)$. Since $\mathbf{W}$ is symmetric, $(\mathbf{I} - \rho\mathbf{W})^2 = (\mathbf{I} - \rho\mathbf{W})'(\mathbf{I} - \rho\mathbf{W})$, and therefore
 
@@ -16274,7 +16391,7 @@ print(f"n=40,000: LU of Q takes {t_q:.2f} s, "
 
 **The correlations.** In the center of the grid the correlation falls from $0.9218$ at one cell to $0.5846$ at four and $0.2712$ at eight, against $0.9368$, $0.6019$, and $0.2797$ for the Matérn function. The agreement is within $0.02$ everywhere. The finite-difference Laplacian is least accurate at short distances, which is where the largest differences are. The variance at the center is $1.3147$ against the theoretical $1/(4\pi\kappa^2) = 1.2732$, which is 3% higher.
 
-**The boundary.** The graph Laplacian treats each edge of the grid as a wall with no flow, so the variance near the boundary is larger: $1.922$ times the central variance in the middle of an edge, and $3.716$ in a corner. These are close to 2 and 4, the factors from reflecting the field across one wall or two. Figure 13.4 (right) shows the variance rising towards the boundary. The practical lesson is to extend the grid beyond the study region by several ranges, so that the study region sits in the interior. The correlations along the edge (the open squares in Figure 13.4, left) match the Matérn curve even better than the interior ones: $0.6015$ at four cells against $0.6019$.
+**The boundary.** Because the discrete graph Laplacian imposes zero-flux (Neumann) boundary conditions, the field is reflected across the boundary like light in a hall of mirrors. At an edge, the field reflects across one wall, doubling the effective correlation mass and inflating the marginal variance by a factor of 2 ($1.922$ in the simulation); in a corner, it reflects across two orthogonal walls, inflating the variance by a factor of 4 ($3.716$ in the simulation). Figure 13.4 (right) shows the variance rising towards the boundary. This boundary distortion is a universal feature of differential equations on bounded domains. In applied SPDE and R-INLA workflows (Appendix D), practitioners always place the study region inside an extended buffer zone (or outer boundary mesh) whose width spans at least one to two correlation ranges, discarding the inflated boundary nodes after estimation. The correlations along the edge (the open squares in Figure 13.4, left) match the Matérn curve even better than the interior ones: $0.6015$ at four cells against $0.6019$.
 
 **The SAR check.** The largest difference between a center row of $\mathbf{Q}$ and the SAR precision with $\rho = 0.9846$ is $3.6 \times 10^{-15}$, which is rounding error. The two are the same matrix.
 
@@ -16542,13 +16659,15 @@ The low-rank evaluation takes $0.07$ seconds at 20,000 listings and $0.19$ secon
 
 ### 13.7.3 Which Method for Which Problem
 
-| Situation | Method | Why |
-| :--- | :--- | :--- |
-| Smooth, large-scale spatial effect; moderate range | Low-rank (modified predictive process) | Cheap and accurate when the field is smooth (Matérn 5/2 above); poor for rough fields |
-| Short correlation range and a very large region; need exact zeros | Tapering with a good sparse Cholesky routine | Accurate only when the taper range is several times the correlation range |
-| General geostatistical likelihood, any smoothness, up to hundreds of thousands of points with a tree-based neighbor search (not shown) | Vecchia, maximin ordering, $k$ from 10 to 30 | Linear cost, close to exact |
-| Regular grid or lattice, or a latent field observed with noise | Sparse precision (GMRF), Woodbury with sparse factorizations | Exact for the Markov model; the Matérn field is a close relative |
-| Complete space-time grid | Kronecker | Exact; assumes separability |
+No single matrix approximation dominates across all spatial problems. The four approximations exploit four fundamentally different matrix structures: low rank in $\boldsymbol{\Sigma}$, sparsity in $\boldsymbol{\Sigma}$, sparsity in the Cholesky factor of $\boldsymbol{\Sigma}^{-1}$, and sparsity in $\mathbf{Q}$. Choosing among them requires balancing sample size $n$, field smoothness, the correlation range, and the geometry of observation locations.
+
+| Method | Target Matrix Structure | Computational Cost | Primary Advantage | Major Limitation / Pitfall | Recommended Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Low-Rank (FRK / Modified Predictive Process)** | $\boldsymbol{\Sigma} \approx \boldsymbol{\Omega} + \mathbf{B}\boldsymbol{\Sigma}_\alpha\mathbf{B}'$ | $\mathcal{O}(nq^2 + q^3)$ | Fast prediction once knot weights are solved; captures broad regional trends | Oversmooths rough fields (exponential); poor fine-scale local prediction | Large-scale regional mapping, satellite footprints, smooth Matérn fields |
+| **Covariance Tapering** | $\boldsymbol{\Sigma}_\theta = \boldsymbol{\Sigma} \circ \mathbf{T}_\theta$ | Sparse Cholesky / LU (problem-dependent) | Preserves positive definiteness; true sparse matrix in memory | Slow when $\phi$ is large (destroying sparsity); heavy fill-in in 2D/3D | Compact spatial fields, very short correlation ranges, local anomaly detection |
+| **Vecchia Approximation** | $\boldsymbol{\Sigma}^{-1} \approx (\mathbf{I}-\boldsymbol{\Gamma})'\mathbf{F}^{-1}(\mathbf{I}-\boldsymbol{\Gamma})$ | Likelihood: $\mathcal{O}(nk^3)$; Prediction ($m$ points): $\mathcal{O}(mk^3)$ | Exceptional general-purpose accuracy for both likelihood and prediction | Requires ordering heuristic (maximin) and neighbor search | Modern default for irregular geostatistical point sets up to $n \sim 10^5-10^6$ |
+| **GMRF / SPDE Bridge** | $\mathbf{Q} \approx (\kappa^2\mathbf{I} + \mathcal{L})^2$ | Sparse Cholesky of band matrix | Solves continuous Matérn field via sparse lattice algebra | Grid-boundary variance distortion; requires regular grid or triangulation mesh | Gridded raster data, satellite imaging, INLA spatial meshes |
+| **Kronecker Factorization** | $\boldsymbol{\Sigma} = \boldsymbol{\Sigma}_T \otimes \boldsymbol{\Sigma}_S$ | $\mathcal{O}(n_S^3 + n_T^3)$ | Exact (no approximation); closed-form solves and determinants | Fails if locations vary across time or if data contain missing values | Space-time monitoring networks on fixed geographical sensor stations |
 
 ### 13.7.4 Figures
 
@@ -16657,7 +16776,7 @@ print("figures saved")
 
 7. The conjugate gradient method solves $\boldsymbol{\Sigma}\mathbf{x} = \mathbf{b}$ by repeated multiplication by $\boldsymbol{\Sigma}$. State the cost per iteration for a tapered matrix with $m$ nonzero entries and explain why the number of iterations grows with the condition number of $\boldsymbol{\Sigma}$. Compare the condition number of $\boldsymbol{\Sigma}$ with a nugget $\tau^2 = 1$ and with $\tau^2 = 0.01$ for the unit-square rent model.
 
-8. Prove that Vecchia's approximation with $\mathcal{C}_i = \{i - 1\}$ is exact for four points on a line with exponential correlation, using $r(h_1 + h_2) = r(h_1)r(h_2)$, by showing that $\operatorname{Cov}(y_i, y_j \mid y_{i-1}) = 0$ for $j < i - 1$. Then explain why the same argument fails in two dimensions.
+8. Prove that Vecchia's approximation with $\mathcal{C}_i = \{i - 1\}$ is exact for four points on a line with exponential correlation, using $r(h_1 + h_2) = r(h_1)r(h_2)$, by showing that $\operatorname{Cov}(y_i, y_j \mid y_{i-1}) = 0$ for $j < i - 1$. Then explain why the same argument fails in two dimensions: explain how in $\mathbb{R}^1$ a single point cuts the domain into two disconnected components (satisfying the Markov property), whereas in $\mathbb{R}^2$ a single point cannot disconnect the plane, making screening in two dimensions inherently multi-point and approximate.
 
 9. Show that the matrix $\widetilde{\mathbf{Q}} = (\mathbf{I} - \boldsymbol{\Gamma})'\mathbf{F}^{-1}(\mathbf{I} - \boldsymbol{\Gamma})$ of Section 13.4.1 has entry $(j, l)$ equal to zero unless $j = l$, one of $j, l$ is in the parent set of the other, or $j$ and $l$ share a child. Use this to bound the number of nonzeros in row $j$ by $(k + 1)(c + 1)$ when every point has at most $k$ parents and at most $c$ children, and describe what "children" means here. Then show that the whole matrix has at most $n(k + 1)^2$ nonzeros, and explain why this does not bound an individual row by $(k + 1)^2$. Build $\widetilde{\mathbf{Q}}$ for 1,000 random locations in a maximin ordering with $k = 3$ and compare the largest row and the total with these bounds.
 
@@ -16667,23 +16786,33 @@ print("figures saved")
 
 12. Prove that the Kronecker product of two Cholesky factors $\mathbf{L}_T \otimes \mathbf{L}_S$ is lower triangular. Then show that if $\boldsymbol{\Sigma}_S$ is $n_S \times n_S$ and $\boldsymbol{\Sigma}_T$ is $n_T \times n_T$, simulating $\operatorname{vec}(\mathbf{Y})$ as $(\mathbf{L}_T \otimes \mathbf{L}_S)\operatorname{vec}(\mathbf{Z})$ takes $O(n_Sn_T(n_S + n_T))$ operations when computed as $\mathbf{L}_S\mathbf{Z}\mathbf{L}_T'$, and $O\big((n_Sn_T)^2\big)$ when the Kronecker product is formed.
 
+13. *The Vecchia DAG, moral graphs, and path inversion.* In Section 13.4.1, Vecchia's model is written as a Gaussian Directed Acyclic Graph: $\mathbf{y} = \boldsymbol{\mu} + \boldsymbol{\Gamma}(\mathbf{y} - \boldsymbol{\mu}) + \boldsymbol{\varepsilon}$ with $\boldsymbol{\varepsilon} \sim N(\mathbf{0}, \mathbf{F})$ and strictly lower-triangular $\boldsymbol{\Gamma}$.
+    (a) Show that because $\boldsymbol{\Gamma}$ is strictly lower triangular, $\boldsymbol{\Gamma}^n = \mathbf{0}$, and therefore the matrix Neumann series $(\mathbf{I} - \boldsymbol{\Gamma})^{-1} = \mathbf{I} + \boldsymbol{\Gamma} + \boldsymbol{\Gamma}^2 + \dots + \boldsymbol{\Gamma}^{n-1}$ terminates as an exact finite polynomial.
+    (b) Give a graph-theoretic interpretation of entry $(j, l)$ of $\boldsymbol{\Gamma}^m$: show that it sums the product of edge weights along all directed paths of length $m$ from node $l$ to node $j$ in the DAG.
+    (c) Use the structural equation to show that conditional on $\mathbf{y}_{\mathcal{C}_j}$, $y_j$ is independent of all other predecessors $\{y_1, \dots, y_{j-1}\} \setminus \mathbf{y}_{\mathcal{C}_j}$, confirming that the moral graph construction reproduces the exact conditional independence properties of Chapter 8.
+
 **Computational and simulation**
 
-13. Repeat the low-rank comparison of Section 13.2.4 for the exponential model with a nugget of $\tau^2 = 4$ instead of $1$. Does a larger nugget make the low-rank approximation more or less accurate, and why? Then fit $(\sigma^2, \tau^2, \phi)$ by maximizing the low-rank likelihood (modified model, 144 knots) on the $n = 2{,}000$ data set and compare with the exact maximum likelihood estimates. Does the low-rank fit overstate or understate the nugget?
+14. Repeat the low-rank comparison of Section 13.2.4 for the exponential model with a nugget of $\tau^2 = 4$ instead of $1$. Does a larger nugget make the low-rank approximation more or less accurate, and why? Then fit $(\sigma^2, \tau^2, \phi)$ by maximizing the low-rank likelihood (modified model, 144 knots) on the $n = 2{,}000$ data set and compare with the exact maximum likelihood estimates. Does the low-rank fit overstate or understate the nugget?
 
-14. Taper experiment. For the $n = 5{,}000$ data set of Section 13.3.2, find the smallest taper range $\theta$ for which the tapered log-likelihood is within 10 of the exact one at $\phi = 0.15$, and report its density, fill-in, and time. Then repeat at $\phi = 0.03$. Fit the covariance parameters by maximizing the tapered likelihood and compare with the exact estimates.
+15. Taper experiment. For the $n = 5{,}000$ data set of Section 13.3.2, find the smallest taper range $\theta$ for which the tapered log-likelihood is within 10 of the exact one at $\phi = 0.15$, and report its density, fill-in, and time. Then repeat at $\phi = 0.03$. Fit the covariance parameters by maximizing the tapered likelihood and compare with the exact estimates.
 
-15. Vecchia experiment. For the $n = 2{,}000$ data set, find by trial the smallest $k$ for each of the three orderings at which the Vecchia log-likelihood is within 0.5 of the exact one. Then repeat with the neighbor sets chosen as the $k$ nearest earlier points in the maximin ordering but with half of them replaced by random earlier points, and explain what changes.
+16. Vecchia experiment. For the $n = 2{,}000$ data set, find by trial the smallest $k$ for each of the three orderings at which the Vecchia log-likelihood is within 0.5 of the exact one. Then repeat with the neighbor sets chosen as the $k$ nearest earlier points in the maximin ordering but with half of them replaced by random earlier points, and explain what changes.
 
-16. Predictions with Vecchia's model. Extend the code of Section 13.4.3 to predict at held-out listings: for a new location $\mathbf{s}_0$, condition on the $k$ nearest data listings, using the weights $\mathbf{b}_0 = \boldsymbol{\Sigma}_{\mathcal{C}}^{-1}\boldsymbol{\Sigma}_{\mathcal{C},0}$. Compare the prediction error with that of exact kriging and of the low-rank model on the $n = 2{,}000$ data set.
+17. Predictions with Vecchia's model. Extend the code of Section 13.4.3 to predict at held-out listings: for a new location $\mathbf{s}_0$, condition on the $k$ nearest data listings, using the weights $\mathbf{b}_0 = \boldsymbol{\Sigma}_{\mathcal{C}}^{-1}\boldsymbol{\Sigma}_{\mathcal{C},0}$. Compare the prediction error with that of exact kriging and of the low-rank model on the $n = 2{,}000$ data set.
 
-17. The grid and the Matérn function. Repeat the check of Section 13.5.2 with $\kappa = 0.5$ and with $\kappa = 0.1$ on a grid of $50 \times 50$ cells. For which $\kappa$ is the agreement with the Matérn correlation best? What goes wrong when the range $1/\kappa$ is comparable to the width of the grid? Estimate the factor by which the corner variance exceeds the central variance in each case.
+18. The grid and the Matérn function. Repeat the check of Section 13.5.2 with $\kappa = 0.5$ and with $\kappa = 0.1$ on a grid of $50 \times 50$ cells. For which $\kappa$ is the agreement with the Matérn correlation best? What goes wrong when the range $1/\kappa$ is comparable to the width of the grid? Estimate the factor by which the corner variance exceeds the central variance in each case.
 
-18. Replace the graph Laplacian in Section 13.5 by $\kappa^2\mathbf{I} + \mathcal{L}$ alone ($\alpha = 1$) on the same grid and compute its marginal variance at the center for grids of $25 \times 25$, $50 \times 50$, and $100 \times 100$ cells. Does it converge as the grid grows? Compare with the $\alpha = 2$ precision.
+19. Replace the graph Laplacian in Section 13.5 by $\kappa^2\mathbf{I} + \mathcal{L}$ alone ($\alpha = 1$) on the same grid and compute its marginal variance at the center for grids of $25 \times 25$, $50 \times 50$, and $100 \times 100$ cells. Does it converge as the grid grows? Compare with the $\alpha = 2$ precision.
 
-19. Space-time. Generate a data set with $n_S = 100$ sites and $n_T = 30$ weeks from the nonseparable covariance of Section 13.6.3. Fit a separable model by maximum likelihood with the Kronecker computations and compare its predictions at a held-out week with those of the true model. How much does separability cost?
+20. Space-time. Generate a data set with $n_S = 100$ sites and $n_T = 30$ weeks from the nonseparable covariance of Section 13.6.3. Fit a separable model by maximum likelihood with the Kronecker computations and compare its predictions at a held-out week with those of the true model. How much does separability cost?
 
-20. For a data set with 5% of the cells of a $400 \times 50$ space-time rectangle missing at random, explain why the Kronecker computation of Section 13.6.2 no longer applies, and implement the likelihood with the Woodbury identity: write the observed covariance matrix as a submatrix of $\boldsymbol{\Sigma}_T \otimes \boldsymbol{\Sigma}_S$ and use a conjugate gradient solver with Kronecker matrix-vector products.
+21. For a data set with 5% of the cells of a $400 \times 50$ space-time rectangle missing at random, explain why the Kronecker computation of Section 13.6.2 no longer applies, and implement the likelihood with the Woodbury identity: write the observed covariance matrix as a submatrix of $\boldsymbol{\Sigma}_T \otimes \boldsymbol{\Sigma}_S$ and use a conjugate gradient solver with Kronecker matrix-vector products.
+
+22. *Empirical coverage deficit of the predictive process.* Using the 200 held-out listings from the rent simulation of Section 13.2.4:
+    (a) Extend `lowrank_fit` to return the prediction standard error $\operatorname{SE}(\mathbf{s}_0)$ under both the plain predictive process (which ignores the variance deficit) and the Banerjee et al. (2008) modified predictive process.
+    (b) Form nominal 95% predictive intervals $\hat{y}_0 \pm 1.96 \operatorname{SE}(y_0)$ at each held-out listing and compute the empirical coverage across all 200 listings under both models for $q \in \{16, 64, 144\}$.
+    (c) Plot the empirical coverage of the plain model as a function of each listing's distance to the nearest knot. At what distance does empirical coverage drop below 80%, and why does the modified predictive process maintain valid 95% coverage everywhere?
 
 ---
 

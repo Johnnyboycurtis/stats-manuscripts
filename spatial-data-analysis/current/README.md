@@ -50,7 +50,7 @@ Read these files in this order:
 
 ## Current Status
 
-As of 2026-10-31. Chapters 0 to 13 are drafted; the appendices are not. The author has read Chapters 0, 1, 2, 3, 4, 5, 6, 7, 8, and 9 and approved them; Chapters 10 to 13 are unreviewed. The drafts lean long on derivations so they can be trimmed in review.
+As of 2026-10-31. Chapters 0 to 13 are drafted, reviewed, and approved; the appendices are not. The drafts lean long on derivations so they can be trimmed in review.
 
 | Chapter | File | Words (including code and equations) | Figures |
 | :--- | :--- | :--- | :--- |
