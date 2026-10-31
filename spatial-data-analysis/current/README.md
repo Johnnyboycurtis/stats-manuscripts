@@ -50,9 +50,9 @@ Read these files in this order:
 
 ## Current Status
 
-As of 2026-10-31. Chapters 0 to 13 are drafted, reviewed, and approved; the appendices are not. The drafts lean long on derivations so they can be trimmed in review.
+As of 2026-10-31. Chapters 0 to 13 and Appendix C are drafted; Appendices A, B, and D remain. The drafts lean long on derivations so they can be trimmed in review.
 
-| Chapter | File | Words (including code and equations) | Figures |
+| Chapter / Appendix | File | Words (including code and equations) | Figures |
 | :--- | :--- | :--- | :--- |
 | 0 | `chapters/ch00_introduction.md` | 5,743 | 0 |
 | 1 | `chapters/ch01_spatial_dependence.md` | 9,484 | 0 |
@@ -68,6 +68,7 @@ As of 2026-10-31. Chapters 0 to 13 are drafted, reviewed, and approved; the appe
 | 11 | `chapters/ch11_point_processes_glms.md` | 15,903 | 5 |
 | 12 | `chapters/ch12_clustering_inhibition.md` | 18,799 | 7 |
 | 13 | `chapters/ch13_large_n_methods.md` | 15,081 | 4 |
+| Appendix C | `chapters/appC_jargon_rosetta_stone.md` | 3,250 | 0 |
 
 | Item | State |
 | :--- | :--- |

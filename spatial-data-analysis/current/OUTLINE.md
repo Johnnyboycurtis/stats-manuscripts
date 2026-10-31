@@ -620,25 +620,14 @@ All notation, the typographic conventions, the model used throughout, and the co
 
 ### Appendix C: A Jargon Rosetta Stone
 
-Spatial terminology translated into linear-model terms:
+Spatial terminology translated into linear-model, multivariate normal, and GLM terms, organized across four parts:
 
-* Kriging, simple, ordinary, and universal: BLUP with a known mean, an unknown constant mean, and a regression mean estimated by GLS
-* Block kriging and change of support: BLUP of a linear functional (an average) of the process
-* Nugget, partial sill, sill, range: nugget variance $\tau^2$, variance of the spatial random effect, total variance, correlation length scale
-* Semivariogram: half the variance of a difference, as a function of the lag
-* Stationarity and isotropy: constant mean and a covariance that depends only on the lag, and only on distance
-* SAR and CAR: random effects specified through the covariance (SAR) or the precision matrix (CAR)
-* ICAR: a precision matrix equal to the graph Laplacian, rank deficient by construction
-* BYM: a structured plus an unstructured random effect
-* Moran's $I$: a normalized quadratic form in the centered data or the residuals
-* Impacts: averages of the effect matrix $(\mathbf{I}_n - \rho\mathbf{W})^{-1}\beta_k$
-* CSR and Berman-Turner: the homogeneous Poisson process, and a weighted Poisson GLM
-* Spatial relative risk: the odds in a logistic regression on case-control labels
-* Scan statistic: the largest Poisson likelihood ratio over many candidate windows
-* Strauss model: a Poisson GLM, fitted by pseudolikelihood, with a neighbor-count covariate
-* Minimum contrast: least squares between an estimated and a model summary function
+* C.1 Geostatistics and continuous fields: kriging (simple, ordinary, universal) as BLUP and Gaussian process regression; nugget, partial sill, sill, and range; semivariogram as half the variance of differences; second-order and intrinsic stationarity; isotropy and geometric anisotropy; the screening effect; block kriging and change of support; REML on error contrasts; spatial confounding as collinearity with top eigenvectors; LOOCV shortcut residuals from $\boldsymbol{\Pi}$
+* C.2 Areal data, spatial weights, and lattice models: the MAUP and ecological fallacy; spatial weights matrix $\mathbf{W}$ and spatial lags; Moran's $I$ as a normalized ratio of quadratic forms; Geary's $C$ and local indicators; SAR models (lag and error) specifying covariance through $(\mathbf{I}_n - \rho\mathbf{W})^{-1}$; feedback multipliers and direct, indirect, and total impacts; CAR models specifying precision matrices $\mathbf{Q}$; proper CAR versus ICAR with the graph Laplacian $\mathcal{L}$; BYM, BYM2, and Leroux convolution models; Henderson's equations; Laplace approximations
+* C.3 Spatial point patterns and interaction processes: CSR as the homogeneous Poisson null; first-order intensity $\lambda(\mathbf{s})$; Ripley's $K$, Besag's $L$, and pair correlation $g$; the Berman–Turner device as a weighted Poisson GLM with quadrature offsets; the logistic bridge for case-control data; spatial scan statistics as maximized Poisson likelihood ratio tests; minimum contrast as moment-matching GMM; Neyman–Scott, Thomas, and Matérn cluster processes; Log-Gaussian Cox Processes (LGCP); Matérn hard-core and sequential inhibition (SSI); the Strauss Gibbs process and Papangelou conditional intensity; Ruelle stability failure for $\gamma > 1$; maximum pseudolikelihood as a Poisson GLM with a neighbor-count covariate
+* C.4 Large-scale spatial approximations: low-rank predictive processes and the variance deficit; covariance tapering with Wendland functions; the Vecchia approximation as a Gaussian DAG with moral graph precision; the SPDE / GMRF bridge linking continuous Matérn fields to lattice Laplacians; Neumann boundary reflections; separable space-time Kronecker product factorizations
 
-The notation guide and the concordance with Schabenberger and Gotway (2005) are not part of this appendix; they are in the book's notation section (`NOTATION.md`).
+The reader-facing notation guide and the concordance with Schabenberger and Gotway (2005) are in the notation section at the front of the book (`NOTATION.md`).
 
 ### Appendix D: Where to Go Next
 
