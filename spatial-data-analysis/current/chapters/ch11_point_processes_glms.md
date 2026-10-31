@@ -12,7 +12,7 @@ Three running stories carry the chapter. A traffic safety office has the locatio
 >
 > - **Intensity as a Regression Function (§11.1):** The log-linear model $\lambda(\mathbf{s}) = \exp(\mathbf{x}(\mathbf{s})'\boldsymbol{\beta})$, its link to the count regressions of Chapter 9, and the crash data.
 > - **The Exact Likelihood (§11.2):** The point process log-likelihood derived as the limit of Bernoulli trials on a finer and finer grid, with its score equations and information.
-> - **The Berman-Turner Device (§11.3):** Replacing the integral by quadrature turns the likelihood into a weighted Poisson regression. A three-event example is worked by hand, and the crash pattern is fitted.
+> - **The Berman-Turner Device (§11.3):** Replacing the integral by quadrature turns the likelihood into a weighted Poisson regression. A three-event example is worked by hand, the crash pattern is fitted, and point process residuals are smoothed.
 > - **Offsets (§11.4):** Modeling the excess over a known baseline, with the plant story.
 > - **Case-Control Data (§11.5):** Why the log-odds of being a case is the log relative risk, so that logistic regression fits the problem and the unknown baseline drops out.
 > - **Scan Statistics (§11.6):** A likelihood ratio for every circular window, and why the p-value of the best window must come from simulation.
@@ -447,6 +447,8 @@ The last two lines of the block show something that links this chapter to the la
 
 Figure 11.1 shows the 403 crashes, the true intensity, and the fitted intensity on the same color scale. The fit recovers the main features of the truth: the ridge along the highway, and the peak where the highway passes through the populated downtown.
 
+Substantively, moving $0.1$ units farther from the highway multiplies the estimated crash rate by $\exp(-2.267 \times 0.1) = 0.797$—a $20.3\%$ reduction in crash intensity, with a $95\%$ confidence interval of $[\exp((-2.267 - 1.96 \times 0.412) \times 0.1), \exp((-2.267 + 1.96 \times 0.412) \times 0.1)] = [0.735, 0.864]$ ($13.6\%$ to $26.5\%$ reduction). Similarly, an increase of $0.1$ in relative population density multiplies crash intensity by $\exp(1.758 \times 0.1) = 1.192$, a $19.2\%$ increase ($95\%$ CI: $[1.138, 1.250]$, or $13.8\%$ to $25.0\%$). In GLM terminology, these are multiplicative effects on the intensity surface, exactly analogous to rate ratios in epidemiological Poisson regression.
+
 ![Figure 11.1. Left: the 403 simulated crashes and the highway. Middle: the true crash intensity. Right: the intensity fitted by Berman-Turner IRLS. The fit recovers the ridge along the highway and the downtown peak.](../figures/ch11/fig_11_1_crash_fit.png)
 
 ```python
@@ -478,6 +480,86 @@ fig.colorbar(im, ax=axes[1:], label="crashes per unit area")
 fig.savefig("figures/ch11/fig_11_1_crash_fit.png", dpi=120,
             bbox_inches="tight")
 ```
+
+### 11.3.7 Point Process Residuals (Optional)
+
+*This subsection introduces continuous point process residuals [@baddeley2005] and their smoothed spatial diagnostics. It can be skipped on a first reading.*
+
+In classical linear regression, the residual vector $\mathbf{e} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$ measures the gap between observation and model, and the normal equations $\mathbf{X}'\mathbf{e} = \mathbf{0}$ force the residuals to sum to zero and to be orthogonal to every fitted covariate.
+
+For a spatial point process, the data are not numbers on a fixed grid, but an observed counting measure $N(B) = \sum_{i=1}^n \mathbb{1}(\mathbf{s}_i \in B)$, and the fitted model is the intensity measure $\hat{\Lambda}(B) = \int_B \hat{\lambda}(\mathbf{s})\,d\mathbf{s}$. For any region $B$, the **raw residual measure** [@baddeley2005] is
+$$
+R(B) = N(B) - \int_B \hat{\lambda}(\mathbf{s})\,d\mathbf{s}
+$$
+which in differential notation is written $d R(\mathbf{s}) = d N(\mathbf{s}) - \hat{\lambda}(\mathbf{s})\,d\mathbf{s}$.
+
+Now integrate $d R(\mathbf{s})$ against the covariate vector $\mathbf{x}(\mathbf{s})$ over the study window $\mathcal{D}$:
+$$
+\int_{\mathcal{D}} \mathbf{x}(\mathbf{s})\,d R(\mathbf{s}) = \sum_{i=1}^n \mathbf{x}(\mathbf{s}_i) - \int_{\mathcal{D}} \mathbf{x}(\mathbf{s})\hat{\lambda}(\mathbf{s})\,d\mathbf{s} = \mathbf{U}(\hat{\boldsymbol{\beta}}) = \mathbf{0}
+$$
+This is precisely the likelihood score equation of Section 11.2.2! Because the model includes an intercept ($\mathbf{x}_1(\mathbf{s}) \equiv 1$), the first component says that the total raw residual over the entire study window is identically zero:
+$$
+R(\mathcal{D}) = n - \int_{\mathcal{D}}\hat{\lambda}(\mathbf{s})\,d\mathbf{s} = 0
+$$
+The fitted model accounts for the exact total count of events. The remaining diagnostic question is whether it accounts for their spatial arrangement.
+
+**Smoothed spatial residuals.** Because $d N(\mathbf{s})$ places a discrete point mass at each event while $\hat{\lambda}(\mathbf{s})\,d\mathbf{s}$ is smooth, the raw residual measure $d R$ cannot be plotted directly. To create an interpretable diagnostic surface, convolve the residual measure with a smoothing kernel $\mathcal{K}_\psi$:
+$$
+r(\mathbf{s}) = \int_{\mathcal{D}}\mathcal{K}_\psi(\mathbf{s} - \mathbf{u})\,d R(\mathbf{u}) = \sum_{i=1}^n \mathcal{K}_\psi(\mathbf{s} - \mathbf{s}_i) - \int_{\mathcal{D}}\mathcal{K}_\psi(\mathbf{s} - \mathbf{u})\hat{\lambda}(\mathbf{u})\,d\mathbf{u}
+$$
+The first term is the kernel intensity estimate $\hat{\lambda}_{\text{data}}(\mathbf{s})$ from Chapter 10, and the second term is the fitted model intensity $\hat{\lambda}$ smoothed with the same kernel. If the model is correctly specified, $\operatorname{E}[r(\mathbf{s})] = 0$ everywhere. Persistent positive peaks reveal local hot spots where events exceed what the covariates predict, while negative troughs indicate unmodeled deficits.
+
+Similarly, dividing by the standard deviation $\sqrt{\hat{\lambda}}$ yields the **smoothed Pearson residual**:
+$$
+r_{\text{Pearson}}(\mathbf{s}) = \sum_{i=1}^n \frac{\mathcal{K}_\psi(\mathbf{s} - \mathbf{s}_i)}{\sqrt{\hat{\lambda}(\mathbf{s}_i)}} - \int_{\mathcal{D}}\mathcal{K}_\psi(\mathbf{s} - \mathbf{u})\sqrt{\hat{\lambda}(\mathbf{u})}\,d\mathbf{u}
+$$
+standardizing the local Poisson variance across dense and sparse regions.
+
+The code below computes both smoothed residual surfaces for the fitted crash model on a $50 \times 50$ grid with bandwidth $\psi = 0.08$.
+
+```python
+def smoothed_residuals(P_data, b, grid, psi=0.08):
+    """Smoothed raw and Pearson residuals on a grid (Baddeley et al., 2005)."""
+    lam_pts = np.exp(design(P_data) @ b)
+    lam_grid = np.exp(design(grid) @ b)
+    d2_pts = ((grid[:, None, :] - P_data[None, :, :])**2).sum(axis=2)
+    K_pts = np.exp(-d2_pts / (2 * psi**2)) / (2 * np.pi * psi**2)
+    d2_grid = ((grid[:, None, :] - grid[None, :, :])**2).sum(axis=2)
+    K_grid = np.exp(-d2_grid / (2 * psi**2)) / (2 * np.pi * psi**2)
+    cell_a = 1.0 / len(grid)
+    raw = K_pts.sum(axis=1) - (K_grid @ lam_grid) * cell_a
+    pearson = ((K_pts / np.sqrt(lam_pts)[None, :]).sum(axis=1)
+               - (K_grid @ np.sqrt(lam_grid)) * cell_a)
+    return raw, pearson
+
+
+G50_res = grid_points(50)
+r_raw, r_pearson = smoothed_residuals(P_crash, b_hat, G50_res, psi=0.08)
+print(f"smoothed raw residual: mean={r_raw.mean():.4f}, "
+      f"std={r_raw.std():.3f}, range=[{r_raw.min():.2f}, {r_raw.max():.2f}]")
+print(f"smoothed Pearson res:  mean={r_pearson.mean():.4f}, "
+      f"std={r_pearson.std():.3f}, range=[{r_pearson.min():.2f}, {r_pearson.max():.2f}]")
+
+fig, axes = plt.subplots(1, 2, figsize=(9.5, 4))
+lim_raw = max(abs(r_raw.min()), abs(r_raw.max()))
+im0 = axes[0].imshow(r_raw.reshape(50, 50), origin="lower", extent=(0, 1, 0, 1),
+                     cmap="coolwarm", vmin=-lim_raw, vmax=lim_raw)
+axes[0].plot(P_crash[:, 0], P_crash[:, 1], "k.", ms=2, alpha=0.3)
+axes[0].set_title("Smoothed raw residual r(s)")
+axes[0].set_aspect("equal")
+fig.colorbar(im0, ax=axes[0], label="excess crashes / unit area")
+
+lim_p = max(abs(r_pearson.min()), abs(r_pearson.max()))
+im1 = axes[1].imshow(r_pearson.reshape(50, 50), origin="lower", extent=(0, 1, 0, 1),
+                     cmap="coolwarm", vmin=-lim_p, vmax=lim_p)
+axes[1].set_title("Smoothed Pearson residual")
+axes[1].set_aspect("equal")
+fig.colorbar(im1, ax=axes[1], label="standardized excess")
+fig.tight_layout()
+fig.savefig("figures/ch11/fig_11_1b_residuals.png", dpi=120)
+```
+
+In Figure 11.1b, the smoothed residual map is centered at zero with no coherent spatial patterns or localized red/blue hot spots. The residuals fluctuate symmetrically within sampling variability across the window, confirming that the road distance and population density covariates adequately capture the spatial trend of the crashes.
 
 ---
 
@@ -596,6 +678,8 @@ $$
 $$
 
 If we model the log relative risk as $\beta_0 + \mathbf{x}(\mathbf{s})'\boldsymbol{\beta}$, we have an ordinary logistic regression of the label on the covariates. We never need to estimate or even know $\lambda_{\text{pop}}$. The population density, the thing that made cases cluster downtown in the first place, drops out.
+
+This directly fulfills the connection anticipated in Section 10.7.3. There, we showed that the ratio of intensities equals the spatial odds up to the sampling ratio $\kappa_1 / \kappa_0$, and that taking logarithms produces a spatial logit surface $\log\widehat{\operatorname{RR}}(\mathbf{s})$. What Chapter 10 explored non-parametrically through smoothed kernel ratios is here estimated parametrically through a generalized linear model. The kernel map was a descriptive first look; the logistic regression is the formal inferential tool, allowing hypothesis tests on excess risk without knowing the population at risk.
 
 In our simulation, $\lambda_1/\lambda_0 = (120/800)\exp(\text{bump}_{0.1}(\mathbf{s}))$, so the true logit is $\log 0.15 + \text{bump}_{0.1}(\mathbf{s})$, with intercept $-1.897$ and slope 1.
 

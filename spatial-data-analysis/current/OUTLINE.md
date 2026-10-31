@@ -491,6 +491,7 @@ All notation, the typographic conventions, the model used throughout, and the co
     * 11.3.4 By hand: three data points and four dummy points (every matrix printed, one IRLS step, check by direct maximization)
     * 11.3.5 Choosing the dummy points; counting versus Dirichlet-tile weights; the areal GLM of Chapter 9 as a special case of the device
     * 11.3.6 The crash pattern (Figure 11.1)
+    * 11.3.7 Point process residuals: raw and smoothed Pearson residual maps (Optional)
 * 11.4 Offsets: modeling excess over a known baseline
     * 11.4.1 The offset model $\log\lambda = \log\lambda_{\text{pop}} + \mathbf{x}'\boldsymbol{\beta}$ and its place in the working response
     * 11.4.2 Reading the coefficients as relative excess risk
@@ -526,7 +527,7 @@ All notation, the typographic conventions, the model used throughout, and the co
 
 ### Chapter 12: Models for Clustering and Inhibition
 
-*Running stories:* immune cells clustering around tumor cells (cluster processes); the spacing of tumor cells (inhibition).
+*Running stories:* immune cells clustering around tumor cells (cluster processes); the spacing of tumor cells and retail franchise territory defense/cannibalization (inhibition).
 
 * 12.1 Three explanations for a departure from CSR: heterogeneity (a trend in intensity), clustering (points attract), and inhibition (points repel); the table of fingerprints in $g(r)$ and $K(r)$, and the translation-corrected $\hat{K}$ used throughout
 * 12.2 Cluster processes
