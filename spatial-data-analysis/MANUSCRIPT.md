@@ -4454,7 +4454,13 @@ for name, f in (("ML", fit_ml), ("REML", fit_reml)):
 | REML | 7.193 | 1.267 | 0.3266 | 16.918 | 6.770 | $-488.560$ |
 | Chapter 3: WLS on OLS residuals (plane trend) | 3.736 | 1.342 | 0.178 | | | |
 
-The last row repeats the estimates of Chapter 3 (Section 3.5.1), where Cressie's weighted least squares was applied to the variogram of the OLS residuals from a plane trend in both coordinates. The trend model differs from the east-only trend used here, so the comparison is rough. Those residuals have covariance $\boldsymbol{\Sigma}_e = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\boldsymbol{\Sigma}(\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})$ (Section 3.4.3): the estimated mean absorbs smooth variation, which biases the residual variogram downward at long distances. The likelihood methods avoid the binning and the separate detrending step, and REML in particular is built to account for the part of the variation that the estimated mean absorbs (Section 5.3). On this one data set the weighted least squares estimates of $\sigma^2$ and $\phi$ happen to be closer to the truth than either likelihood estimate; that is a property of this realization, and of the ridge described in Section 5.4.4, not a ranking of the methods. The ML estimates of $\sigma^2$, $\tau^2$, and $\phi$ are all in the right neighborhood. The REML estimates, explained in the next section, put $\sigma^2$ and $\phi$ much higher. That is not a mistake in either method; Section 5.4.4 shows that this data set barely distinguishes between the two answers. (The two log-likelihoods are on different scales and cannot be compared with each other; Section 5.5.1 explains why.)
+The last row repeats the estimates of Chapter 3 (Section 3.5.1), where Cressie's weighted least squares was applied to the variogram of the OLS residuals from a plane trend in both coordinates. The trend model differs from the east-only trend used here, so the comparison is rough. Those residuals have covariance (Section 3.4.3):
+
+$$
+\boldsymbol{\Sigma}_e = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\boldsymbol{\Sigma}(\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})
+$$
+
+The estimated mean absorbs smooth variation, which biases the residual variogram downward at long distances. The likelihood methods avoid the binning and the separate detrending step, and REML in particular is built to account for the part of the variation that the estimated mean absorbs (Section 5.3). On this one data set the weighted least squares estimates of $\sigma^2$ and $\phi$ happen to be closer to the truth than either likelihood estimate; that is a property of this realization, and of the ridge described in Section 5.4.4, not a ranking of the methods. The ML estimates of $\sigma^2$, $\tau^2$, and $\phi$ are all in the right neighborhood. The REML estimates, explained in the next section, put $\sigma^2$ and $\phi$ much higher. That is not a mistake in either method; Section 5.4.4 shows that this data set barely distinguishes between the two answers. (The two log-likelihoods are on different scales and cannot be compared with each other; Section 5.5.1 explains why.)
 
 ---
 
@@ -4478,13 +4484,15 @@ $$
 \mathrm{RSS}_\Psi = \mathbf{y}'\boldsymbol{\Pi}_\Psi\mathbf{y}, \qquad \boldsymbol{\Pi}_\Psi = \boldsymbol{\Psi}^{-1} - \boldsymbol{\Psi}^{-1}\mathbf{X}(\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Psi}^{-1}
 $$
 
-This $\boldsymbol{\Pi}_\Psi$ is the residual precision matrix of Section 4.7, built from $\boldsymbol{\Psi}$ instead of $\boldsymbol{\Sigma}$. It satisfies $\boldsymbol{\Pi}_\Psi\mathbf{X} = \mathbf{0}$, so the mean term of the quadratic-form expectation (Section 1.1.1) vanishes, and with $\operatorname{Var}(\mathbf{Y}) = \sigma^2\boldsymbol{\Psi}$,
+This $\boldsymbol{\Pi}_\Psi$ is the residual precision matrix of Section 4.7, built from $\boldsymbol{\Psi}$ instead of $\boldsymbol{\Sigma}.
+
+It satisfies $\boldsymbol{\Pi}_\Psi\mathbf{X} = \mathbf{0}$, so the mean term of the quadratic-form expectation (Section 1.1.1) vanishes, and with $\mathrm{Var}(\mathbf{Y}) = \sigma^2\boldsymbol{\Psi}$,
 
 $$
-\operatorname{E}[\mathrm{RSS}_\Psi] = \operatorname{tr}(\boldsymbol{\Pi}_\Psi\,\sigma^2\boldsymbol{\Psi}) = \sigma^2\left[n - \operatorname{tr}\!\left((\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X}\right)\right] = \sigma^2(n - p)
+\mathrm{E}[\mathrm{RSS}_\Psi] = \mathrm{tr}(\boldsymbol{\Pi}_\Psi\,\sigma^2\boldsymbol{\Psi}) = \sigma^2\left[n - \mathrm{tr}\!\left((\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X}\right)\right] = \sigma^2(n - p)
 $$
 
-using a cycle of the trace in the last step. So $\operatorname{E}[\hat{\sigma}^2_{\text{ML}}] = \sigma^2(n - p)/n$: ML divides by $n$ when only $n - p$ dimensions of the data carry information about the variance.
+using a cycle of the trace in the last step. So $\mathrm{E}[\hat{\sigma}^2_{\text{ML}}] = \sigma^2(n - p)/n$: ML divides by $n$ when only $n - p$ dimensions of the data carry information about the variance.
 
 When $\phi$ and $\delta$ are also estimated, the problem grows. The estimated mean absorbs some of the smooth spatial variation, the residuals look less variable and less correlated than the process really is, and the estimates of $\sigma^2$, $\tau^2$, and $\phi$ are all pulled down. Section 5.7.2 measures this: with 60 locations, the median ML estimates are $\hat{\sigma}^2 = 3.620$, $\hat{\tau}^2 = 0.546$, and $\hat{\phi} = 0.1011$, against true values of 4, 1, and 0.15.
 
@@ -4498,7 +4506,7 @@ $$
 \mathbf{T}'\mathbf{X} = \mathbf{0}
 $$
 
-Its columns are called **error contrasts**. Each column $\mathbf{t}$ satisfies $\operatorname{E}[\mathbf{t}'\mathbf{Y}] = \mathbf{t}'\mathbf{X}\boldsymbol{\beta} = 0$ for every $\boldsymbol{\beta}$, so the vector $\mathbf{T}'\mathbf{Y}$ has mean zero no matter what $\boldsymbol{\beta}$ is. By Tool 1 its covariance is $\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T}$, so
+Its columns are called **error contrasts**. Each column $\mathbf{t}$ satisfies $\mathrm{E}[\mathbf{t}'\mathbf{Y}] = \mathbf{t}'\mathbf{X}\boldsymbol{\beta} = 0$ for every $\boldsymbol{\beta}$, so the vector $\mathbf{T}'\mathbf{Y}$ has mean zero no matter what $\boldsymbol{\beta}$ is. By Tool 1 its covariance is $\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T}$, so
 
 $$
 \mathbf{T}'\mathbf{Y} \sim N\!\left(\mathbf{0},\ \mathbf{T}'\boldsymbol{\Sigma}(\boldsymbol{\theta})\mathbf{T}\right)
@@ -4506,7 +4514,13 @@ $$
 
 The mean has disappeared and only $\boldsymbol{\theta}$ remains. Why $n - p$ columns? The condition $\mathbf{T}'\mathbf{X} = \mathbf{0}$ says each column of $\mathbf{T}$ is perpendicular to the $p$ columns of $\mathbf{X}$. The vectors perpendicular to $p$ independent vectors in $n$ dimensions form a space of dimension $n - p$, so that is the largest number of independent contrasts available. These are the $n - p$ dimensions left over after estimating $\boldsymbol{\beta}$.
 
-A convenient choice is an orthonormal $\mathbf{T}$, with $\mathbf{T}'\mathbf{T} = \mathbf{I}_{n-p}$. Then $\mathbf{T}\mathbf{T}' = \mathbf{I}_n - \mathbf{P}_{\mathbf{X}}$, the projection onto the space perpendicular to the columns of $\mathbf{X}$. One way to construct it is the QR decomposition of $[\mathbf{X}\ \ \mathbf{I}_n]$: the first $p$ columns of the orthonormal factor span the columns of $\mathbf{X}$, and the remaining $n - p$ columns are perpendicular to them.
+A convenient choice is an orthonormal $\mathbf{T}$, with:
+
+$$
+\mathbf{T}'\mathbf{T} = \mathbf{I}_{n-p}, \qquad \mathbf{T}\mathbf{T}' = \mathbf{I}_n - \mathbf{P}_{\mathbf{X}}
+$$
+
+the projection onto the space perpendicular to the columns of $\mathbf{X}$. One way to construct it is the QR decomposition of $[\mathbf{X}\ \ \mathbf{I}_n]$: the first $p$ columns of the orthonormal factor span the columns of $\mathbf{X}$, and the remaining $n - p$ columns are perpendicular to them.
 
 Two identities connect contrasts back to quantities we already know. Recall the residual precision matrix of Section 4.7,
 
@@ -4564,7 +4578,19 @@ $$
 
 The last term does not depend on $\boldsymbol{\theta}$ and is usually dropped, which is why the REML log-likelihood is described as unique up to an additive constant. Compared with the ML log-likelihood, REML has $n - p$ in place of $n$, the GLS residuals in the quadratic form, and one extra term, $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$. That term is the log-determinant of the inverse variance of $\hat{\boldsymbol{\beta}}_{\text{GLS}}$. It corrects for the degrees of freedom used up by estimating $\boldsymbol{\beta}$: it favors covariance parameters under which the estimated mean is less precise, which offsets ML's downward bias in the variance parameters.
 
-**Profiling REML.** The scale factors out exactly as in Section 5.2. With $\boldsymbol{\Sigma} = \sigma^2\boldsymbol{\Psi}$, the terms become $\log\lvert\boldsymbol{\Sigma}\rvert = n\log\sigma^2 + \log\lvert\boldsymbol{\Psi}\rvert$, $\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert = -p\log\sigma^2 + \log\lvert\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X}\rvert$, and $\mathbf{y}'\boldsymbol{\Pi}\mathbf{y} = \mathrm{RSS}_\Psi/\sigma^2$. The terms involving $\sigma^2$ are $-\frac{n-p}{2}\log\sigma^2 - \mathrm{RSS}_\Psi/(2\sigma^2)$, maximized at
+**Profiling REML.** The scale factors out exactly as in Section 5.2. With $\boldsymbol{\Sigma} = \sigma^2\boldsymbol{\Psi}$, the log-determinants scale as:
+
+$$
+\log\lvert\boldsymbol{\Sigma}\rvert = n\log\sigma^2 + \log\lvert\boldsymbol{\Psi}\rvert, \qquad \log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert = -p\log\sigma^2 + \log\lvert\mathbf{X}'\boldsymbol{\Psi}^{-1}\mathbf{X}\rvert
+$$
+
+and the quadratic form is $\mathbf{y}'\boldsymbol{\Pi}\mathbf{y} = \mathrm{RSS}_\Psi/\sigma^2$. The terms involving $\sigma^2$ are:
+
+$$
+-\frac{n-p}{2}\log\sigma^2 - \frac{\mathrm{RSS}_\Psi}{2\sigma^2}
+$$
+
+maximized at:
 
 $$
 \hat{\sigma}^2_{\text{REML}}(\phi, \delta) = \frac{\mathrm{RSS}_\Psi(\phi, \delta)}{n - p}
@@ -4626,7 +4652,22 @@ $$
 
 Moving the second term to the left side gives $\boldsymbol{\Pi} = \mathbf{T}(\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T})^{-1}\mathbf{T}'$. $\square$
 
-**The determinant identity.** Now let $\mathbf{T}$ be orthonormal and form $\mathbf{J}_2 = [\mathbf{T}\ \ \mathbf{X}]$, which does not depend on $\boldsymbol{\Sigma}$. Because $\mathbf{T}'\mathbf{X} = \mathbf{0}$ and $\mathbf{T}'\mathbf{T} = \mathbf{I}$, $\mathbf{J}_2'\mathbf{J}_2$ is block diagonal with blocks $\mathbf{I}_{n-p}$ and $\mathbf{X}'\mathbf{X}$, so $\lvert\mathbf{J}_2\rvert^2 = \lvert\mathbf{X}'\mathbf{X}\rvert$, and its inverse is $\mathbf{J}_2^{-1} = (\mathbf{J}_2'\mathbf{J}_2)^{-1}\mathbf{J}_2'$, whose rows are $\mathbf{T}'$ and $(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'$.
+**The determinant identity.** Now let $\mathbf{T}$ be orthonormal and form the partitioned matrix:
+
+$$
+\mathbf{J}_2 = [\mathbf{T}\ \ \mathbf{X}]
+$$
+
+which does not depend on $\boldsymbol{\Sigma}$. Because $\mathbf{T}'\mathbf{X} = \mathbf{0}$ and $\mathbf{T}'\mathbf{T} = \mathbf{I}$, the product $\mathbf{J}_2'\mathbf{J}_2$ is block diagonal:
+
+$$
+\mathbf{J}_2'\mathbf{J}_2 = \begin{bmatrix} \mathbf{I}_{n-p} & \mathbf{0} \\ \mathbf{0} & \mathbf{X}'\mathbf{X} \end{bmatrix}
+$$
+yielding $\lvert\mathbf{J}_2\rvert^2 = \lvert\mathbf{X}'\mathbf{X}\rvert$. Its inverse has rows $\mathbf{T}'$ and $(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'$:
+
+$$
+\mathbf{J}_2^{-1} = (\mathbf{J}_2'\mathbf{J}_2)^{-1}\mathbf{J}_2'
+$$
 
 Let $\mathbf{M}_2 = \mathbf{J}_2'\boldsymbol{\Sigma}\mathbf{J}_2$. On one hand, $\lvert\mathbf{M}_2\rvert = \lvert\mathbf{J}_2\rvert^2\lvert\boldsymbol{\Sigma}\rvert = \lvert\mathbf{X}'\mathbf{X}\rvert\,\lvert\boldsymbol{\Sigma}\rvert$. On the other, the block-determinant formula of Appendix A.1 says that for a partitioned matrix, $\lvert\mathbf{M}_2\rvert$ equals the determinant of its upper-left block times the reciprocal of the determinant of the lower-right block of $\mathbf{M}_2^{-1}$. The upper-left block of $\mathbf{M}_2$ is $\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T}$. The lower-right block of $\mathbf{M}_2^{-1} = \mathbf{J}_2^{-1}\boldsymbol{\Sigma}^{-1}(\mathbf{J}_2^{-1})'$ is $(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}(\mathbf{X}'\mathbf{X})^{-1}$, with determinant $\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert/\lvert\mathbf{X}'\mathbf{X}\rvert^2$. So
 
@@ -4682,10 +4723,10 @@ $$
 
 the matrix version of $d(1/x) = -dx/x^2$.
 
-**Derivative of a log-determinant.** For a small change $t$ in $\theta_j$, $\boldsymbol{\Sigma}$ changes to approximately $\boldsymbol{\Sigma} + t\dot{\boldsymbol{\Sigma}}_j = \boldsymbol{\Sigma}(\mathbf{I} + t\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j)$. The determinant of a product is the product of determinants, and $\lvert\mathbf{I} + t\mathbf{B}\rvert \approx 1 + t\operatorname{tr}(\mathbf{B})$ for small $t$, because the eigenvalues of $\mathbf{I} + t\mathbf{B}$ are $1 + t\lambda_k(\mathbf{B})$ and their product is $1 + t\sum_k\lambda_k(\mathbf{B}) + O(t^2)$. Taking logarithms, with $\log(1 + x) \approx x$,
+**Derivative of a log-determinant.** For a small change $t$ in $\theta_j$, $\boldsymbol{\Sigma}$ changes to approximately $\boldsymbol{\Sigma} + t\dot{\boldsymbol{\Sigma}}_j = \boldsymbol{\Sigma}(\mathbf{I} + t\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j)$. The determinant of a product is the product of determinants, and $\lvert\mathbf{I} + t\mathbf{B}\rvert \approx 1 + t\mathrm{tr}(\mathbf{B})$ for small $t$, because the eigenvalues of $\mathbf{I} + t\mathbf{B}$ are $1 + t\lambda_k(\mathbf{B})$ and their product is $1 + t\sum_k\lambda_k(\mathbf{B}) + O(t^2)$. Taking logarithms, with $\log(1 + x) \approx x$,
 
 $$
-\frac{\partial\log\lvert\boldsymbol{\Sigma}\rvert}{\partial\theta_j} = \operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\right)
+\frac{\partial\log\lvert\boldsymbol{\Sigma}\rvert}{\partial\theta_j} = \mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\right)
 $$
 
 the matrix version of $d\log x = dx/x$.
@@ -4693,15 +4734,15 @@ the matrix version of $d\log x = dx/x$.
 **The score.** Applying both identities to $\ell$, with $\boldsymbol{\beta}$ held fixed and $\mathbf{e} = \mathbf{y} - \mathbf{X}\boldsymbol{\beta}$,
 
 $$
-\frac{\partial\ell}{\partial\theta_j} = -\frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\right) + \frac{1}{2}\mathbf{e}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{e}
+\frac{\partial\ell}{\partial\theta_j} = -\frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\right) + \frac{1}{2}\mathbf{e}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{e}
 $$
 
-This is the **score** for $\theta_j$. Its expectation is zero at the true parameters, as a score should be: by the quadratic-form expectation of Section 1.1.1 with $\operatorname{E}[\mathbf{e}] = \mathbf{0}$ and $\operatorname{Var}(\mathbf{e}) = \boldsymbol{\Sigma}$, $\operatorname{E}[\mathbf{e}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{e}] = \operatorname{tr}(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\boldsymbol{\Sigma}) = \operatorname{tr}(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j)$, which cancels the first term.
+This is the **score** for $\theta_j$. Its expectation is zero at the true parameters, as a score should be: by the quadratic-form expectation of Section 1.1.1 with $\mathrm{E}[\mathbf{e}] = \mathbf{0}$ and $\mathrm{Var}(\mathbf{e}) = \boldsymbol{\Sigma}$, $\mathrm{E}[\mathbf{e}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{e}] = \mathrm{tr}(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\boldsymbol{\Sigma}) = \mathrm{tr}(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j)$, which cancels the first term.
 
 **The expected information.** The Fisher information is the expected value of minus the second derivative of $\ell$. For the covariance parameters it is
 
 $$
-\mathcal{I}_{\text{ML}}(\boldsymbol{\theta})_{jk} = \frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
+\mathcal{I}_{\text{ML}}(\boldsymbol{\theta})_{jk} = \frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
 $$
 
 Section 5.4.6 derives this formula, and Section 5.7.1 checks it symbolically. Two further facts complete the picture. The information between $\boldsymbol{\beta}$ and $\boldsymbol{\theta}$ is zero (the cross derivatives are linear in $\mathbf{e}$, which has mean zero), so the two sets of parameters can be treated separately. And the information for $\boldsymbol{\beta}$ is $\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}$, so the estimated variance of $\hat{\boldsymbol{\beta}}_{\text{GLS}}$ is $(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}$ evaluated at $\hat{\boldsymbol{\theta}}$, as in Section 1.3.5.
@@ -4709,12 +4750,18 @@ Section 5.4.6 derives this formula, and Section 5.7.1 checks it symbolically. Tw
 **REML.** The REML log-likelihood is the ordinary log-likelihood of the contrasts $\mathbf{T}'\mathbf{y}$, which have covariance $\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T}$ and derivatives $\mathbf{T}'\dot{\boldsymbol{\Sigma}}_j\mathbf{T}$. Applying the formulas above to the contrasts and using $\mathbf{T}(\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T})^{-1}\mathbf{T}' = \boldsymbol{\Pi}$ (Section 5.3.2) with the cyclic property of the trace,
 
 $$
-\frac{\partial\ell_{\text{REML}}}{\partial\theta_j} = -\frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\right) + \frac{1}{2}\mathbf{y}'\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Pi}\mathbf{y}, \qquad \mathcal{I}_{\text{REML}}(\boldsymbol{\theta})_{jk} = \frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_k\right)
+\frac{\partial\ell_{\text{REML}}}{\partial\theta_j} = -\frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\right) + \frac{1}{2}\mathbf{y}'\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Pi}\mathbf{y}, \qquad \mathcal{I}_{\text{REML}}(\boldsymbol{\theta})_{jk} = \frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_k\right)
 $$
 
 The REML formulas are the ML formulas with $\boldsymbol{\Pi}$ in place of $\boldsymbol{\Sigma}^{-1}$.
 
-**The derivatives for the exponential model.** With $\boldsymbol{\theta} = (\sigma^2, \tau^2, \phi)'$ and $\boldsymbol{\Sigma} = \sigma^2\mathbf{R}(\phi) + \tau^2\mathbf{I}_n$, $R_{ij} = e^{-h_{ij}/\phi}$:
+**The derivatives for the exponential model.** With parameter vector $\boldsymbol{\theta} = (\sigma^2, \tau^2, \phi)'$ and covariance structure
+
+$$
+\boldsymbol{\Sigma} = \sigma^2\mathbf{R}(\phi) + \tau^2\mathbf{I}_n, \qquad R_{ij} = e^{-h_{ij}/\phi}
+$$
+
+the derivative matrices are:
 
 $$
 \dot{\boldsymbol{\Sigma}}_{\sigma^2} = \mathbf{R}(\phi), \qquad \dot{\boldsymbol{\Sigma}}_{\tau^2} = \mathbf{I}_n, \qquad \left(\dot{\boldsymbol{\Sigma}}_{\phi}\right)_{ij} = \sigma^2\,\frac{h_{ij}}{\phi^2}\,e^{-h_{ij}/\phi}
@@ -4816,7 +4863,7 @@ se_obs = np.sqrt(np.diag(np.linalg.inv(-Hobs)))
 print("observed-information SEs:", np.round(se_obs, 4))
 ```
 
-In the information code, `np.sum(A * B.T)` computes $\operatorname{tr}(\mathbf{A}\mathbf{B})$ without forming the product, since $\operatorname{tr}(\mathbf{A}\mathbf{B}) = \sum_{i,j}A_{ij}B_{ji}$. The code forms $\boldsymbol{\Sigma}^{-1}$ explicitly because the trace formulas need it entry by entry; for 250 locations that is fast and accurate enough.
+In the information code, `np.sum(A * B.T)` computes $\mathrm{tr}(\mathbf{A}\mathbf{B})$ without forming the product, since $\mathrm{tr}(\mathbf{A}\mathbf{B}) = \sum_{i,j}A_{ij}B_{ji}$. The code forms $\boldsymbol{\Sigma}^{-1}$ explicitly because the trace formulas need it entry by entry; for 250 locations that is fast and accurate enough.
 
 **Fisher scoring.** Starting from $(\sigma^2, \tau^2, \phi) = (1, 1, 0.3)$:
 
@@ -4908,27 +4955,27 @@ Differentiate the score of Section 5.4.2 with respect to $\theta_k$. Write $\ddo
 
 $$
 \begin{aligned}
-\frac{\partial^2\ell}{\partial\theta_j\partial\theta_k} = &-\frac{1}{2}\operatorname{tr}\!\left(-\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j + \boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) \\
+\frac{\partial^2\ell}{\partial\theta_j\partial\theta_k} = &-\frac{1}{2}\mathrm{tr}\!\left(-\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j + \boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) \\
 &+ \frac{1}{2}\mathbf{e}'\left(-\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1} + \boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\boldsymbol{\Sigma}^{-1} - \boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\boldsymbol{\Sigma}^{-1}\right)\mathbf{e}
 \end{aligned}
 $$
 
-Now take expectations. Each quadratic form $\mathbf{e}'\mathbf{M}\mathbf{e}$ has expectation $\operatorname{tr}(\mathbf{M}\boldsymbol{\Sigma})$ (Section 1.1.1, with mean zero). The three quadratic forms give
+Now take expectations. Each quadratic form $\mathbf{e}'\mathbf{M}\mathbf{e}$ has expectation $\mathrm{tr}(\mathbf{M}\boldsymbol{\Sigma})$ (Section 1.1.1, with mean zero). The three quadratic forms give
 
 $$
--\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\right) + \operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) - \operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
+-\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\right) + \mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) - \mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
 $$
 
-after cancelling $\boldsymbol{\Sigma}^{-1}\boldsymbol{\Sigma}$ and cycling the trace. The first and third traces are equal (cycle the trace), so the expected quadratic part is $\frac{1}{2}\left[\operatorname{tr}(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}) - 2\operatorname{tr}(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k)\right]$. Adding the first line,
+after cancelling $\boldsymbol{\Sigma}^{-1}\boldsymbol{\Sigma}$ and cycling the trace. The first and third traces are equal (cycle the trace), so the expected quadratic part is $\frac{1}{2}\left[\mathrm{tr}(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}) - 2\mathrm{tr}(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k)\right]$. Adding the first line,
 
 $$
-\operatorname{E}\!\left[\frac{\partial^2\ell}{\partial\theta_j\partial\theta_k}\right] = \frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right) - \frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) + \frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) - \operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
+\mathrm{E}\!\left[\frac{\partial^2\ell}{\partial\theta_j\partial\theta_k}\right] = \frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right) - \frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) + \frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\ddot{\boldsymbol{\Sigma}}_{jk}\right) - \mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
 $$
 
 The second-derivative terms cancel, and
 
 $$
-\mathcal{I}_{\text{ML}}(\boldsymbol{\theta})_{jk} = -\operatorname{E}\!\left[\frac{\partial^2\ell}{\partial\theta_j\partial\theta_k}\right] = \frac{1}{2}\operatorname{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
+\mathcal{I}_{\text{ML}}(\boldsymbol{\theta})_{jk} = -\mathrm{E}\!\left[\frac{\partial^2\ell}{\partial\theta_j\partial\theta_k}\right] = \frac{1}{2}\mathrm{tr}\!\left(\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_k\right)
 $$
 
 Notice that the second derivatives of $\boldsymbol{\Sigma}$ dropped out. The expected information needs only first derivatives, which is one reason Fisher scoring is easier to implement than Newton-Raphson. $\square$
@@ -5059,7 +5106,7 @@ $$
 \mathbf{r}^* = \mathbf{L}^{-1}(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}_{\text{GLS}})
 $$
 
-If the model is right, then (ignoring the estimation of $\boldsymbol{\beta}$ and $\boldsymbol{\theta}$) $\operatorname{Var}(\mathbf{r}^*) = \mathbf{L}^{-1}\boldsymbol{\Sigma}(\mathbf{L}^{-1})' = \mathbf{I}_n$ by Tool 1, the same calculation as GLS in Section 1.3.5. So the decorrelated residuals should look like independent standard normal values, and all the familiar checks apply.
+If the model is right, then (ignoring the estimation of $\boldsymbol{\beta}$ and $\boldsymbol{\theta}$) $\mathrm{Var}(\mathbf{r}^*) = \mathbf{L}^{-1}\boldsymbol{\Sigma}(\mathbf{L}^{-1})' = \mathbf{I}_n$ by Tool 1, the same calculation as GLS in Section 1.3.5. So the decorrelated residuals should look like independent standard normal values, and all the familiar checks apply.
 
 Because $\mathbf{L}$ is lower triangular, the decorrelated residuals have a concrete meaning. The first is the first residual, standardized. The $i$th is the standardized error in predicting residual $i$ from residuals $1$ through $i - 1$. The ordering of the locations is arbitrary, so $\mathbf{r}^*$ is a tool for checking the model as a whole, not for locating a problem on the map.
 
@@ -5083,7 +5130,25 @@ for name, e in (("OLS residuals", y - X @ b_ols),
 
 For the REML fit, the decorrelated residuals have mean 0.064 and standard deviation 0.998, and a Shapiro-Wilk test of normality gives $p = 0.735$. Figure 5.2 in Section 5.7.3 shows their normal quantile plot, which follows the line closely. To see the decorrelation at work, compare the 223 pairs of listings closer than 0.05 apart. The OLS residuals of those pairs have correlation 0.536: neighbors still share their neighborhood effect. The decorrelated residuals of the same pairs have correlation $-0.029$, essentially none.
 
-Chapter 4 offered a second residual check that needs no Cholesky factor. Section 4.7.2 showed that the leave-one-out residual of listing $i$, the difference between its rent and its prediction from all the other listings, is $(\boldsymbol{\Pi}\mathbf{y})_i/\Pi_{ii}$ with variance $1/\Pi_{ii}$, so the standardized leave-one-out residual is $(\boldsymbol{\Pi}\mathbf{y})_i/\sqrt{\Pi_{ii}}$. Here $\boldsymbol{\Pi} = \boldsymbol{\Sigma}^{-1} - \boldsymbol{\Sigma}^{-1}\mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$ is computed at the REML estimates. The code builds it and compares the two kinds of standardized residual by their mean square (near 1 if the model is right) and the share beyond 1.96 in absolute value (near 5%).
+Chapter 4 offered a second residual check that needs no Cholesky factor. Section 4.7.2 showed that the leave-one-out residual of listing $i$, the difference between its rent and its prediction from all the other listings, has the form:
+
+$$
+r_{(-i)} = \frac{(\boldsymbol{\Pi}\mathbf{y})_i}{\Pi_{ii}}, \qquad \mathrm{Var}(r_{(-i)}) = \frac{1}{\Pi_{ii}}
+$$
+
+so the standardized leave-one-out residual is:
+
+$$
+r_{(-i)}^* = \frac{(\boldsymbol{\Pi}\mathbf{y})_i}{\sqrt{\Pi_{ii}}}
+$$
+
+Here the residual precision matrix $\boldsymbol{\Pi}$ is computed at the REML estimates:
+
+$$
+\boldsymbol{\Pi} = \boldsymbol{\Sigma}^{-1} - \boldsymbol{\Sigma}^{-1}\mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}
+$$
+
+The code builds it and compares the two kinds of standardized residual by their mean square (near 1 if the model is right) and the share beyond 1.96 in absolute value (near 5%).
 
 ```python
 Sig_inv = linalg.cho_solve(linalg.cho_factor(Sig_hat, lower=True),
@@ -5137,7 +5202,7 @@ Rental listings often include several units in one building, all with the same c
 
 Two listings at the same location are at distance zero, so their correlation is $r(0;\phi) = 1$. Their rows of $\mathbf{R}$ are identical. A matrix with two identical rows is singular, so without a nugget, $\sigma^2\mathbf{R}$ has a zero eigenvalue and no Cholesky factor. The meaning is the transitivity argument of Section 2.4.2 in its extreme form: the model insists that the two units have exactly the same rent, and the data will contradict that.
 
-The nugget repairs this. With $\tau^2 > 0$, the covariance matrix $\sigma^2\mathbf{R} + \tau^2\mathbf{I}$ has every eigenvalue at least $\tau^2$, so it is positive definite. In the language of Section 2.1.3, units in one building differ by the independent noise term, which is exactly what the nugget represents. Duplicate locations are in fact the best possible data for estimating the nugget: for two units at the same location, $\operatorname{Var}(Y_i - Y_j) = 2\tau^2$, with no contribution from $u$.
+The nugget repairs this. With $\tau^2 > 0$, the covariance matrix $\sigma^2\mathbf{R} + \tau^2\mathbf{I}$ has every eigenvalue at least $\tau^2$, so it is positive definite. In the language of Section 2.1.3, units in one building differ by the independent noise term, which is exactly what the nugget represents. Duplicate locations are in fact the best possible data for estimating the nugget: for two units at the same location, $\mathrm{Var}(Y_i - Y_j) = 2\tau^2$, with no contribution from $u$.
 
 The code takes the first 20 listings and adds four more units at the location of the first, making a building of five.
 
@@ -5311,53 +5376,99 @@ Figure 5.2 shows the decorrelated residuals of Section 5.6.1 against normal quan
 
 2. In the hand example of Section 5.1, change the residuals to $(1, 1, 1, 1)'$ and then to $(1, -1, -1, 1)'$. For each, compute the spatial and independent log-likelihoods by hand using the eigenvector method. Explain which model each residual pattern favors and why.
 
-3. Show that $\mathrm{RSS}_\Psi = \mathbf{y}'\boldsymbol{\Pi}_\Psi\mathbf{y}$, as claimed in Section 5.3.1. (Write $\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$ as a matrix times $\mathbf{y}$ and multiply out.)
+3. Show that:
+
+$$
+\mathrm{RSS}_\Psi = \mathbf{y}'\boldsymbol{\Pi}_\Psi\mathbf{y}
+$$
+
+as claimed in Section 5.3.1. (Write $\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$ as a matrix times $\mathbf{y}$ and multiply out.)
 
 4. For the intercept-only model with $\boldsymbol{\Psi} = \mathbf{I}_n$, show that the profile REML log-likelihood is maximized at $\hat{\sigma}^2 = \frac{1}{n-1}\sum_i(y_i - \bar{y})^2$. Then write down an explicit contrast matrix $\mathbf{T}$ for $n = 3$ that is not orthonormal, and verify by hand that it gives the same estimate.
 
-5. Using the identity $\boldsymbol{\Pi} = \mathbf{T}(\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T})^{-1}\mathbf{T}'$, show that $\boldsymbol{\Pi}\boldsymbol{\Sigma}\boldsymbol{\Pi} = \boldsymbol{\Pi}$ and $\operatorname{tr}(\boldsymbol{\Pi}\boldsymbol{\Sigma}) = n - p$.
+5. Using the identity $\boldsymbol{\Pi} = \mathbf{T}(\mathbf{T}'\boldsymbol{\Sigma}\mathbf{T})^{-1}\mathbf{T}'$, show that $\boldsymbol{\Pi}\boldsymbol{\Sigma}\boldsymbol{\Pi} = \boldsymbol{\Pi}$ and $\mathrm{tr}(\boldsymbol{\Pi}\boldsymbol{\Sigma}) = n - p$.
 
 6. Derive the REML score of Section 5.4.2 directly from the profile-free REML log-likelihood, using the two matrix-calculus identities and the derivative $\partial\boldsymbol{\Pi}/\partial\theta_j = -\boldsymbol{\Pi}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Pi}$. (Prove this derivative first.)
 
-7. For the exponential model, compute the expected information entry $\mathcal{I}_{\text{ML}}(\boldsymbol{\theta})_{\tau^2\tau^2}$ when $\sigma^2 = 0$, and interpret the result.
+7. For the exponential model, compute the expected information entry:
+
+$$
+\mathcal{I}_{\text{ML}}(\boldsymbol{\theta})_{\tau^2\tau^2}
+$$
+
+when $\sigma^2 = 0$, and interpret the result.
 
 8. Explain, using the expansion $e^{-h/\phi} \approx 1 - h/\phi$, why the semivariogram of the exponential model near the origin depends on $\sigma^2$ and $\phi$ only through $\sigma^2/\phi$. What combination plays the same role for the Matérn model with $\nu = 3/2$? (Use the expansion in Section 2.5.3.)
 
 9. Suppose a likelihood ratio test of $\tau^2 = 0$ gives LRT $= 3.2$. Compute the p-value using $\chi^2_1$ and using the mixture. At the 5% level, do the two approaches agree?
 
-10. For two units at the same location, show that $\operatorname{Var}(Y_i - Y_j) = 2\tau^2$ under the model of Section 2.1. Explain why a data set with many buildings containing several units can estimate $\tau^2$ well even when $\phi$ is poorly determined.
+10. For two units at the same location, show that $\mathrm{Var}(Y_i - Y_j) = 2\tau^2$ under the model of Section 2.1. Explain why a data set with many buildings containing several units can estimate $\tau^2$ well even when $\phi$ is poorly determined.
 
 11. Under infill asymptotics in a bounded interval $[0, 1]$, suppose a mean-zero Gaussian process $Y(s)$ with exponential covariance $C(h) = \sigma^2 \exp(-\lvert h\rvert / \phi)$ and no nugget ($\tau^2 = 0$) is observed at regularly spaced points $s_i = i/n$ for $i = 0, 1, \dots, n$.
-    (a) Using the Taylor expansion $e^{-h/\phi} = 1 - h/\phi + O(h^2)$, show that for adjacent observations at distance $h = 1/n$, $\operatorname{E}[(Y(s_i) - Y(s_{i-1}))^2] = 2\sigma^2(1 - e^{-1/(n\phi)}) = \frac{2\sigma^2}{n\phi} + O(n^{-2})$.
-    (b) Show that the sample quadratic variation $Q_n = \sum_{i=1}^n (Y(s_i) - Y(s_{i-1}))^2$ has expectation $\operatorname{E}[Q_n] \to 2\sigma^2/\phi$ as $n \to \infty$.
-    (c) Using the property that independent increments in a 1D Markov process have variance proportional to $1/n^2$, show that $\operatorname{Var}(Q_n) \to 0$ as $n \to \infty$. Conclude why dense sampling within a fixed region determines the ratio $\sigma^2/\phi$ consistently, while estimating $\sigma^2$ separately requires expanding the domain to observe pairs at large lag distances.
+    (a) Using the Taylor expansion $e^{-h/\phi} = 1 - h/\phi + O(h^2)$, show that for adjacent observations at distance $h = 1/n$, $\mathrm{E}[(Y(s_i) - Y(s_{i-1}))^2] = 2\sigma^2(1 - e^{-1/(n\phi)}) = \frac{2\sigma^2}{n\phi} + O(n^{-2})$.
+    (b) Show that the sample quadratic variation $Q_n = \sum_{i=1}^n (Y(s_i) - Y(s_{i-1}))^2$ has expectation $\mathrm{E}[Q_n] \to 2\sigma^2/\phi$ as $n \to \infty$.
+    (c) Using the property that independent increments in a 1D Markov process have variance proportional to $1/n^2$, show that $\mathrm{Var}(Q_n) \to 0$ as $n \to \infty$. Conclude why dense sampling within a fixed region determines the ratio $\sigma^2/\phi$ consistently, while estimating $\sigma^2$ separately requires expanding the domain to observe pairs at large lag distances.
 
 12. Derive the REML log-likelihood as the marginal likelihood obtained by integrating out the regression coefficients $\boldsymbol{\beta}$ under an improper flat prior $p(\boldsymbol{\beta}) \propto 1$.
-    (a) Write the joint Gaussian likelihood $L(\boldsymbol{\beta}, \boldsymbol{\theta})$ and show that the exponent can be expanded as
-    $$
-    -\tfrac{1}{2}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) = -\tfrac{1}{2}\mathbf{y}'\boldsymbol{\Pi}\mathbf{y} - \tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})
-    $$
+
+    (a) Write the joint Gaussian likelihood $L(\boldsymbol{\beta}, \boldsymbol{\theta})$ and show that the exponent can be expanded as:
+
+$$
+-\tfrac{1}{2}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) = -\tfrac{1}{2}\mathbf{y}'\boldsymbol{\Pi}\mathbf{y} - \tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})
+$$
+
     where $\boldsymbol{\Pi} = \boldsymbol{\Sigma}^{-1} - \boldsymbol{\Sigma}^{-1}\mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$.
-    (b) Evaluate the Gaussian integral $\int_{\mathbb{R}^p} \exp\!\left\{-\tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})\right\} d\boldsymbol{\beta}$.
+
+    (b) Evaluate the Gaussian integral:
+
+$$
+\int_{\mathbb{R}^p} \exp\!\left\{-\tfrac{1}{2}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})'(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}_{\text{GLS}})\right\} d\boldsymbol{\beta}
+$$
+
     (c) Combine the terms to recover the REML marginal log-likelihood of Section 5.3.3, including the factor $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$. Explain why integrating out $\boldsymbol{\beta}$ automatically penalizes covariance parameters for the degrees of freedom consumed by estimating the mean.
 
 13. Show that the Fisher information matrix for the spatial linear model is block diagonal between the mean parameters $\boldsymbol{\beta}$ and the covariance parameters $\boldsymbol{\theta}$.
     (a) Starting from the score for the regression coefficients $\partial\ell/\partial\boldsymbol{\beta} = \mathbf{X}'\boldsymbol{\Sigma}^{-1}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$, differentiate with respect to a covariance parameter $\theta_j$.
-    (b) Take expectations with $\operatorname{E}[\mathbf{Y}] = \mathbf{X}\boldsymbol{\beta}$ and show that $\operatorname{E}[\partial^2\ell/\partial\boldsymbol{\beta}\partial\theta_j] = \mathbf{0}$.
+    (b) Take expectations with $\mathrm{E}[\mathbf{Y}] = \mathbf{X}\boldsymbol{\beta}$ and show that $\mathrm{E}[\partial^2\ell/\partial\boldsymbol{\beta}\partial\theta_j] = \mathbf{0}$.
     (c) Deduce that the asymptotic covariance of $\hat{\boldsymbol{\beta}}$ is $(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}$, identical to the variance when $\boldsymbol{\theta}$ is known. Explain why this means estimating $\boldsymbol{\theta}$ from the data does not cost precision in estimating $\boldsymbol{\beta}$ asymptotically, even though in finite samples it widens prediction intervals.
 
-14. In Section 5.6.2, spatial confounding arises when a covariate $\mathbf{x}$ is correlated with the smooth eigenvectors of $\boldsymbol{\Sigma}$. One proposed remedy is Restricted Spatial Regression (RSR), which decomposes the spatial random effect into parts parallel and orthogonal to the design matrix: $\mathbf{u} = \mathbf{u}_X + \mathbf{u}_\perp$, with $\mathbf{u}_X = \mathbf{P}_{\mathbf{X}}\mathbf{u}$ and $\mathbf{u}_\perp = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\mathbf{u}$, and restricts the model to $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{u}_\perp + \boldsymbol{\varepsilon}$.
+14. In Section 5.6.2, spatial confounding arises when a covariate $\mathbf{x}$ is correlated with the smooth eigenvectors of $\boldsymbol{\Sigma}$. One proposed remedy is Restricted Spatial Regression (RSR), which decomposes the spatial random effect into parts parallel and orthogonal to the design matrix:
+
+$$
+\mathbf{u} = \mathbf{u}_X + \mathbf{u}_\perp, \qquad \mathbf{u}_X = \mathbf{P}_{\mathbf{X}}\mathbf{u}, \qquad \mathbf{u}_\perp = (\mathbf{I}_n - \mathbf{P}_{\mathbf{X}})\mathbf{u}
+$$
+
+    and restricts the model to $\mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{u}_\perp + \boldsymbol{\varepsilon}$.
+
     (a) Show that $\mathbf{X}'\mathbf{u}_\perp = \mathbf{0}$.
-    (b) Show that the generalized least squares estimator of $\boldsymbol{\beta}$ under the restricted model coincides exactly with the ordinary least squares estimator $\hat{\boldsymbol{\beta}}_{\text{OLS}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}$.
+
+    (b) Show that the generalized least squares estimator of $\boldsymbol{\beta}$ under the restricted model coincides exactly with the ordinary least squares estimator:
+
+$$
+\hat{\boldsymbol{\beta}}_{\text{OLS}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}
+$$
+
     (c) Discuss the trade-off: does RSR solve the problem of an unobserved spatially varying confounder, or does it merely force the spatial model to reproduce the OLS estimate at the expense of ignoring potential confounding bias?
 
 15. Section 5.3.3 noted that the profile REML log-likelihood contains an extra term, $-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert$, compared to the profile maximum likelihood objective.
-    (a) Using the matrix derivative of a log-determinant (Section 5.4.2), prove that
-    $$
-    \frac{\partial}{\partial\theta_j}\left[-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert\right] = \frac{1}{2}\operatorname{tr}\!\left((\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{X}\right)
-    $$
-    (b) Show that this derivative can be written as $\frac{1}{2}\operatorname{tr}\!\left(\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\right)$, where $\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}} = \mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}$ is the oblique projection matrix onto the column space of $\mathbf{X}$.
-    (c) For the scale parameter $\sigma^2$ with $\dot{\boldsymbol{\Sigma}}_{\sigma^2} = \mathbf{R}$, show that this term is strictly positive. Use this to explain mathematically why the REML score has an extra positive contribution that pushes $\hat{\sigma}^2_{\text{REML}}$ to be systematically larger than $\hat{\sigma}^2_{\text{ML}}$.
+
+    (a) Using the matrix derivative of a log-determinant (Section 5.4.2), prove that:
+
+$$
+\frac{\partial}{\partial\theta_j}\left[-\frac{1}{2}\log\lvert\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X}\rvert\right] = \frac{1}{2}\mathrm{tr}\!\left((\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\mathbf{X}\right)
+$$
+
+    (b) Show that this derivative can be written as $\frac{1}{2}\mathrm{tr}\!\left(\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}}\dot{\boldsymbol{\Sigma}}_j\boldsymbol{\Sigma}^{-1}\right)$, where the oblique projection matrix is:
+
+$$
+\mathbf{P}_{\mathbf{X}, \boldsymbol{\Sigma}} = \mathbf{X}(\mathbf{X}'\boldsymbol{\Sigma}^{-1}\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{\Sigma}^{-1}
+$$
+
+    (c) For the scale parameter $\sigma^2$ with $\dot{\boldsymbol{\Sigma}}_{\sigma^2} = \mathbf{R}$, show that this term is strictly positive. Use this to explain mathematically why the REML score pushes the REML variance estimate to be systematically larger than the ML estimate:
+
+$$
+\hat{\sigma}^2_{\text{REML}} > \hat{\sigma}^2_{\text{ML}}
+$$
 
 **Computational and simulation**
 
